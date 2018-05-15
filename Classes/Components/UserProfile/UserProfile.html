@@ -1,0 +1,28 @@
+<fc:component name="userProfile">
+    <!-- Component data structure and default values -->
+    <fc:param name="name" type="string" />
+    <fc:param name="link" type="string" optional="1">https://example.com/erika-mustermann</fc:param>
+    <fc:param name="avatar" type="string" optional="1">
+        <img src="http://via.placeholder.com/350x150" alt="alternative text" />
+    </fc:param>
+
+    <!-- Component markup -->
+    <fc:renderer>
+        <div class="{component.prefix}">
+            <f:if condition="{link}">
+                <f:then>
+                    <a href="{link}" class="{component.prefix}__name">{name}</a>
+                </f:then>
+                <f:else>
+                    <span class="{component.prefix}__name">{name}</span>
+                </f:else>
+            </f:if>
+
+            <f:if condition="{avatar}">
+                <div class="{component.prefix}__avatar">
+                    <f:format.raw>{avatar}</f:format.raw>
+                </div>
+            </f:if>
+        </div>
+    </fc:renderer>
+</fc:component>
