@@ -24,6 +24,6 @@ class ParamViewHelper extends AbstractViewHelper
 
     public function render()
     {
-        return $this->renderChildren();
+        return null;
     }
 }

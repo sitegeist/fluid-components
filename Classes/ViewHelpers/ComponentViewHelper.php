@@ -3,17 +3,15 @@
 namespace SMS\FluidComponents\ViewHelpers;
 
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
-use TYPO3Fluid\Fluid\Core\Variables\VariableProviderInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\ParserRuntimeOnly;
-use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-
-use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
-use SMS\FluidComponents\ViewHelpers\RendererViewHelper;
+use SMS\FluidComponents\Utility\ComponentLoader;
 
 class ComponentViewHelper extends AbstractViewHelper
 {
-    public static $componentData = [];
+    /**
+     * @var boolean
+     */
+    protected $escapeOutput = false;
 
     /**
      * Initialize arguments.
@@ -28,6 +26,25 @@ class ComponentViewHelper extends AbstractViewHelper
      */
     public function render()
     {
+        return $this->renderChildren();
+        //$componentLoader = new ComponentLoader();
+/*
+        foreach ($autoloader[0]->getPrefixes() as $prefix => $paths) {
+            $componentLoader->add($prefix, $paths);
+        }
+        foreach ($autoloader[0]->getPrefixesPsr4() as $prefix => $paths) {
+            $componentLoader->addPsr4($prefix, $paths);
+        }
+
+        $componentLoader->addClassMap($autoloader[0]->getClassMap());
+        
+        $componentLoader->add('', $autoloader[0]->getFallbackDirs());
+        $componentLoader->addPsr4('', $autoloader[0]->getFallbackDirsPsr4());
+        */
+        // \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump(
+        //     //$findFileWithExtension->invoke($originalAutoloader, \SMS\FluidComponents\Components\UserProfile::class, '.html')
+        //     $componentLoader->findComponent(\SMS\FluidComponents\Components\UserProfile::class)
+        // , "SPR");
         return null;
     }
 }
