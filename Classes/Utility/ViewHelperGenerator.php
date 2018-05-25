@@ -226,14 +226,14 @@ class ViewHelperGenerator extends AbstractViewHelper
         $componentLoader = $this->getComponentLoader();
         $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
-        $this->parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
+        $parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
             // TODO change this to use fluid methods?
             file_get_contents($componentFile),
             $this->getTemplateIdentifier()
         );
 
         $componentNodes = $this->extractViewHelpers(
-            $this->parsedTemplate->getRootNode(),
+            $parsedTemplate->getRootNode(),
             ComponentViewHelper::class
         );
 
