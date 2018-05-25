@@ -208,6 +208,7 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
 
         // Provide supplied arguments from component call to renderer
+        // TODO fetch and use default values here if necessary!
         foreach ($this->arguments as $name => $value) {
             if ($name !== '_componentNamespace') {
                 $variableContainer->add($name, $value);
