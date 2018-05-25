@@ -9,33 +9,199 @@ use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\AbstractNode;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
+use SMS\FluidComponents\Utility\ComponentLoader;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ViewHelperGenerator extends AbstractViewHelper
 {
-    protected $componentName;
-    protected $componentFile;
+    protected $componentNamespace;
     protected $parsedTemplate;
+    protected $componentArgumentDefinitions = [];
+
+    /**
+     * Cache of argument definitions; the key is the ViewHelper class name, and the
+     * value is the array of argument definitions.
+     *
+     * In our benchmarks, this cache leads to a 40% improvement when using a certain
+     * ViewHelper class many times throughout the rendering process.
+     * @var array
+     */
+    static protected $componentArgumentDefinitionCache = [];
 
     /**
      * @var boolean
      */
     protected $escapeOutput = false;
 
-    public function initialize()
-    {
-        //$this->parseComponent();
-    }
-
     /**
      * Initialize arguments.
      */
     public function initializeArguments()
     {
-        if (!$this->renderingContext) {
-            return;
+        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', false);
+    }
+
+    public function handleAdditionalArguments(array $arguments)
+    {
+        // Arguments have already been validated at compile time
+        $this->arguments = array_merge($this->arguments, $arguments);
+    }
+
+    public function validateAdditionalArguments(array $arguments)
+    {
+        $componentArgumentDefinitions = $this->prepareComponentArguments();
+
+        foreach ($arguments as $argumentName => $argumentValue) {
+            if (!isset($componentArgumentDefinitions[$argumentName])) {
+                $undeclaredArguments[] = $argumentName;
+                continue;
+            }
+
+            $value = $argumentValue->evaluate($this->renderingContext);
+            $argumentDefinition = $componentArgumentDefinitions[$argumentName];
+            $type = $argumentDefinition->getType();
+            if ($value !== $argumentDefinition->getDefaultValue() && $type !== 'mixed') {
+                $givenType = is_object($value) ? get_class($value) : gettype($value);
+                if (!$this->isValidType($type, $value)) {
+                    throw new \InvalidArgumentException(
+                        'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
+                        $givenType . '" in component "' . $this->componentNamespace . '".',
+                        1256475113
+                    );
+                }
+            }
         }
 
-        $this->parseComponent();
+        if (!empty($undeclaredArguments)) {
+            throw new Exception(
+                sprintf(
+                    'Undeclared arguments passed to component %s: %s. Valid arguments are: %s',
+                    $this->componentNamespace,
+                    implode(', ', $undeclaredArguments),
+                    implode(', ', array_keys($componentArgumentDefinitions))
+                )
+            );
+        }
+
+        foreach ($componentArgumentDefinitions as $argumentName => $argumentDefinition) {
+            if (!isset($arguments[$argumentName]) && $argumentDefinition->isRequired() && !$argumentDefinition->getDefaultValue()) {
+                throw new Exception(
+                    sprintf(
+                        'Missing required argument %s for component %s.',
+                        $argumentName,
+                        $this->componentNamespace
+                    )
+                );
+            }
+        }
+        
+    }
+
+    public function setArguments(array $arguments)
+    {
+        if (isset($arguments['_componentNamespace'])) {
+            $this->setComponentNamespace($arguments['_componentNamespace']);
+        }
+        parent::setArguments($arguments);
+    }
+
+    public function setComponentNamespace($componentNamespace)
+    {
+        $this->componentNamespace = $componentNamespace;
+    }
+
+    public function render()
+    {
+        $this->templateVariableContainer->add('component', [
+            'name' => $this->componentName,
+            'prefix' => lcfirst($this->componentName)
+        ]);
+
+        foreach ($this->arguments as $name => $value) {
+            $this->templateVariableContainer->add($name, $value);
+        }
+
+        if (!$this->getParsedTemplate) {
+            $componentLoader = $this->getComponentLoader();
+            $componentFile = $componentLoader->findComponent($this->componentNamespace);
+
+            $this->parsedTemplate = $this->renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
+                $this->getTemplateIdentifier(),
+                function () use ($componentFile) {
+                    // TODO change this to use fluid methods?
+                    return file_get_contents($componentFile);
+                }
+            );
+        }
+
+        return $this->parsedTemplate->render($this->renderingContext);
+    }
+
+    /**
+     * You only should override this method *when you absolutely know what you
+     * are doing*, and really want to influence the generated PHP code during
+     * template compilation directly.
+     *
+     * @param string $argumentsName
+     * @param string $closureName
+     * @param string $initializationPhpCode
+     * @param ViewHelperNode $node
+     * @param TemplateCompiler $compiler
+     * @return string
+     */
+    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler)
+    {
+        return sprintf(
+            '%s::renderComponent(%s, %s, $renderingContext, %s)',
+            get_class($this),
+            $argumentsName,
+            $closureName,
+            "'" . addslashes($this->componentNamespace) . "'"
+        );
+    }
+
+    /**
+     * Default implementation of static rendering; useful API method if your ViewHelper
+     * when compiled is able to render itself statically to increase performance. This
+     * default implementation will simply delegate to the ViewHelperInvoker.
+     *
+     * @param array $arguments
+     * @param \Closure $renderChildrenClosure
+     * @param RenderingContextInterface $renderingContext
+     * @param string $componentNamespace
+     * @return mixed
+     */
+    public static function renderComponent(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext, $componentNamespace)
+    {
+        $arguments['_componentNamespace'] = $componentNamespace;
+        return static::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+    }
+
+    protected function registerComponentArgument($name, $type, $description, $required = false, $defaultValue = null)
+    {
+        if (array_key_exists($name, $this->componentArgumentDefinitions)) {
+            throw new Exception(
+                'Argument "' . $name . '" has already been defined for component ' . $this->componentNamespace . ', thus it should not be defined again.',
+                1253036401
+            );
+        }
+        $this->componentArgumentDefinitions[$name] = new ArgumentDefinition($name, $type, $description, $required, $defaultValue);
+        return $this;
+    }
+
+    protected function initializeComponentArguments()
+    {
+        $componentLoader = $this->getComponentLoader();
+        $componentFile = $componentLoader->findComponent($this->componentNamespace);
+
+        $this->parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
+            // TODO change this to use fluid methods?
+            file_get_contents($componentFile),
+            $this->getTemplateIdentifier()
+        );
 
         $componentNodes = $this->extractViewHelpers(
             $this->parsedTemplate->getRootNode(),
@@ -72,43 +238,25 @@ class ViewHelperGenerator extends AbstractViewHelper
                 }
 
                 $optional = $param['optional'] ?? false;
-                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
+                $this->registerComponentArgument($param['name'], $param['type'], '', !$optional, $param['default']);
             }
         }
     }
 
-    public function setComponentFile($componentFile)
+    /**
+     * Initialize all arguments and return them
+     *
+     * @return ArgumentDefinition[]
+     */
+    protected function prepareComponentArguments()
     {
-        $this->componentFile = $componentFile;
-    }
-
-    public function render()
-    {
-        $this->templateVariableContainer->add('component', [
-            'name' => $this->componentName,
-            'prefix' => lcfirst($this->componentName)
-        ]);
-
-        foreach ($this->arguments as $name => $value) {
-            $this->templateVariableContainer->add($name, $value);
+        if (isset(self::$componentArgumentDefinitionCache[$this->componentNamespace])) {
+            $this->componentArgumentDefinitions = self::$componentArgumentDefinitionCache[$this->componentNamespace];
+        } else {
+            $this->initializeComponentArguments();
+            self::$componentArgumentDefinitionCache[$this->componentNamespace] = $this->componentArgumentDefinitions;
         }
-
-        return $this->parsedTemplate->render($this->renderingContext);
-    }
-
-    protected function parseComponent()
-    {
-        if ($this->parsedTemplate) {
-            return;
-        }
-
-        $componentFile = $this->componentFile;
-        $this->parsedTemplate = $this->renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
-            $componentFile,
-            function () use ($componentFile) {
-                return file_get_contents($componentFile);
-            }
-        );
+        return $this->componentArgumentDefinitions;
     }
 
     protected function extractViewHelpers($node, $viewHelperClassName)
@@ -131,5 +279,18 @@ class ViewHelperGenerator extends AbstractViewHelper
         }
 
         return $viewHelperNodes;
+    }
+
+    protected function getTemplateIdentifier()
+    {
+        return 'fluidcomponent_' . $this->componentNamespace;
+    }
+
+    /**
+     * @return ComponentLoader
+     */
+    protected function getComponentLoader()
+    {
+        return GeneralUtility::makeInstance(ComponentLoader::class);
     }
 }
