@@ -42,7 +42,7 @@ class ViewHelperGenerator extends AbstractViewHelper
      */
     public function initializeArguments()
     {
-        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', true);
+        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', false);
     }
 
     public function handleAdditionalArguments(array $arguments)
@@ -146,6 +146,10 @@ class ViewHelperGenerator extends AbstractViewHelper
         ]);
 
         foreach ($this->arguments as $name => $value) {
+            if ($name === '_componentNamespace') {
+                continue;
+            }
+
             $variableContainer->add($name, $value);
         }
 
