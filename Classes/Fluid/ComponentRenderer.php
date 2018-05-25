@@ -1,11 +1,10 @@
 <?php
 
-namespace SMS\FluidComponents\Utility;
+namespace SMS\FluidComponents\Fluid;
 
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\AbstractNode;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
@@ -16,7 +15,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 
-class ViewHelperGenerator extends AbstractViewHelper
+class ComponentRenderer extends AbstractViewHelper
 {
     /**
      * Namespace of the component the viewhelper should render

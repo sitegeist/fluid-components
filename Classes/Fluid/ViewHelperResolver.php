@@ -5,7 +5,7 @@ namespace SMS\FluidComponents\Fluid;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
-use SMS\FluidComponents\Utility\ViewHelperGenerator;
+use SMS\FluidComponents\Fluid\ComponentRenderer;
 
 class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver
 {
@@ -18,11 +18,11 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
         if ($this->getObjectManager()->isRegistered($viewHelperClassName)) {
             return $this->getObjectManager()->get($viewHelperClassName);
         } else {
-            $viewHelperGenerator = $this->getObjectManager()->get(ViewHelperGenerator::class);
+            $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
 
-            $viewHelperGenerator->setComponentNamespace($viewHelperClassName);
+            $componentRenderer->setComponentNamespace($viewHelperClassName);
             
-            return $viewHelperGenerator;
+            return $componentRenderer;
         }
     }
 

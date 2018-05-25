@@ -2,8 +2,6 @@
 
 namespace SMS\FluidComponents\Utility;
 
-use Composer\Autoload\ClassLoader;
-
 class ComponentLoader
 {
     protected $originalAutoloader;
@@ -14,6 +12,7 @@ class ComponentLoader
         $autoloaders = spl_autoload_functions();
         $autoloader = reset($autoloaders);
         
+        // Call private method Composer\Autoload\ClassLoader::findFileWithExtension()
         $reflectedAutoloader = new \ReflectionClass($autoloader[0]);
 
         $this->originalAutoloader = $reflectedAutoloader->getProperty('composerClassLoader');
