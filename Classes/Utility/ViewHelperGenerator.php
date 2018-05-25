@@ -247,12 +247,6 @@ class ViewHelperGenerator extends AbstractViewHelper
                 ParamViewHelper::class
             );
 
-            foreach ($componentNodes[0]->getArguments() as $argumentName => $argumentValue) {
-                if ($argumentName === 'name') {
-                    $this->componentName = $argumentValue->evaluate($this->renderingContext);
-                }
-            }
-
             $renderingContext = $this->renderingContext;
             
             foreach ($paramNodes as $paramNode) {
