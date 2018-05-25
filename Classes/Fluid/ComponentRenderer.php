@@ -222,7 +222,6 @@ class ComponentRenderer extends AbstractViewHelper
             $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
                 $this->getTemplateIdentifier(),
                 function () use ($componentFile) {
-                    // TODO change this to use fluid methods?
                     return file_get_contents($componentFile);
                 }
             );
@@ -303,7 +302,6 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Parse component template without using the cache
         $parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
-            // TODO change this to use fluid methods?
             file_get_contents($componentFile),
             $this->getTemplateIdentifier()
         );
