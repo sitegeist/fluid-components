@@ -18,12 +18,29 @@ use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 
 class ViewHelperGenerator extends AbstractViewHelper
 {
+    /**
+     * Namespace of the component the viewhelper should render
+     *
+     * @var string
+     */
     protected $componentNamespace;
+
+    /**
+     * Cache for component template instance used for rendering
+     *
+     * @var \TYPO3Fluid\Fluid\Core\Parser\ParsedTemplateInterface
+     */
     protected $parsedTemplate;
+
+    /**
+     * Definition objects for all arguments definied in the component definition
+     *
+     * @var array
+     */
     protected $componentArgumentDefinitions = [];
 
     /**
-     * Cache of argument definitions; the key is the ViewHelper class name, and the
+     * Cache of component argument definitions; the key is the component namespace, and the
      * value is the array of argument definitions.
      *
      * In our benchmarks, this cache leads to a 40% improvement when using a certain
@@ -45,16 +62,30 @@ class ViewHelperGenerator extends AbstractViewHelper
         $this->registerArgument('_componentNamespace', 'string', 'Component namespace', false);
     }
 
+    /**
+     * Provides component arguments to the viewhelper
+     *
+     * @param array $arguments
+     * @return void
+     */
     public function handleAdditionalArguments(array $arguments)
     {
         // Arguments have already been validated at compile time
         $this->arguments = array_merge($this->arguments, $arguments);
     }
 
+    /**
+     * Validates arguments defined in the component definition
+     *
+     * @param array $arguments
+     * @return void
+     * @throws Exception
+     */
     public function validateAdditionalArguments(array $arguments)
     {
         $componentArgumentDefinitions = $this->prepareComponentArguments();
 
+        // Validate argument types
         foreach ($arguments as $argumentName => $argumentValue) {
             if (!isset($componentArgumentDefinitions[$argumentName])) {
                 $undeclaredArguments[] = $argumentName;
@@ -76,6 +107,7 @@ class ViewHelperGenerator extends AbstractViewHelper
             }
         }
 
+        // Don't accept undefined arguments
         if (!empty($undeclaredArguments)) {
             throw new Exception(
                 sprintf(
@@ -87,6 +119,7 @@ class ViewHelperGenerator extends AbstractViewHelper
             );
         }
 
+        // Check for missing required arguments
         foreach ($componentArgumentDefinitions as $argumentName => $argumentDefinition) {
             if (!isset($arguments[$argumentName]) && $argumentDefinition->isRequired() && !$argumentDefinition->getDefaultValue()) {
                 throw new Exception(
@@ -98,11 +131,11 @@ class ViewHelperGenerator extends AbstractViewHelper
                 );
             }
         }
-        
     }
 
     public function setArguments(array $arguments)
     {
+        // Extract component namespace from argument
         if (isset($arguments['_componentNamespace'])) {
             $this->setComponentNamespace($arguments['_componentNamespace']);
             unset($arguments['_componentNamespace']);
@@ -110,16 +143,33 @@ class ViewHelperGenerator extends AbstractViewHelper
         parent::setArguments($arguments);
     }
 
+    /**
+     * Sets the namespace of the component the viewhelper should render
+     *
+     * @param string $componentNamespace
+     * @return self
+     */
     public function setComponentNamespace($componentNamespace)
     {
         $this->componentNamespace = $componentNamespace;
+        return $this;
     }
 
+    /**
+     * Returns the namespace of the component the viewhelper renders
+     *
+     * @return void
+     */
     public function getComponentNamespace()
     {
         return $this->componentNamespace;
     }
 
+    /**
+     * Returns the component name
+     *
+     * @return string
+     */
     public function getComponentName()
     {
         $namespace = explode('\\', $this->componentNamespace);
@@ -127,6 +177,11 @@ class ViewHelperGenerator extends AbstractViewHelper
         return implode(' ', [$namespace[0], $namespace[1], $componentName]);
     }
 
+    /**
+     * Returns the component prefix
+     *
+     * @return string
+     */
     public function getComponentPrefix()
     {
         return GeneralUtility::underscoredToLowerCamelCase(
@@ -134,26 +189,34 @@ class ViewHelperGenerator extends AbstractViewHelper
         );
     }
 
+    /**
+     * Renders the component the viewhelper is responsible for
+     * TODO this can probably be improved by using renderStatic() directly
+     *
+     * @return void
+     */
     public function render()
     {
+        // Create a new rendering context for the component file
         $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
         $variableContainer = $renderingContext->getVariableProvider();
 
+        // Provide information about component to renderer
         $variableContainer->add('component', [
-            'namespace' => $this->getComponentNamespace(),
+            'namespace' => $this->componentNamespace,
             'name' => $this->getComponentName(),
             'prefix' => $this->getComponentPrefix()
         ]);
 
+        // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $value) {
-            if ($name === '_componentNamespace') {
-                continue;
+            if ($name !== '_componentNamespace') {
+                $variableContainer->add($name, $value);
             }
-
-            $variableContainer->add($name, $value);
         }
 
-        if (!$this->getParsedTemplate) {
+        // Initialize component rendering template
+        if (!isset($this->parsedTemplate)) {
             $componentLoader = $this->getComponentLoader();
             $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
@@ -166,13 +229,12 @@ class ViewHelperGenerator extends AbstractViewHelper
             );
         }
 
+        // Render component
         return $this->parsedTemplate->render($renderingContext);
     }
 
     /**
-     * You only should override this method *when you absolutely know what you
-     * are doing*, and really want to influence the generated PHP code during
-     * template compilation directly.
+     * Overwrites original compilation to store component namespace in compiled templates
      *
      * @param string $argumentsName
      * @param string $closureName
@@ -188,14 +250,12 @@ class ViewHelperGenerator extends AbstractViewHelper
             get_class($this),
             $argumentsName,
             $closureName,
-            "'" . addslashes($this->componentNamespace) . "'"
+            var_export($this->componentNamespace, true)
         );
     }
 
     /**
-     * Default implementation of static rendering; useful API method if your ViewHelper
-     * when compiled is able to render itself statically to increase performance. This
-     * default implementation will simply delegate to the ViewHelperInvoker.
+     * Wrapper around renderStatic() to provide component namespace to ViewHelper via special argument
      *
      * @param array $arguments
      * @param \Closure $renderChildrenClosure
@@ -209,6 +269,16 @@ class ViewHelperGenerator extends AbstractViewHelper
         return static::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
     }
 
+    /**
+     * Registers a new argument for a component
+     *
+     * @param string $name
+     * @param string $type
+     * @param string $description
+     * @param boolean $required
+     * @param mixed $defaultValue
+     * @return self
+     */
     protected function registerComponentArgument($name, $type, $description, $required = false, $defaultValue = null)
     {
         if (array_key_exists($name, $this->componentArgumentDefinitions)) {
@@ -221,17 +291,25 @@ class ViewHelperGenerator extends AbstractViewHelper
         return $this;
     }
 
+    /**
+     * Initializes the component arguments based on the component definition
+     *
+     * @return void
+     */
     protected function initializeComponentArguments()
     {
+        // TODO use different rendering context here?
         $componentLoader = $this->getComponentLoader();
         $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
+        // Parse component template without using the cache
         $parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
             // TODO change this to use fluid methods?
             file_get_contents($componentFile),
             $this->getTemplateIdentifier()
         );
 
+        // Extract all component viewhelpers
         $componentNodes = $this->extractViewHelpers(
             $parsedTemplate->getRootNode(),
             ComponentViewHelper::class
@@ -242,6 +320,7 @@ class ViewHelperGenerator extends AbstractViewHelper
         }
 
         if (!empty($componentNodes)) {
+            // Extract all parameter definitions
             $paramNodes = $this->extractViewHelpers(
                 $componentNodes[0],
                 ParamViewHelper::class
@@ -249,6 +328,7 @@ class ViewHelperGenerator extends AbstractViewHelper
 
             $renderingContext = $this->renderingContext;
             
+            // Register argument definitions from parameter viewhelpers
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
@@ -282,6 +362,13 @@ class ViewHelperGenerator extends AbstractViewHelper
         return $this->componentArgumentDefinitions;
     }
 
+    /**
+     * Extract all ViewHelpers of a certain type from a Fluid template node
+     *
+     * @param [type] $node
+     * @param [type] $viewHelperClassName
+     * @return void
+     */
     protected function extractViewHelpers($node, $viewHelperClassName)
     {
         $viewHelperNodes = [];
@@ -304,6 +391,11 @@ class ViewHelperGenerator extends AbstractViewHelper
         return $viewHelperNodes;
     }
 
+    /**
+     * Returns an identifier by which fluid templates will be stored in the cache
+     *
+     * @return void
+     */
     protected function getTemplateIdentifier()
     {
         return 'fluidcomponent_' . $this->componentNamespace;
