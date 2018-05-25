@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 
 class ViewHelperGenerator extends AbstractViewHelper
 {
@@ -41,7 +42,7 @@ class ViewHelperGenerator extends AbstractViewHelper
      */
     public function initializeArguments()
     {
-        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', false);
+        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', true);
     }
 
     public function handleAdditionalArguments(array $arguments)
@@ -104,6 +105,7 @@ class ViewHelperGenerator extends AbstractViewHelper
     {
         if (isset($arguments['_componentNamespace'])) {
             $this->setComponentNamespace($arguments['_componentNamespace']);
+            unset($arguments['_componentNamespace']);
         }
         parent::setArguments($arguments);
     }
@@ -113,22 +115,45 @@ class ViewHelperGenerator extends AbstractViewHelper
         $this->componentNamespace = $componentNamespace;
     }
 
+    public function getComponentNamespace()
+    {
+        return $this->componentNamespace;
+    }
+
+    public function getComponentName()
+    {
+        $namespace = explode('\\', $this->componentNamespace);
+        $componentName = end($namespace);
+        return implode(' ', [$namespace[0], $namespace[1], $componentName]);
+    }
+
+    public function getComponentPrefix()
+    {
+        return GeneralUtility::underscoredToLowerCamelCase(
+            str_replace(' ', '_', $this->getComponentName())
+        );
+    }
+
     public function render()
     {
-        $this->templateVariableContainer->add('component', [
-            'name' => $this->componentName,
-            'prefix' => lcfirst($this->componentName)
+        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
+        $variableContainer = $renderingContext->getVariableProvider();
+
+        $variableContainer->add('component', [
+            'namespace' => $this->getComponentNamespace(),
+            'name' => $this->getComponentName(),
+            'prefix' => $this->getComponentPrefix()
         ]);
 
         foreach ($this->arguments as $name => $value) {
-            $this->templateVariableContainer->add($name, $value);
+            $variableContainer->add($name, $value);
         }
 
         if (!$this->getParsedTemplate) {
             $componentLoader = $this->getComponentLoader();
             $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
-            $this->parsedTemplate = $this->renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
+            $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
                 $this->getTemplateIdentifier(),
                 function () use ($componentFile) {
                     // TODO change this to use fluid methods?
@@ -137,7 +162,7 @@ class ViewHelperGenerator extends AbstractViewHelper
             );
         }
 
-        return $this->parsedTemplate->render($this->renderingContext);
+        return $this->parsedTemplate->render($renderingContext);
     }
 
     /**
