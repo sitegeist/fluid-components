@@ -61,7 +61,7 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
                         $namespaceIdentifier,
                         $methodIdentifier,
                         $resolvedViewHelperClassName
-                    ), 1407060572);
+                    ), 1527779401);
                 }
             }
             $this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier] = $actualViewHelperClassName;

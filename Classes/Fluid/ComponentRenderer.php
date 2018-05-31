@@ -78,7 +78,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @param array $arguments
      * @return void
-     * @throws Exception
+     * @throws \InvalidArgumentException
      */
     public function validateAdditionalArguments(array $arguments)
     {
@@ -100,7 +100,7 @@ class ComponentRenderer extends AbstractViewHelper
                     throw new \InvalidArgumentException(
                         'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
                         $givenType . '" in component "' . $this->componentNamespace . '".',
-                        1256475113
+                        1527779337
                     );
                 }
             }
@@ -108,25 +108,27 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Don't accept undefined arguments
         if (!empty($undeclaredArguments)) {
-            throw new Exception(
+            throw new \InvalidArgumentException(
                 sprintf(
-                    'Undeclared arguments passed to component %s: %s. Valid arguments are: %s',
+                    'Undeclared arguments passed to component %s: "%s". Valid arguments are: %s',
                     $this->componentNamespace,
                     implode(', ', $undeclaredArguments),
                     implode(', ', array_keys($componentArgumentDefinitions))
-                )
+                ),
+                1527779348
             );
         }
 
         // Check for missing required arguments
         foreach ($componentArgumentDefinitions as $argumentName => $argumentDefinition) {
             if (!isset($arguments[$argumentName]) && $argumentDefinition->isRequired() && !$argumentDefinition->getDefaultValue()) {
-                throw new Exception(
+                throw new \InvalidArgumentException(
                     sprintf(
-                        'Missing required argument %s for component %s.',
+                        'Missing required argument "%s" for component %s.',
                         $argumentName,
                         $this->componentNamespace
-                    )
+                    ),
+                    1527779365
                 );
             }
         }
@@ -277,13 +279,14 @@ class ComponentRenderer extends AbstractViewHelper
      * @param boolean $required
      * @param mixed $defaultValue
      * @return self
+     * @throws Exception
      */
     protected function registerComponentArgument($name, $type, $description, $required = false, $defaultValue = null)
     {
         if (array_key_exists($name, $this->componentArgumentDefinitions)) {
             throw new Exception(
                 'Argument "' . $name . '" has already been defined for component ' . $this->componentNamespace . ', thus it should not be defined again.',
-                1253036401
+                1527779384
             );
         }
         $this->componentArgumentDefinitions[$name] = new ArgumentDefinition($name, $type, $description, $required, $defaultValue);
@@ -294,6 +297,7 @@ class ComponentRenderer extends AbstractViewHelper
      * Initializes the component arguments based on the component definition
      *
      * @return void
+     * @throws Exception
      */
     protected function initializeComponentArguments()
     {
@@ -314,7 +318,10 @@ class ComponentRenderer extends AbstractViewHelper
         );
 
         if (count($componentNodes) > 1) {
-            throw new \Exception('Only one component per file allowed');
+            throw new Exception(sprintf(
+                'Only one component per file allowed in: %s',
+                $componentFile
+            ), 1527779393);
         }
 
         if (!empty($componentNodes)) {
