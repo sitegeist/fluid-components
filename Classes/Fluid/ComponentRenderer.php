@@ -2,18 +2,19 @@
 
 namespace SMS\FluidComponents\Fluid;
 
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
+use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
-use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
+use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\AbstractNode;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 
 class ComponentRenderer extends AbstractViewHelper
 {
@@ -134,6 +135,10 @@ class ComponentRenderer extends AbstractViewHelper
         }
     }
 
+    /**
+     * @param array $arguments
+     * @return void
+     */
     public function setArguments(array $arguments)
     {
         // Extract component namespace from argument
@@ -332,7 +337,7 @@ class ComponentRenderer extends AbstractViewHelper
             );
 
             $renderingContext = $this->renderingContext;
-            
+
             // Register argument definitions from parameter viewhelpers
             foreach ($paramNodes as $paramNode) {
                 $param = [];
@@ -370,8 +375,8 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Extract all ViewHelpers of a certain type from a Fluid template node
      *
-     * @param [type] $node
-     * @param [type] $viewHelperClassName
+     * @param AbstractNode $node
+     * @param string $viewHelperClassName
      * @return void
      */
     protected function extractViewHelpers($node, $viewHelperClassName)
@@ -399,7 +404,7 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Returns an identifier by which fluid templates will be stored in the cache
      *
-     * @return void
+     * @return string
      */
     protected function getTemplateIdentifier()
     {

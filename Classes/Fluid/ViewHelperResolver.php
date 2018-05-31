@@ -21,7 +21,7 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
             $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
 
             $componentRenderer->setComponentNamespace($viewHelperClassName);
-            
+
             return $componentRenderer;
         }
     }
