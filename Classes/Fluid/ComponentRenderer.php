@@ -98,11 +98,13 @@ class ComponentRenderer extends AbstractViewHelper
             if ($value !== $argumentDefinition->getDefaultValue() && $type !== 'mixed') {
                 $givenType = is_object($value) ? get_class($value) : gettype($value);
                 if (!$this->isValidType($type, $value)) {
-                    throw new \InvalidArgumentException(
-                        'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
-                        $givenType . '" in component "' . $this->componentNamespace . '".',
-                        1527779337
-                    );
+                    throw new \InvalidArgumentException(sprintf(
+                        'The argument "%s" was registered with type "%s", but is of type "%s" in component "%s".',
+                        $argumentName,
+                        $type,
+                        $givenType,
+                        $this->componentNamespace
+                    ), 1527779337);
                 }
             }
         }
@@ -122,7 +124,10 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Check for missing required arguments
         foreach ($componentArgumentDefinitions as $argumentName => $argumentDefinition) {
-            if (!isset($arguments[$argumentName]) && $argumentDefinition->isRequired() && !$argumentDefinition->getDefaultValue()) {
+            if (!isset($arguments[$argumentName])
+                && $argumentDefinition->isRequired()
+                && !$argumentDefinition->getDefaultValue()
+            ) {
                 throw new \InvalidArgumentException(
                     sprintf(
                         'Missing required argument "%s" for component %s.',
@@ -249,8 +254,13 @@ class ComponentRenderer extends AbstractViewHelper
      * @param TemplateCompiler $compiler
      * @return string
      */
-    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler)
-    {
+    public function compile(
+        $argumentsName,
+        $closureName,
+        &$initializationPhpCode,
+        ViewHelperNode $node,
+        TemplateCompiler $compiler
+    ) {
         return sprintf(
             '%s::renderComponent(%s, %s, $renderingContext, %s)',
             get_class($this),
@@ -269,8 +279,12 @@ class ComponentRenderer extends AbstractViewHelper
      * @param string $componentNamespace
      * @return mixed
      */
-    public static function renderComponent(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext, $componentNamespace)
-    {
+    public static function renderComponent(
+        array $arguments,
+        \Closure $renderChildrenClosure,
+        RenderingContextInterface $renderingContext,
+        $componentNamespace
+    ) {
         $arguments['_componentNamespace'] = $componentNamespace;
         return static::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
     }
@@ -289,12 +303,19 @@ class ComponentRenderer extends AbstractViewHelper
     protected function registerComponentArgument($name, $type, $description, $required = false, $defaultValue = null)
     {
         if (array_key_exists($name, $this->componentArgumentDefinitions)) {
-            throw new Exception(
-                'Argument "' . $name . '" has already been defined for component ' . $this->componentNamespace . ', thus it should not be defined again.',
-                1527779384
-            );
+            throw new Exception(sprintf(
+                'Argument "%s" has already been defined for component %s, thus it should not be defined again.',
+                $name,
+                $this->componentNamespace
+            ), 1527779384);
         }
-        $this->componentArgumentDefinitions[$name] = new ArgumentDefinition($name, $type, $description, $required, $defaultValue);
+        $this->componentArgumentDefinitions[$name] = new ArgumentDefinition(
+            $name,
+            $type,
+            $description,
+            $required,
+            $defaultValue
+        );
         return $this;
     }
 

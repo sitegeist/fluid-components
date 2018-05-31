@@ -47,17 +47,18 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
     {
         if (!isset($this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier])) {
             $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
-            $actualViewHelperClassName = implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
+            $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
             if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName === false) {
                 $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
-                $actualViewHelperClassName = implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
+                $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
 
                 $componentLoader = $this->getComponentLoader();
                 $componentFile = $componentLoader->findComponent($actualViewHelperClassName);
                 if (!$componentFile) {
                     throw new ParserException(sprintf(
                         'The ViewHelper "<%s:%s>" could not be resolved.' . chr(10) .
-                        'Based on your spelling, the system would load the class "%s", however this class does not exist.',
+                        'Based on your spelling, the system would load the class "%s", '
+                        . 'however this class does not exist.',
                         $namespaceIdentifier,
                         $methodIdentifier,
                         $resolvedViewHelperClassName
@@ -93,6 +94,17 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
         } while (!$componentLoader->findComponent($name) && count($namespaces));
 
         return $name;
+    }
+
+    /**
+     * Generates a valid PHP class name from the resolved viewhelper class
+     *
+     * @param string $resolvedViewHelperClassName
+     * @return void
+     */
+    protected function generateViewHelperClassName($resolvedViewHelperClassName)
+    {
+        return implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
     }
 
     /**

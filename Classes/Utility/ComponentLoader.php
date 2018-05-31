@@ -11,7 +11,7 @@ class ComponentLoader
     {
         $autoloaders = spl_autoload_functions();
         $autoloader = reset($autoloaders);
-        
+
         // Call private method Composer\Autoload\ClassLoader::findFileWithExtension()
         $reflectedAutoloader = new \ReflectionClass($autoloader[0]);
 
