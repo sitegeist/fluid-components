@@ -18,6 +18,7 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
         if ($this->getObjectManager()->isRegistered($viewHelperClassName)) {
             return $this->getObjectManager()->get($viewHelperClassName);
         } else {
+            // Redirect all components to special ViewHelper ComponentRenderer
             $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
 
             $componentRenderer->setComponentNamespace($viewHelperClassName);
@@ -26,7 +27,7 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
         }
     }
 
-/**
+    /**
      * Resolves a ViewHelper class name by namespace alias and
      * Fluid-format identity, e.g. "f" and "format.htmlspecialchars".
      *
