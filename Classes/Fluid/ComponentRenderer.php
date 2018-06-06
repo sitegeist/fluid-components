@@ -15,6 +15,7 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class ComponentRenderer extends AbstractViewHelper
 {
@@ -33,13 +34,6 @@ class ComponentRenderer extends AbstractViewHelper
     protected $parsedTemplate;
 
     /**
-     * Definition objects for all arguments definied in the component definition
-     *
-     * @var array
-     */
-    protected $componentArgumentDefinitions = [];
-
-    /**
      * Cache of component argument definitions; the key is the component namespace, and the
      * value is the array of argument definitions.
      *
@@ -53,106 +47,6 @@ class ComponentRenderer extends AbstractViewHelper
      * @var boolean
      */
     protected $escapeOutput = false;
-
-    /**
-     * Initialize arguments.
-     */
-    public function initializeArguments()
-    {
-        $this->registerArgument('_componentNamespace', 'string', 'Component namespace', false);
-    }
-
-    /**
-     * Provides component arguments to the viewhelper
-     *
-     * @param array $arguments
-     * @return void
-     */
-    public function handleAdditionalArguments(array $arguments)
-    {
-        // Arguments have already been validated at compile time
-        $this->arguments = array_merge($this->arguments, $arguments);
-    }
-
-    /**
-     * Validates arguments defined in the component definition
-     *
-     * @param array $arguments
-     * @return void
-     * @throws \InvalidArgumentException
-     */
-    public function validateAdditionalArguments(array $arguments)
-    {
-        $componentArgumentDefinitions = $this->prepareComponentArguments();
-
-        // Validate argument types
-        foreach ($arguments as $argumentName => $argumentValue) {
-            if (!isset($componentArgumentDefinitions[$argumentName])) {
-                $undeclaredArguments[] = $argumentName;
-                continue;
-            }
-
-            $value = $argumentValue->evaluate($this->renderingContext);
-            $argumentDefinition = $componentArgumentDefinitions[$argumentName];
-            $type = $argumentDefinition->getType();
-            if ($value !== $argumentDefinition->getDefaultValue() && $type !== 'mixed') {
-                $givenType = is_object($value) ? get_class($value) : gettype($value);
-                if (!$this->isValidType($type, $value)) {
-                    throw new \InvalidArgumentException(sprintf(
-                        'The argument "%s" was registered with type "%s", but is of type "%s" in component "%s".',
-                        $argumentName,
-                        $type,
-                        $givenType,
-                        $this->componentNamespace
-                    ), 1527779337);
-                }
-            }
-        }
-
-        // Don't accept undefined arguments
-        if (!empty($undeclaredArguments)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Undeclared arguments passed to component %s: "%s". Valid arguments are: %s',
-                    $this->componentNamespace,
-                    implode(', ', $undeclaredArguments),
-                    implode(', ', array_keys($componentArgumentDefinitions))
-                ),
-                1527779348
-            );
-        }
-
-        // Check for missing required arguments
-        foreach ($componentArgumentDefinitions as $argumentName => $argumentDefinition) {
-            if (!isset($arguments[$argumentName])
-                && $argumentDefinition->isRequired()
-                && !$argumentDefinition->getDefaultValue()
-            ) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'Missing required argument "%s" for component %s.',
-                        $argumentName,
-                        $this->componentNamespace
-                    ),
-                    1527779365
-                );
-            }
-        }
-    }
-
-    /**
-     * @param array $arguments
-     * @return void
-     */
-    public function setArguments(array $arguments)
-    {
-        // Extract component namespace from argument
-        if (isset($arguments['_componentNamespace'])) {
-            $this->setComponentNamespace($arguments['_componentNamespace']);
-            unset($arguments['_componentNamespace']);
-        }
-        parent::setArguments($arguments);
-    }
 
     /**
      * Sets the namespace of the component the viewhelper should render
@@ -202,7 +96,7 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Renders the component the viewhelper is responsible for
-     * TODO this can probably be improved by using renderStatic() directly
+     * TODO this can probably be improved by using renderComponent() directly
      *
      * @return void
      */
@@ -220,11 +114,8 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
 
         // Provide supplied arguments from component call to renderer
-        // TODO fetch and use default values here if necessary!
         foreach ($this->arguments as $name => $value) {
-            if ($name !== '_componentNamespace') {
-                $variableContainer->add($name, $value);
-            }
+            $variableContainer->add($name, $value);
         }
 
         // Initialize component rendering template
@@ -271,7 +162,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Wrapper around renderStatic() to provide component namespace to ViewHelper via special argument
+     * Replacement for renderStatic() to provide component namespace to ViewHelper
      *
      * @param array $arguments
      * @param \Closure $renderChildrenClosure
@@ -285,38 +176,18 @@ class ComponentRenderer extends AbstractViewHelper
         RenderingContextInterface $renderingContext,
         $componentNamespace
     ) {
-        $arguments['_componentNamespace'] = $componentNamespace;
-        return static::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
-    }
+        $viewHelperClassName = get_called_class();
 
-    /**
-     * Registers a new argument for a component
-     *
-     * @param string $name
-     * @param string $type
-     * @param string $description
-     * @param boolean $required
-     * @param mixed $defaultValue
-     * @return self
-     * @throws Exception
-     */
-    protected function registerComponentArgument($name, $type, $description, $required = false, $defaultValue = null)
-    {
-        if (array_key_exists($name, $this->componentArgumentDefinitions)) {
-            throw new Exception(sprintf(
-                'Argument "%s" has already been defined for component %s, thus it should not be defined again.',
-                $name,
-                $this->componentNamespace
-            ), 1527779384);
-        }
-        $this->componentArgumentDefinitions[$name] = new ArgumentDefinition(
-            $name,
-            $type,
-            $description,
-            $required,
-            $defaultValue
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $componentRenderer = $objectManager->get($viewHelperClassName);
+        $componentRenderer->setComponentNamespace($componentNamespace);
+
+        return $renderingContext->getViewHelperInvoker()->invoke(
+            $componentRenderer,
+            $arguments,
+            $renderingContext,
+            $renderChildrenClosure
         );
-        return $this;
     }
 
     /**
@@ -325,14 +196,15 @@ class ComponentRenderer extends AbstractViewHelper
      * @return void
      * @throws Exception
      */
-    protected function initializeComponentArguments()
+    public function initializeArguments()
     {
-        // TODO use different rendering context here?
+        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
+
         $componentLoader = $this->getComponentLoader();
         $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
         // Parse component template without using the cache
-        $parsedTemplate = $this->renderingContext->getTemplateParser()->parse(
+        $parsedTemplate = $renderingContext->getTemplateParser()->parse(
             file_get_contents($componentFile),
             $this->getTemplateIdentifier()
         );
@@ -357,13 +229,11 @@ class ComponentRenderer extends AbstractViewHelper
                 ParamViewHelper::class
             );
 
-            $renderingContext = $this->renderingContext;
-
             // Register argument definitions from parameter viewhelpers
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
-                    $param[$argumentName] = $argumentNode->evaluate($this->renderingContext);
+                    $param[$argumentName] = $argumentNode->evaluate($renderingContext);
                 }
                 if (!isset($param['default'])) {
                     $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
@@ -372,7 +242,7 @@ class ComponentRenderer extends AbstractViewHelper
                 }
 
                 $optional = $param['optional'] ?? false;
-                $this->registerComponentArgument($param['name'], $param['type'], '', !$optional, $param['default']);
+                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
             }
         }
     }
@@ -382,15 +252,16 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return ArgumentDefinition[]
      */
-    protected function prepareComponentArguments()
+    public function prepareArguments()
     {
+        // Store caches for components separately because they can't be grouped by class name
         if (isset(self::$componentArgumentDefinitionCache[$this->componentNamespace])) {
-            $this->componentArgumentDefinitions = self::$componentArgumentDefinitionCache[$this->componentNamespace];
+            $this->argumentDefinitions = self::$componentArgumentDefinitionCache[$this->componentNamespace];
         } else {
-            $this->initializeComponentArguments();
-            self::$componentArgumentDefinitionCache[$this->componentNamespace] = $this->componentArgumentDefinitions;
+            $this->initializeArguments();
+            self::$componentArgumentDefinitionCache[$this->componentNamespace] = $this->argumentDefinitions;
         }
-        return $this->componentArgumentDefinitions;
+        return $this->argumentDefinitions;
     }
 
     /**
