@@ -113,6 +113,9 @@ class ComponentRenderer extends AbstractViewHelper
             'prefix' => $this->getComponentPrefix()
         ]);
 
+        // Provide component content to renderer
+        $variableContainer->add('content', $this->renderChildren());
+
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $value) {
             $variableContainer->add($name, $value);
