@@ -87,7 +87,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return string
      */
-    public function getComponentPrefix()
+    public function getComponentClass()
     {
         return GeneralUtility::underscoredToLowerCamelCase(
             str_replace(' ', '_', $this->getComponentName())
@@ -112,7 +112,8 @@ class ComponentRenderer extends AbstractViewHelper
         $variableContainer->add('component', [
             'namespace' => $this->componentNamespace,
             'name' => $this->getComponentName(),
-            'prefix' => $this->getComponentPrefix()
+            'class' => $this->getComponentClass(),
+            'prefix' => $this->getComponentClass() . '__',
         ]);
 
         // Provide component content to renderer
