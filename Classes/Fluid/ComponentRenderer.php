@@ -130,7 +130,7 @@ class ComponentRenderer extends AbstractViewHelper
             $componentFile = $componentLoader->findComponent($this->componentNamespace);
 
             $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
-                $this->getTemplateIdentifier(),
+                $this->getTemplateIdentifier($componentFile),
                 function () use ($componentFile) {
                     return file_get_contents($componentFile);
                 }
@@ -212,7 +212,7 @@ class ComponentRenderer extends AbstractViewHelper
         // Parse component template without using the cache
         $parsedTemplate = $renderingContext->getTemplateParser()->parse(
             file_get_contents($componentFile),
-            $this->getTemplateIdentifier()
+            $this->getTemplateIdentifier($componentFile)
         );
 
         // Extract all component viewhelpers
@@ -304,9 +304,9 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return string
      */
-    protected function getTemplateIdentifier()
+    protected function getTemplateIdentifier($templateFile)
     {
-        return 'fluidcomponent_' . $this->componentNamespace;
+        return 'fluidcomponent_' . $this->componentNamespace . '_' . sha1_file($templateFile);
     }
 
     /**
