@@ -275,6 +275,32 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
+     * Default implementation of validating additional, undeclared arguments.
+     * In this implementation the behavior is to consistently throw an error
+     * about NOT supporting any additional arguments. This method MUST be
+     * overridden by any ViewHelper that desires this support and this inherited
+     * method must not be called, obviously.
+     *
+     * @throws Exception
+     * @param array $arguments
+     * @return void
+     */
+    public function validateAdditionalArguments(array $arguments)
+    {
+        if (!empty($arguments)) {
+            throw new Exception(
+                sprintf(
+                    'Undeclared arguments passed to Component %s: %s. Valid arguments are: %s',
+                    $this->componentNamespace,
+                    implode(', ', array_keys($arguments)),
+                    implode(', ', array_keys($this->argumentDefinitions))
+                ),
+                1530632359
+            );
+        }
+    }
+
+    /**
      * Extract all ViewHelpers of a certain type from a Fluid template node
      *
      * @param AbstractNode $node
