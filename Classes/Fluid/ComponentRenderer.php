@@ -290,13 +290,40 @@ class ComponentRenderer extends AbstractViewHelper
         if (!empty($arguments)) {
             throw new Exception(
                 sprintf(
-                    'Undeclared arguments passed to Component %s: %s. Valid arguments are: %s',
+                    'Undeclared arguments passed to component %s: %s. Valid arguments are: %s',
                     $this->componentNamespace,
                     implode(', ', array_keys($arguments)),
                     implode(', ', array_keys($this->argumentDefinitions))
                 ),
                 1530632359
             );
+        }
+    }
+
+    /**
+     * Validate arguments, and throw exception if arguments do not validate.
+     *
+     * @return void
+     * @throws \InvalidArgumentException
+     */
+    public function validateArguments()
+    {
+        $argumentDefinitions = $this->prepareArguments();
+        foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
+            if ($this->hasArgument($argumentName)) {
+                $value = $this->arguments[$argumentName];
+                $type = $registeredArgument->getType();
+                if ($value !== $registeredArgument->getDefaultValue() && $type !== 'mixed') {
+                    $givenType = is_object($value) ? get_class($value) : gettype($value);
+                    if (!$this->isValidType($type, $value)) {
+                        throw new \InvalidArgumentException(
+                            'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
+                            $givenType . '" in component "' . $this->componentNamespace . '".',
+                            1530632537
+                        );
+                    }
+                }
+            }
         }
     }
 
