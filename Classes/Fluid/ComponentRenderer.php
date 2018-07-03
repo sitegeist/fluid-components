@@ -3,9 +3,12 @@
 namespace SMS\FluidComponents\Fluid;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
+use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
+use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\AbstractNode;
@@ -15,7 +18,6 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class ComponentRenderer extends AbstractViewHelper
 {
@@ -42,6 +44,13 @@ class ComponentRenderer extends AbstractViewHelper
      * @var array
      */
     static protected $componentArgumentDefinitionCache = [];
+
+    /**
+     * Cache of component prefixer objects
+     *
+     * @var array
+     */
+    static protected $componentPrefixerCache = [];
 
     /**
      * @var boolean
@@ -71,15 +80,13 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Returns the component name
+     * Returns the component prefix
      *
      * @return string
      */
-    public function getComponentName()
+    public function getComponentClass()
     {
-        $namespace = explode('\\', $this->componentNamespace);
-        $componentName = end($namespace);
-        return implode(' ', [$namespace[0], $namespace[1], $componentName]);
+        return $this->getComponentPrefixer()->prefix($this->componentNamespace);
     }
 
     /**
@@ -87,11 +94,9 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return string
      */
-    public function getComponentClass()
+    public function getComponentPrefix()
     {
-        return GeneralUtility::underscoredToLowerCamelCase(
-            str_replace(' ', '_', $this->getComponentName())
-        );
+        return $this->getComponentClass() . $this->getComponentPrefixer()->getSeparator();
     }
 
     /**
@@ -111,9 +116,8 @@ class ComponentRenderer extends AbstractViewHelper
         // Provide information about component to renderer
         $variableContainer->add('component', [
             'namespace' => $this->componentNamespace,
-            'name' => $this->getComponentName(),
             'class' => $this->getComponentClass(),
-            'prefix' => $this->getComponentClass() . '__',
+            'prefix' => $this->getComponentPrefix(),
         ]);
 
         // Provide component content to renderer
@@ -307,6 +311,44 @@ class ComponentRenderer extends AbstractViewHelper
     protected function getTemplateIdentifier($templateFile)
     {
         return 'fluidcomponent_' . $this->componentNamespace . '_' . sha1_file($templateFile);
+    }
+
+    /**
+     * Returns the prefixer object responsible for the current component namespaces
+     *
+     * @return ComponentPrefixerInterface
+     */
+    protected function getComponentPrefixer()
+    {
+        if (!isset(self::$componentPrefixerCache[$this->componentNamespace])) {
+            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'])) {
+                arsort($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']);
+                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'] as $namespace => $prefixer) {
+                    $namespace = ltrim($namespace, '\\');
+                    if (strpos($this->componentNamespace, $namespace) === 0) {
+                        $componentPrefixerClass = $prefixer;
+                        break;
+                    }
+                }
+            }
+
+            if (!$componentPrefixerClass) {
+                $componentPrefixerClass = GenericComponentPrefixer::class;
+            }
+
+            $componentPrefixer = GeneralUtility::makeInstance($componentPrefixerClass);
+
+            if (!($componentPrefixer instanceof ComponentPrefixerInterface)) {
+                throw new Exception(sprintf(
+                    'Invalid component prefixer: %s',
+                    $componentPrefixerClass
+                ), 1530608357);
+            }
+
+            self::$componentPrefixerCache[$this->componentNamespace] = $componentPrefixer;
+        }
+
+        return self::$componentPrefixerCache[$this->componentNamespace];
     }
 
     /**
