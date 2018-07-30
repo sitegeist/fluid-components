@@ -21,6 +21,11 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ComponentRenderer extends AbstractViewHelper
 {
+    protected $reservedArguments = [
+        'class',
+        'content',
+    ];
+
     /**
      * Namespace of the component the viewhelper should render
      *
@@ -120,12 +125,14 @@ class ComponentRenderer extends AbstractViewHelper
             'prefix' => $this->getComponentPrefix(),
         ]);
 
-        // Provide component content to renderer
-        $variableContainer->add('content', $this->renderChildren());
-
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $value) {
             $variableContainer->add($name, $value);
+        }
+
+        // Provide component content to renderer
+        if (!isset($this->arguments['content'])) {
+            $variableContainer->add('content', $this->renderChildren());
         }
 
         // Initialize component rendering template
@@ -208,53 +215,18 @@ class ComponentRenderer extends AbstractViewHelper
      */
     public function initializeArguments()
     {
-        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
-
-        $componentLoader = $this->getComponentLoader();
-        $componentFile = $componentLoader->findComponent($this->componentNamespace);
-
-        // Parse component template without using the cache
-        $parsedTemplate = $renderingContext->getTemplateParser()->parse(
-            file_get_contents($componentFile),
-            $this->getTemplateIdentifier($componentFile)
+        $this->registerArgument(
+            'class',
+            'string',
+            'Additional CSS classes for the component'
+        );
+        $this->registerArgument(
+            'content',
+            'string',
+            'Main content of the component; falls back to ViewHelper tag content'
         );
 
-        // Extract all component viewhelpers
-        $componentNodes = $this->extractViewHelpers(
-            $parsedTemplate->getRootNode(),
-            ComponentViewHelper::class
-        );
-
-        if (count($componentNodes) > 1) {
-            throw new Exception(sprintf(
-                'Only one component per file allowed in: %s',
-                $componentFile
-            ), 1527779393);
-        }
-
-        if (!empty($componentNodes)) {
-            // Extract all parameter definitions
-            $paramNodes = $this->extractViewHelpers(
-                $componentNodes[0],
-                ParamViewHelper::class
-            );
-
-            // Register argument definitions from parameter viewhelpers
-            foreach ($paramNodes as $paramNode) {
-                $param = [];
-                foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
-                    $param[$argumentName] = $argumentNode->evaluate($renderingContext);
-                }
-                if (!isset($param['default'])) {
-                    $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
-                        return $node->evaluate($renderingContext);
-                    }, $paramNode->getChildNodes()));
-                }
-
-                $optional = $param['optional'] ?? false;
-                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
-            }
-        }
+        $this->initializeComponentParams();
     }
 
     /**
@@ -323,6 +295,70 @@ class ComponentRenderer extends AbstractViewHelper
                         );
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Creates ViewHelper arguments based on the params defined in the component definition
+     *
+     * @return void
+     */
+    protected function initializeComponentParams()
+    {
+        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
+
+        $componentLoader = $this->getComponentLoader();
+        $componentFile = $componentLoader->findComponent($this->componentNamespace);
+
+        // Parse component template without using the cache
+        $parsedTemplate = $renderingContext->getTemplateParser()->parse(
+            file_get_contents($componentFile),
+            $this->getTemplateIdentifier($componentFile)
+        );
+
+        // Extract all component viewhelpers
+        $componentNodes = $this->extractViewHelpers(
+            $parsedTemplate->getRootNode(),
+            ComponentViewHelper::class
+        );
+
+        if (count($componentNodes) > 1) {
+            throw new Exception(sprintf(
+                'Only one component per file allowed in: %s',
+                $componentFile
+            ), 1527779393);
+        }
+
+        if (!empty($componentNodes)) {
+            // Extract all parameter definitions
+            $paramNodes = $this->extractViewHelpers(
+                $componentNodes[0],
+                ParamViewHelper::class
+            );
+
+            // Register argument definitions from parameter viewhelpers
+            foreach ($paramNodes as $paramNode) {
+                $param = [];
+                foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
+                    $param[$argumentName] = $argumentNode->evaluate($renderingContext);
+                }
+                if (!isset($param['default'])) {
+                    $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
+                        return $node->evaluate($renderingContext);
+                    }, $paramNode->getChildNodes()));
+                }
+
+                if (in_array($param['name'], $this->reservedArguments)) {
+                    throw new Exception(sprintf(
+                        'The argument "%s" defined in "%s" cannot be used because it is reserved.',
+                        $param['name'],
+                        $this->getComponentNamespace()
+                    ), 1532960145);
+                }
+
+                $optional = $param['optional'] ?? false;
+                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
             }
         }
     }
