@@ -23,6 +23,7 @@ class ComponentRenderer extends AbstractViewHelper
 {
     protected $reservedArguments = [
         'class',
+        'component',
         'content',
     ];
 
