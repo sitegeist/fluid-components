@@ -11,8 +11,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\AbstractNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\RootNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -127,8 +128,8 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
 
         // Provide supplied arguments from component call to renderer
-        foreach ($this->arguments as $name => $value) {
-            $variableContainer->add($name, $value);
+        foreach ($this->arguments as $name => $argument) {
+            $variableContainer->add($name, $this->renderArgument($argument, $renderingContext));
         }
 
         // Provide component content to renderer
@@ -151,6 +152,24 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Render component
         return $this->parsedTemplate->render($renderingContext);
+    }
+
+    /**
+     * Renders an argument by rendering its default value if necessary
+     *
+     * @param mixed $argument
+     * @param RenderingContext $renderingContext
+     * @return mixed
+     */
+    public function renderArgument($argumentValue, $renderingContext)
+    {
+        if ($argumentValue instanceof \Closure) {
+            return $argumentValue($renderingContext);
+        } else if ($argumentValue instanceof NodeInterface) {
+            return $argumentValue->evaluate($renderingContext);
+        } else {
+            return $argumentValue;
+        }
     }
 
     /**
@@ -284,9 +303,10 @@ class ComponentRenderer extends AbstractViewHelper
         $argumentDefinitions = $this->prepareArguments();
         foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
             if ($this->hasArgument($argumentName)) {
-                $value = $this->arguments[$argumentName];
+                $value = $this->renderArgument($this->arguments[$argumentName], $this->renderingContext);
+                $defaultValue = $this->renderArgument($registeredArgument->getDefaultValue(), $this->renderingContext);
                 $type = $registeredArgument->getType();
-                if ($value !== $registeredArgument->getDefaultValue() && $type !== 'mixed') {
+                if ($value !== $defaultValue && $type !== 'mixed') {
                     $givenType = is_object($value) ? get_class($value) : gettype($value);
                     if (!$this->isValidType($type, $value)) {
                         throw new \InvalidArgumentException(
@@ -342,12 +362,14 @@ class ComponentRenderer extends AbstractViewHelper
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
-                    $param[$argumentName] = $argumentNode->evaluate($renderingContext);
+                    // Store default value as node to be able to render it dynamically
+                    $param[$argumentName] = ($argumentName === 'default')
+                        ? $argumentNode
+                        : $argumentNode->evaluate($renderingContext);
                 }
-                if (!isset($param['default'])) {
-                    $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
-                        return $node->evaluate($renderingContext);
-                    }, $paramNode->getChildNodes()));
+                if (!isset($param['default']) && $paramNode->getChildNodes()) {
+                    // Store default value as node to be able to render it dynamically
+                    $param['default'] = $this->convertToRootNode($paramNode);
                 }
 
                 if (in_array($param['name'], $this->reservedArguments)) {
@@ -367,11 +389,11 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Extract all ViewHelpers of a certain type from a Fluid template node
      *
-     * @param AbstractNode $node
+     * @param NodeInterface $node
      * @param string $viewHelperClassName
      * @return void
      */
-    protected function extractViewHelpers($node, $viewHelperClassName)
+    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName)
     {
         $viewHelperNodes = [];
 
@@ -394,11 +416,26 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
+     * Converts a Fluid SyntaxTree node with child nodes to an independent root node
+     *
+     * @param NodeInterface $node
+     * @return RootNode
+     */
+    protected function convertToRootNode(NodeInterface $node)
+    {
+        $rootNode = new RootNode;
+        foreach ($node->getChildNodes() as $childNode) {
+            $rootNode->addChildNode($childNode);
+        }
+        return $rootNode;
+    }
+
+    /**
      * Returns an identifier by which fluid templates will be stored in the cache
      *
      * @return string
      */
-    protected function getTemplateIdentifier($templateFile)
+    protected function getTemplateIdentifier(string $templateFile)
     {
         return 'fluidcomponent_' . $this->componentNamespace . '_' . sha1_file($templateFile);
     }
