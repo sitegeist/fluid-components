@@ -1,7 +1,8 @@
 <?php
 
-namespace SMS\FluidComponents\Fluid;
+namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
@@ -9,7 +10,6 @@ use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;

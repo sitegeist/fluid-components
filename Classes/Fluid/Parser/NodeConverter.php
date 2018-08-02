@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Fluid;
+namespace SMS\FluidComponents\Fluid\Parser;
 
 use TYPO3Fluid\Fluid\Core\Compiler\StopCompilingChildrenException;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;

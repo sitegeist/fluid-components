@@ -1,11 +1,11 @@
 <?php
 
-namespace SMS\FluidComponents\Fluid;
+namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
-use SMS\FluidComponents\Fluid\ComponentRenderer;
+use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 
 class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver
 {

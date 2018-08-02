@@ -1,6 +1,8 @@
 <?php
 
-namespace SMS\FluidComponents\Fluid;
+namespace SMS\FluidComponents\Fluid\Rendering;
+
+use SMS\FluidComponents\Fluid\Parser\NodeConverter;
 
 class RenderingContext extends \TYPO3\CMS\Fluid\Core\Rendering\RenderingContext
 {
