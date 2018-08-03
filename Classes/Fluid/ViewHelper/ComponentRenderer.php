@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
 use SMS\FluidComponents\Utility\ComponentLoader;
+use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
@@ -26,6 +27,7 @@ class ComponentRenderer extends AbstractViewHelper
         'class',
         'component',
         'content',
+        'settings',
     ];
 
     /**
@@ -126,6 +128,7 @@ class ComponentRenderer extends AbstractViewHelper
             'class' => $this->getComponentClass(),
             'prefix' => $this->getComponentPrefix(),
         ]);
+        $variableContainer->add('settings', $this->getComponentSettings());
 
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $argument) {
@@ -484,5 +487,13 @@ class ComponentRenderer extends AbstractViewHelper
     protected function getComponentLoader()
     {
         return GeneralUtility::makeInstance(ComponentLoader::class);
+    }
+
+    /**
+     * @return ComponentSettings
+     */
+    protected function getComponentSettings()
+    {
+        return GeneralUtility::makeInstance(ComponentSettings::class);
     }
 }
