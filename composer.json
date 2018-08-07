@@ -2,7 +2,6 @@
     "name": "sitegeist/fluid-components",
     "description": "Fluid Components",
     "type": "typo3-cms-extension",
-    "version": "1.0.0",
     "authors": [
         {
             "name": "Simon Praetorius",
@@ -10,7 +9,7 @@
         }
     ],
     "require": {
-        "typo3/cms-core": "^8.7.0"
+        "typo3/cms-core": "^8.7.0 || ^9"
     },
     "require-dev": {
         "typo3/testing-framework": "^1.0",
