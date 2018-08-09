@@ -30,7 +30,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
         $this->settings = array_merge(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? [],
             $typoScriptService->convertTypoScriptArrayToPlainArray(
-                $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.'] ?? []
+                $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] ?? []
             )
         );
     }
