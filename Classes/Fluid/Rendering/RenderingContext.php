@@ -2,7 +2,7 @@
 
 namespace SMS\FluidComponents\Fluid\Rendering;
 
-use SMS\FluidComponents\Fluid\Parser\NodeConverter;
+use SMS\FluidComponents\Fluid\Compiler\NodeConverter;
 
 class RenderingContext extends \TYPO3\CMS\Fluid\Core\Rendering\RenderingContext
 {

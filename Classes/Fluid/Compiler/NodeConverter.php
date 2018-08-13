@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Fluid\Parser;
+namespace SMS\FluidComponents\Fluid\Compiler;
 
 use TYPO3Fluid\Fluid\Core\Compiler\StopCompilingChildrenException;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
@@ -27,6 +27,8 @@ class NodeConverter extends \TYPO3Fluid\Fluid\Core\Compiler\NodeConverter
     }
 
     /**
+     * Generates PHP code of a closure that represents the default value of an argument
+     *
      * @param NodeInterface $node
      * @return string
      */
