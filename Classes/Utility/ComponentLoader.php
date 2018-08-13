@@ -74,7 +74,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $ext
      * @return string|null
      */
-    public function findComponent(string $class, string $ext = '.html'): ?string
+    public function findComponent(string $class, string $ext = '.html')
     {
         // Try cache first
         if (isset($this->componentsCache[$class])) {
