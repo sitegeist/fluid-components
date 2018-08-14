@@ -1,6 +1,6 @@
 {
     "name": "sitegeist/fluid-components",
-    "description": "Fluid Components",
+    "description": "Encapsulated frontend components with Fluid's ViewHelper syntax",
     "type": "typo3-cms-extension",
     "authors": [
         {

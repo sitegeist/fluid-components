@@ -1,7 +1,7 @@
 <?php
 $EM_CONF[$_EXTKEY] = array(
     'title' => 'Fluid Components',
-    'description' => '',
+    'description' => 'Encapsulated frontend components with Fluid\'s ViewHelper syntax',
     'category' => 'fe',
     'author' => 'Simon Praetorius',
     'author_email' => 'praetorius@sitegeist.de',
