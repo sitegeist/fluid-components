@@ -9,14 +9,12 @@ class ParamViewHelper extends AbstractViewHelper
 {
     use ParserRuntimeOnly;
 
-    /**
-     * Initialize arguments.
-     */
     public function initializeArguments()
     {
-        $this->registerArgument('name', 'string', 'Parameter name');
-        $this->registerArgument('type', 'string', 'Parameter type');
+        $this->registerArgument('name', 'string', 'Parameter name', true);
+        $this->registerArgument('type', 'string', 'Parameter type', true);
         $this->registerArgument('optional', 'bool', 'Is parameter optional?', false, false);
-        $this->registerArgument('default', 'string', 'Default value', false);
+        $this->registerArgument('default', 'string', 'Default value');
+        $this->registerArgument('description', 'string', 'Description of the parameter');
     }
 }

@@ -11,12 +11,9 @@ class ComponentViewHelper extends AbstractViewHelper
      */
     protected $escapeOutput = false;
 
-    /**
-     * Initialize arguments.
-     */
     public function initializeArguments()
     {
-        $this->registerArgument('name', 'string', 'Component name');
+        $this->registerArgument('description', 'string', 'Description of the component');
     }
 
     public function render()
