@@ -1,6 +1,6 @@
 # Fluid Components
 
-Encapsulated frontend components with Fluid's ViewHelper syntax
+Encapsulated frontend components with Fluid's ViewHelper syntax for TYPO3
 
 ## Authors & Sponsors
 
@@ -46,8 +46,9 @@ Fluid components are similar to ViewHelpers. The main difference is that they ca
 
 The following component implements a simple teaser element:
 
+*Components/Teaser/Teaser.html*
+
 ```html
-<!-- Components/Teaser/Teaser.html -->
 <fc:component>
     <fc:param name="title" type="string" />
     <fc:param name="description" type="string" />
@@ -103,7 +104,7 @@ The result is the following HTML:
 
 1. [Install the extension](#installation)
 
-2. Define the component namespace in your `ext_localconf.php`:
+2. Define the component namespace in your *ext_localconf.php*:
 
 	```php
 	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces']['VENDOR\\MyExtension\\Components'] =
@@ -112,7 +113,7 @@ The result is the following HTML:
 
 	Use your own vendor name for `VENDOR`, extension name for `MyExtension`, and extension key for `my_extension`.
 
-3. Create your first component in `EXT:my_extension/Resources/Private/Components/` by creating a directory `MyComponent` containing a file `MyComponent.html`
+3. Create your first component in *EXT:my_extension/Resources/Private/Components/* by creating a directory *MyComponent* containing a file *MyComponent.html*
 
 4. Define your component according to [How do components look like?](#how-do-components-look-like) as well as the [Documentation](#documentation).
 
@@ -125,4 +126,3 @@ The result is the following HTML:
 
 ## Documentation
 
-TODO
