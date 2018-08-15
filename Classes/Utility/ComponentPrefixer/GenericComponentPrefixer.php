@@ -10,8 +10,8 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
      * Returns the component prefix for the provided component namespaces
      *
      * example:
-     *   namespace: \SMS\FluidComponentsExample\Components\MyComponent
-     *   resulting prefix: smsFluidcomponentsexampleMycomponent
+     *   namespace: \VENDOR\MyExtension\Components\Atom\MyComponent
+     *   resulting prefix: vendorAtomMycomponent
      *
      * @param string $namespace
      * @return string
@@ -19,9 +19,9 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
     public function prefix(string $namespace): string
     {
         $namespace = explode('\\', $namespace);
-        $componentName = end($namespace);
+        unset($namespace[1], $namespace[2]);
         return GeneralUtility::underscoredToLowerCamelCase(
-            implode('_', [$namespace[0], $namespace[1], $componentName])
+            implode('_', $namespace)
         );
     }
 
