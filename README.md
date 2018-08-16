@@ -48,7 +48,7 @@ The following component implements a simple teaser element:
 
 *Components/Teaser/Teaser.html*
 
-```html
+```xml
 <fc:component>
     <fc:param name="title" type="string" />
     <fc:param name="description" type="string" />
@@ -71,7 +71,7 @@ The following component implements a simple teaser element:
 
 Use the following code in your template to render a teaser about TYPO3:
 
-```html
+```xml
 {namespace my=VENDOR\MyExtension\Components}
 <my:teaser
     title="TYPO3"
@@ -83,7 +83,7 @@ Use the following code in your template to render a teaser about TYPO3:
 
 The result is the following HTML:
 
-```html
+```xml
 <a href="https://typo3.org" class="smsExampleTeaser smsExampleTeaser-light">
     <h3 class="smsExampleTeaser_title">TYPO3</h3>
     <p class="smsExampleTeaser_description">The professional, flexible Content Management System</p>
@@ -119,7 +119,7 @@ The result is the following HTML:
 
 5. Render your component by including the namespace and calling the component by its name:
 
-	```html
+	```xml
 	{namespace my=VENDOR\MyExtension\Components}
 	<my:myComponent someParameter="someValue" />
 	```

@@ -12,7 +12,7 @@ Fluid components consist of an html file placed inside a folder which has the sa
 
 MyComponent.html defines the component's interface and implementation by utilizing a combination of three ViewHelpers:
 
-```html
+```xml
 <fc:component>
     <fc:param ... />
     ...
@@ -34,7 +34,7 @@ The `fc:component` ViewHelper wraps the component definition.
 
 #### Example
 
-```html
+```xml
 <fc:component description="This is a description of the component">
     ...
 </fc:component>
@@ -49,7 +49,7 @@ There are two predefined parameters that can be used in all components:
 * `class`: Additional CSS classes the component should use
 * `content`: falls back to the component's tag content
 
-    ```html
+    ```xml
     <my:myComponent>This goes into the content parameter</my:myComponent>
     ```
 
@@ -71,7 +71,7 @@ In addition to static values, the `default` argument can also contain Fluid vari
 
 #### Examples
 
-```html
+```xml
 <!-- required parameter -->
 <fc:param name="lastName" type="string" />
 <!-- optional parameter -->
@@ -111,7 +111,7 @@ none
 
 #### Examples
 
-```html
+```xml
 <fc:renderer>
     <a href="{link}">{content}</a>
 </fc:renderer>
