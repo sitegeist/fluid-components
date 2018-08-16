@@ -1,6 +1,7 @@
 # Fluid Components: Documentation
 
-Before getting started with this documentation, have a look at the [ReadMe file](../README.md) as it outlines the basic usage as well as the intentions of Fluid Components.
+Before getting started with this documentation, have a look at the [ReadMe file](../README.md) as it
+outlines the basic usage as well as the intentions of Fluid Components.
 
 ## Creating a component
 
@@ -10,7 +11,8 @@ Fluid components consist of an html file placed inside a folder which has the sa
     * MyComponent/
         * MyComponent.html
 
-MyComponent.html defines the component's interface and implementation by utilizing a combination of three ViewHelpers:
+MyComponent.html defines the component's interface and implementation by utilizing a combination of
+three ViewHelpers:
 
 ```xml
 <fc:component>
@@ -20,7 +22,8 @@ MyComponent.html defines the component's interface and implementation by utilizi
 </fc:component>
 ```
 
-The Fluid namespace `fc:` is predefined when the extension is installed, so there is no need to define it manually in each component file.
+The Fluid namespace `fc:` is predefined when the extension is installed, so there is no need to define
+it manually in each component file.
 
 ## ViewHelpers
 
@@ -42,7 +45,8 @@ The `fc:component` ViewHelper wraps the component definition.
 
 ### Param ViewHelper
 
-The `fc:param` ViewHelper defines the interface the component provides. Each `fc:param` defines one data input the component needs to be able to render correctly.
+The `fc:param` ViewHelper defines the interface the component provides. Each `fc:param` defines one data
+input the component needs to be able to render correctly.
 
 There are two predefined parameters that can be used in all components:
 
@@ -56,7 +60,8 @@ There are two predefined parameters that can be used in all components:
 #### Arguments
 
 * `name`: Name of the component parameter
-* `type`: Data type of the component parameter. It takes the same values Fluid defines for ViewHelper arguments:
+* `type`: Data type of the component parameter. It takes the same values Fluid defines for ViewHelper
+arguments:
     * `string`
     * `boolean`
     * `integer`
@@ -65,9 +70,12 @@ There are two predefined parameters that can be used in all components:
     * PHP class names like `DateTime` or `\TYPO3\CMS\Core\Resource\FileInterface`
 * `description` (optional): A description of the parameter for documentation purposes
 * `optional` (default: `false`): Declares if the parameter can be omitted when using the component
-* `default` (optional): A default value that will be used in case an optional parameter was omitted. The default value can alternatively be defined in the `fc:param` tag content.
+* `default` (optional): A default value that will be used in case an optional parameter was omitted. The
+default value can alternatively be defined in the `fc:param` tag content.
 
-In addition to static values, the `default` argument can also contain Fluid variables (mainly `{settings...}`) and ViewHelper calls, although this can lead to unexpected results depending on the ViewHelper used. For example, when using the `f:translate` ViewHelper, you should always specify the `extensionName` attribute.
+In addition to static values, the `default` argument can also contain Fluid variables (mainly `{settings...}`)
+and ViewHelper calls, although this can lead to unexpected results depending on the ViewHelper used. For example,
+when using the `f:translate` ViewHelper, you should always specify the `extensionName` attribute.
 
 #### Examples
 
@@ -86,14 +94,18 @@ In addition to static values, the `default` argument can also contain Fluid vari
 
 ### Renderer ViewHelper
 
-The `fc:renderer` ViewHelper contains the implementation part of the component, namely the markup the component will generate when called. Inside the renderer, every component parameter will have its own variable. In addition, there are a few predefined variables you can use:
+The `fc:renderer` ViewHelper contains the implementation part of the component, namely the markup the component
+will generate when called. Inside the renderer, every component parameter will have its own variable. In addition,
+there are a few predefined variables you can use:
 
 * `{content}` and `{class}`: Predefined component parameters, see [Param ViewHelper](#param-viewhelper)
 
 * `{component}` contains metadata of the component. For now, this includes:
     * `{component.namespace}`: Full namespace of the component
-    * `{component.class}`: Proposed CSS class for the root element of the component, according to the responsible [ComponentPrefixer](#component-prefixer)
-    * `{component.prefix}`: Proposed CSS prefix for sub elements of the component, according to the responsible [ComponentPrefixer](#component-prefixer)
+    * `{component.class}`: Proposed CSS class for the root element of the component, according to the responsible
+    [ComponentPrefixer](#component-prefixer)
+    * `{component.prefix}`: Proposed CSS prefix for sub elements of the component, according to the responsible
+    [ComponentPrefixer](#component-prefixer)
     
     Example:
   
@@ -119,9 +131,14 @@ none
 
 ## Component Prefixers
 
-Each component provides a prefixed CSS class derived from the component's name and namespace in the `{component}` variable. This makes moving or renaming the component easy as the CSS classes change automatically. By default, Fluid Components uses a generic prefixer class (`SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer`). For examples, take a look at the [Renderer ViewHelper reference](#renderer-viewhelper).
+Each component provides a prefixed CSS class derived from the component's name and namespace in the `{component}`
+variable. This makes moving or renaming the component easy as the CSS classes change automatically. By default,
+Fluid Components uses a generic prefixer class (`SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer`).
+For examples, take a look at the [Renderer ViewHelper reference](#renderer-viewhelper).
 
-However, prefixers can be overwritten per namespace, which makes it easy to customize the generated CSS classes. Your prefixer class needs to implement the interface `SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface`, which requires you to define two methods:
+However, prefixers can be overwritten per namespace, which makes it easy to customize the generated CSS classes.
+Your prefixer class needs to implement the interface `SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface`,
+which requires you to define two methods:
 
 ```php
     /**
@@ -149,11 +166,13 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']['VENDOR\\
 
 ## Component Settings
 
-Each component provides the `{settings}` variable which contains global settings that can affect multiple components. These settings can be set in multiple ways:
+Each component provides the `{settings}` variable which contains global settings that can affect multiple components.
+These settings can be set in multiple ways:
 
 ### ext_localconf.php
 
-In your *ext_localconf.php* you can use an array notation to add global component settings. The following example fetches the settings from a JSON file:
+In your *ext_localconf.php* you can use an array notation to add global component settings. The following example
+fetches the settings from a JSON file:
 
 ```php
 $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings']['styles'] = json_decode(file_get_contents(
