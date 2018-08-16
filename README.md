@@ -1,6 +1,10 @@
 # Fluid Components
 
-Encapsulated frontend components with Fluid's ViewHelper syntax for TYPO3
+This TYPO3 extensions puts frontend developers in a position to create encapsulated components
+in pure Fluid. By defining a clear interface (API) for the integration, frontend developers can
+implement components independent of backend developers. The goal is to create presentational
+components which have no side effects and aren't responsible for data acquisition. The sole
+concern of a presentational component should be how things look.
 
 ## Authors & Sponsors
 
