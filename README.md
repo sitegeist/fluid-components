@@ -16,11 +16,11 @@ This TYPO3 extension is available via packagist:
 
 ```composer require sitegeist/fluid-components```
 
-Alternatively, you can install the extension from TYPO3 TER:
+Alternatively, you can install the extension from TER:
 
-[TYPO3 TER: fluid_components](https://typo3.org/extensions/repository/view/fluid_components)
+[TER: fluid_components](https://typo3.org/extensions/repository/view/fluid_components)
 
-Proceed with [Getting Started](#getting-started)
+After that, proceed with [Getting Started](#getting-started)
 
 ## What does it do?
 
@@ -57,12 +57,12 @@ The following component implements a simple teaser element:
     <fc:param name="theme" type="string" optional="1">light</fc:param>
 
     <fc:renderer>
-        <a href="{link}" class="teaser teaser--{theme}">
-            <h3 class="teaser__title">{title}</h3>
-            <p class="teaser__description">{description}</p>
+        <a href="{link}" class="{component.class} {component.class}-{theme}">
+            <h3 class="{component.prefix}title">{title}</h3>
+            <p class="{component.prefix}description">{description}</p>
 
             <f:if condition="{icon}">
-                <i class="icon icon--{icon} teaser__icon"></i>
+                <i class="icon icon-{icon} {component.prefix}icon"></i>
             </f:if>
         </a>
     </fc:renderer>
@@ -84,11 +84,11 @@ Use the following code in your template to render a teaser about TYPO3:
 The result is the following HTML:
 
 ```html
-<a href="https://typo3.org" class="teaser teaser--light">
-    <h3 class="teaser__title">TYPO3</h3>
-    <p class="teaser__description">The professional, flexible Content Management System</p>
+<a href="https://typo3.org" class="smsExampleTeaser smsExampleTeaser-light">
+    <h3 class="smsExampleTeaser_title">TYPO3</h3>
+    <p class="smsExampleTeaser_description">The professional, flexible Content Management System</p>
 
-    <i class="icon icon--typo3 teaser__icon"></i>
+    <i class="icon icon-typo3 smsExampleTeaser_icon"></i>
 </a>
 ```
 *(improved indentation for better readability)*
@@ -126,3 +126,4 @@ The result is the following HTML:
 
 ## Documentation
 
+[Go to the documentation](Documentation/Documentation.md)

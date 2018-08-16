@@ -1,5 +1,7 @@
 # Fluid Components: Documentation
 
+Before getting started with this documentation, have a look at the [ReadMe file](../ReadMe.md) as it outlines the basic usage as well as the intentions of Fluid Components.
+
 ## Creating a component
 
 Fluid components consist of an html file placed inside a folder which has the same name as the file:
@@ -65,7 +67,7 @@ There are two predefined parameters that can be used in all components:
 * `optional` (default: `false`): Declares if the parameter can be omitted when using the component
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The default value can alternatively be defined in the `fc:param` tag content.
 
-In addition to static values, the `default` attribute can also contain Fluid variables (mainly `{settings...}`) and ViewHelper calls, although this can lead to unexpected results depending on the ViewHelper used. For example, when using the `f:translate` ViewHelper, you should always specify the `extensionName` attribute.
+In addition to static values, the `default` argument can also contain Fluid variables (mainly `{settings...}`) and ViewHelper calls, although this can lead to unexpected results depending on the ViewHelper used. For example, when using the `f:translate` ViewHelper, you should always specify the `extensionName` attribute.
 
 #### Examples
 
@@ -117,23 +119,72 @@ none
 
 ## Component Prefixers
 
-TODO
+Each component provides a prefixed CSS class derived from the component's name and namespace in the `{component}` variable. This makes moving or renaming the component easy as the CSS classes change automatically. By default, Fluid Components uses a generic prefixer class (`SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer`). For examples, take a look at the [Renderer ViewHelper reference](#renderer-viewhelper).
 
-* Prefixer
-    * Default
-    * Custom
+However, prefixers can be overwritten per namespace, which makes it easy to customize the generated CSS classes. Your prefixer class needs to implement the interface `SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface`, which requires you to define two methods:
+
+```php
+    /**
+     * Returns the component prefix for the provided component namespaces
+     *
+     * @param string $namespace
+     * @return string
+     */
+    public function prefix(string $namespace): string;
+
+    /**
+     * Returns the separator to be used between prefix and the following string
+     *
+     * @return string
+     */
+    public function getSeparator(): string;
+```
+
+To bind your custom prefixer class to a namespace, simply add the following line to your *ext_localconf.php* file:
+
+```php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']['VENDOR\\MyExtension'] =
+    \VENDOR\MyExtension\Utility\ComponentPrefixer\MyComponentPrefixer::class;
+```
 
 ## Component Settings
 
-TODO
+Each component provides the `{settings}` variable which contains global settings that can affect multiple components. These settings can be set in multiple ways:
 
-* Settings
-    * TypoScript
-    * PHP
-* Use cases
+### ext_localconf.php
 
----
+In your *ext_localconf.php* you can use an array notation to add global component settings. The following example fetches the settings from a JSON file:
 
-* Best practices
-    * logic vs. presentational
-    * colocation
+```php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings']['styles'] = json_decode(file_get_contents(
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('my_extension', 'styles.json')
+));
+```
+
+### Programmatically
+
+In your own PHP code, you can add settings by injecting the responsible settings class:
+
+```php
+class MyController
+{
+    /**
+     * @var \SMS\FluidComponents\Utility\ComponentSettings
+     * @inject
+     */
+    public $componentSettings;
+
+    public function myAction()
+    {
+        $this->componentSettings->set('mySetting', 'myValue');
+    }
+}
+```
+
+### TypoScript
+
+It is also possible to add settings via TypoScript:
+
+```
+config.tx_fluidcomponents.settings.mySetting = myValue
+```
