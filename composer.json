@@ -2,12 +2,18 @@
     "name": "sitegeist/fluid-components",
     "description": "Encapsulated frontend components with Fluid's ViewHelper syntax",
     "type": "typo3-cms-extension",
+    "homepage": "https://github.com/sitegeist/fluid-components",
+    "license": ["GPL-2.0-or-later"],
+    "keywords": ["typo3", "typo3-extension", "fluid", "typo3-fluid", "components", "html", "template"],
     "authors": [
         {
             "name": "Simon Praetorius",
             "email": "praetorius@sitegeist.de"
         }
     ],
+    "support": {
+        "issues": "https://github.com/sitegeist/fluid-components/issues"
+    },
     "require": {
         "typo3/cms-core": "^8.7.0 || ^9"
     },
