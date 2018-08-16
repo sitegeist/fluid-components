@@ -115,7 +115,7 @@ The result is the following HTML:
 
 3. Create your first component in *EXT:my_extension/Resources/Private/Components/* by creating a directory *MyComponent* containing a file *MyComponent.html*
 
-4. Define your component according to [How do components look like?](#how-do-components-look-like) as well as the [Documentation](#documentation).
+4. Define your component according to [How do components look like?](#how-do-components-look-like) as well as the [Documentation](Documentation/Documentation.md).
 
 5. Render your component by including the namespace and calling the component by its name:
 

@@ -1,6 +1,6 @@
 # Fluid Components: Documentation
 
-Before getting started with this documentation, have a look at the [ReadMe file](../ReadMe.md) as it outlines the basic usage as well as the intentions of Fluid Components.
+Before getting started with this documentation, have a look at the [ReadMe file](../README.md) as it outlines the basic usage as well as the intentions of Fluid Components.
 
 ## Creating a component
 
