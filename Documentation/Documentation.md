@@ -189,13 +189,17 @@ class MyController
 {
     /**
      * @var \SMS\FluidComponents\Utility\ComponentSettings
-     * @inject
      */
     public $componentSettings;
 
     public function myAction()
     {
         $this->componentSettings->set('mySetting', 'myValue');
+    }
+    
+    public function injectComponentSettings(\SMS\FluidComponents\Utility\ComponentSettings $componentSettings)
+    {
+        $this->componentSettings = $componentSettings;
     }
 }
 ```
