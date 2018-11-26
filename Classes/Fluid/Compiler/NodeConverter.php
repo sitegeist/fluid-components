@@ -36,9 +36,9 @@ class NodeConverter extends \TYPO3Fluid\Fluid\Core\Compiler\NodeConverter
     {
         $closure = '';
         $closure .= 'function(\TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface $renderingContext) use ($self) {' . chr(10);
-        $convertedSubNodes = $this->convertListOfSubNodes($node);
-        $closure .= $convertedSubNodes['initialization'];
-        $closure .= sprintf('return %s;', $convertedSubNodes['execution']) . chr(10);
+        $convertedNode = $this->convert($node);
+        $closure .= $convertedNode['initialization'];
+        $closure .= sprintf('return %s;', $convertedNode['execution']) . chr(10);
         $closure .= '}';
         return $closure;
     }
