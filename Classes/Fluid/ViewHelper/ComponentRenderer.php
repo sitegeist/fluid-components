@@ -4,14 +4,15 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
 use SMS\FluidComponents\Utility\ComponentLoader;
-use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
+use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\BooleanNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\RootNode;
@@ -381,6 +382,11 @@ class ComponentRenderer extends AbstractViewHelper
                         $param['name'],
                         $this->getComponentNamespace()
                     ), 1532960145);
+                }
+
+                // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
+                if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
+                    $param['default'] = new BooleanNode($param['default']);
                 }
 
                 $optional = $param['optional'] ?? false;
