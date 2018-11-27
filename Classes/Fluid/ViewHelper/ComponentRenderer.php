@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use SMS\FluidComponents\Fluid\Exception\SchemaException;
 use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
 use SMS\FluidComponents\Fluid\ViewHelper\ArgumentDefinition;
 use SMS\FluidComponents\Utility\ComponentLoader;
@@ -320,7 +321,7 @@ class ComponentRenderer extends AbstractViewHelper
         // Fetch external schema file
         if (isset($schemaFile)) {
             if (!file_exists($schemaFile)) {
-                throw new Exception(
+                throw new SchemaException(
                     sprintf(
                         'The external schema definition "%s" specified in component "%s" could not be found: %s',
                         $schema,
@@ -333,8 +334,23 @@ class ComponentRenderer extends AbstractViewHelper
             $schema = file_get_contents($schemaFile);
         }
 
+        $schema = json_decode($schema);
+
+        // Check if JSON schema is valid JSON
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new SchemaException(
+                sprintf(
+                    'JSON schema definition produced "%s" in component "%s": %s.',
+                    json_last_error_msg(),
+                    $this->componentNamespace,
+                    $schemaFile ?? $schema
+                ),
+                1543322978
+            );
+        }
+
         // Fill cache
-        self::$argumentSchemaCache[$hash] = Schema::import(json_decode($schema));
+        self::$argumentSchemaCache[$hash] = Schema::import($schema);
         return self::$argumentSchemaCache[$hash];
     }
 
@@ -389,16 +405,33 @@ class ComponentRenderer extends AbstractViewHelper
                     }
 
                     // Validate JSON schema if provided
+                    // (only in Development context to prevent minor error messages in production contexts)
                     if (
                         GeneralUtility::getApplicationContext()->isDevelopment() &&
                         $registeredArgument instanceof ArgumentDefinition &&
                         $registeredArgument->hasSchema()
                     ) {
-                        $schema = $this->prepareSchema($registeredArgument->getSchema());
+                        // Normalize nested data structures to be valid for schema validation
                         if (is_array($value) || is_object($value)) {
                             $value = json_decode(json_encode($value));
                         }
-                        $schema->in($value);
+
+                        // Get schema instance
+                        $schema = $this->prepareSchema($registeredArgument->getSchema());
+                        try {
+                            // Trigger validation
+                            $schema->in($value);
+                        } catch (\Swaggest\JsonSchema\InvalidValue $e) {
+                            throw new SchemaException(
+                                sprintf(
+                                    'The argument "%s" in component "%s" could not be validated: %s',
+                                    $argumentName,
+                                    $this->componentNamespace,
+                                    $e->getMessage()
+                                ),
+                                1543321786
+                            );
+                        }
                     }
                 }
             }
@@ -417,7 +450,6 @@ class ComponentRenderer extends AbstractViewHelper
      * @param string $schema JSON schema for validation, either inline or reference to a file
      * @return \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper $this, to allow chaining.
      * @throws Exception
-     * @api
      */
     protected function registerArgumentWithSchema($name, $type, $description, $required = false, $defaultValue = null, $schema = null)
     {
