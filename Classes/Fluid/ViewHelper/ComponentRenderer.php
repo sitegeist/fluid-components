@@ -3,12 +3,14 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
+use SMS\FluidComponents\Fluid\ViewHelper\ArgumentDefinition;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
+use Swaggest\JsonSchema\Schema;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
@@ -19,7 +21,6 @@ use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\RootNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ComponentRenderer extends AbstractViewHelper
@@ -61,6 +62,13 @@ class ComponentRenderer extends AbstractViewHelper
      * @var array
      */
     static protected $componentPrefixerCache = [];
+
+    /**
+     * Cache of JSON schema classes for advanced parameter validation
+     *
+     * @var array
+     */
+    static protected $argumentSchemaCache = [];
 
     /**
      * Components are HTML markup which should not be escaped
@@ -265,7 +273,7 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Initialize all arguments and return them
      *
-     * @return ArgumentDefinition[]
+     * @return \TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition[]
      */
     public function prepareArguments()
     {
@@ -277,6 +285,57 @@ class ComponentRenderer extends AbstractViewHelper
             self::$componentArgumentDefinitionCache[$this->componentNamespace] = $this->argumentDefinitions;
         }
         return $this->argumentDefinitions;
+    }
+
+    /**
+     * Prepares a specified JSON schema for usage
+     *
+     * @param mixed $schema
+     * @return Schema
+     */
+    public function prepareSchema($schema)
+    {
+        $schemaFile = null;
+        if (is_array($schema) || is_object($schema)) {
+            // Normalize arrays and objects that come directly from fluid templates
+            $schema = json_encode($schema);
+            $hash = sha1($schema);
+        } else {
+            $schema = trim($schema);
+            if ($schema{0} === '{') {
+                // Seems to be JSON already
+                $hash = sha1($schema);
+            } else {
+                // JSON should be fetched from external file
+                $schemaFile = $this->resolveSchemaFile($schema);
+                $hash = sha1($schemaFile);
+            }
+        }
+
+        // Try to fetch it from cache first
+        if (isset(self::$argumentSchemaCache[$hash])) {
+            return self::$argumentSchemaCache[$hash];
+        }
+
+        // Fetch external schema file
+        if (isset($schemaFile)) {
+            if (!file_exists($schemaFile)) {
+                throw new Exception(
+                    sprintf(
+                        'The external schema definition "%s" specified in component "%s" could not be found: %s',
+                        $schema,
+                        $this->componentNamespace,
+                        $schemaFile
+                    ),
+                    1543314142
+                );
+            }
+            $schema = file_get_contents($schemaFile);
+        }
+
+        // Fill cache
+        self::$argumentSchemaCache[$hash] = Schema::import(json_decode($schema));
+        return self::$argumentSchemaCache[$hash];
     }
 
     /**
@@ -328,9 +387,48 @@ class ComponentRenderer extends AbstractViewHelper
                             1530632537
                         );
                     }
+
+                    // Validate JSON schema if provided
+                    if (
+                        GeneralUtility::getApplicationContext()->isDevelopment() &&
+                        $registeredArgument instanceof ArgumentDefinition &&
+                        $registeredArgument->hasSchema()
+                    ) {
+                        $schema = $this->prepareSchema($registeredArgument->getSchema());
+                        if (is_array($value) || is_object($value)) {
+                            $value = json_decode(json_encode($value));
+                        }
+                        $schema->in($value);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Register a new argument. Call this method from your ViewHelper subclass
+     * inside the initializeArguments() method.
+     *
+     * @param string $name Name of the argument
+     * @param string $type Type of the argument
+     * @param string $description Description of the argument
+     * @param boolean $required If TRUE, argument is required. Defaults to FALSE.
+     * @param mixed $defaultValue Default value of argument
+     * @param string $schema JSON schema for validation, either inline or reference to a file
+     * @return \TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper $this, to allow chaining.
+     * @throws Exception
+     * @api
+     */
+    protected function registerArgumentWithSchema($name, $type, $description, $required = false, $defaultValue = null, $schema = null)
+    {
+        if (array_key_exists($name, $this->argumentDefinitions)) {
+            throw new Exception(
+                'Argument "' . $name . '" has already been defined, thus it should not be defined again.',
+                1253036401
+            );
+        }
+        $this->argumentDefinitions[$name] = new ArgumentDefinition($name, $type, $description, $required, $defaultValue, $schema);
+        return $this;
     }
 
     /**
@@ -399,9 +497,29 @@ class ComponentRenderer extends AbstractViewHelper
                 }
 
                 $optional = $param['optional'] ?? false;
-                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
+                $this->registerArgumentWithSchema(
+                    $param['name'],
+                    $param['type'],
+                    '',
+                    !$optional,
+                    $param['default'] ?? null,
+                    $param['schema'] ?? null
+                );
             }
         }
+    }
+
+    /**
+     * Resolves a JSON schema file by its name relative to the current component
+     *
+     * @param string $schema
+     * @return string
+     */
+    protected function resolveSchemaFile(string $schema)
+    {
+        $componentLoader = $this->getComponentLoader();
+        $componentFile = $componentLoader->findComponent($this->componentNamespace);
+        return dirname($componentFile) . "/{$schema}.schema.json";
     }
 
     /**

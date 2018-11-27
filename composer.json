@@ -16,6 +16,7 @@
     },
     "require": {
         "typo3/cms-core": "^8.7.0 || ^9",
+        "swaggest/json-schema": "^0.12.5",
         "php": ">=7.1.0 <8"
     },
     "require-dev": {

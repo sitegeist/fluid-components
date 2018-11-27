@@ -15,6 +15,7 @@ class ParamViewHelper extends AbstractViewHelper
         $this->registerArgument('type', 'string', 'Parameter type', true);
         $this->registerArgument('optional', 'bool', 'Is parameter optional?', false, false);
         $this->registerArgument('default', 'string', 'Default value');
+        $this->registerArgument('schema', 'string', 'JSON schema for parameter validation, either inline or reference to a file');
         $this->registerArgument('description', 'string', 'Description of the parameter');
     }
 }
