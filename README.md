@@ -140,7 +140,6 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 
 ## Extended Documentation
 
-* [First Steps](Documentation/FirstSteps.md)
 * [ViewHelper Reference](Documentation/ViewHelperReference.md)
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
