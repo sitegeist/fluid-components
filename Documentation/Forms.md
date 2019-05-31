@@ -29,3 +29,28 @@ Both ViewHelpers are documented in the [ViewHelper Reference](./ViewHelperRefere
     <f:form.submit value="Create new" />
 </f:form>
 ```
+
+Components/Molecule/FieldLabel/FieldLabel.html:
+
+```xml
+<fc:component>
+    <fc:param name="label" type="string" />
+    <fc:param name="validationMessages" type="array" optional="1" />
+
+    <fc:renderer>
+        <div class="fieldLabel">
+            <label>
+                <span class="fieldLabelText">{label}</span>
+                {content -> f:format.raw()}
+            </label>
+            <f:if condition="{validationMessages}">
+                <ul class="fieldLabelValidation">
+                    <f:for each="{validationMessages}" as="validationMessage">
+                        <li>{validationMessage.message}</li>
+                    </f:for>
+                </ul>
+            </f:if>
+        </div>
+    </fc:renderer>
+</fc:component>
+```
