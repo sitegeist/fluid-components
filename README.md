@@ -129,7 +129,7 @@ defined interface instead of debating implementation details.
 *MyComponent* containing a file *MyComponent.html*
 
 4. Define your component according to [How do components look like?](#how-do-components-look-like) as well as
-the [Documentation](Documentation/Documentation.md).
+the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 
 5. Render your component by including the namespace and calling the component by its name:
 
@@ -138,6 +138,10 @@ the [Documentation](Documentation/Documentation.md).
 	<my:myComponent someParameter="someValue" />
 	```
 
-## Documentation
+## Extended Documentation
 
-[Go to the documentation](Documentation/Documentation.md)
+* [First Steps](Documentation/FirstSteps.md)
+* [ViewHelper Reference](Documentation/ViewHelperReference.md)
+* [Component Prefixers](Documentation/ComponentPrefixers.md)
+* [Component Settings](Documentation/ComponentSettings.md)
+* [Usage with Forms](Documentation/Forms.md)
