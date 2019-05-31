@@ -1,6 +1,7 @@
 <?php
 namespace SMS\FluidComponents\ViewHelpers\Form;
 
+use TYPO3\CMS\Extbase\Error\Message;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Fluid\ViewHelpers\Form\ValidationResultsViewHelper;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
@@ -35,6 +36,13 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
     use CompileWithRenderStatic;
 
     /**
+     * Stores message objects that have already been translated
+     *
+     * @var array
+     */
+    protected static $translatedMessagesCache = [];
+
+    /**
      * @var bool
      */
     protected $escapeOutput = false;
@@ -42,7 +50,7 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
     public function initializeArguments()
     {
         parent::initializeArguments();
-        $this->registerArgument('translatePrefix', 'string', 'String that should be prepended to every language key (e. g. "forms.validation."); Will be ignored if $element is set.', false, '');
+        $this->registerArgument('translatePrefix', 'string', 'String that should be prepended to every language key; Will be ignored if $element is set.', false, 'validation.error.');
         $this->registerArgument('element', RootRenderableInterface::class, 'Form Element to translate');
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
         $this->registerArgument('languageKey', 'string', 'Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language');
@@ -64,20 +72,31 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
     ) {
         $templateVariableContainer = $renderingContext->getVariableProvider();
         $controllerContext = $renderingContext->getControllerContext();
-        $extensionName = $controllerContext->getRequest()->getControllerExtensionName();
 
-        $for = $arguments['for'];
+        $extensionName = $arguments['extensionName'] ?? $controllerContext->getRequest()->getControllerExtensionName();
+        $for = rtrim($arguments['for'], '.');
         $element = $arguments['element'];
 
         $translatedResults = [
             'errors' => [],
             'warnings' => [],
-            'notices' => []
+            'notices' => [],
+            'flattenedErrors' => [],
+            'flattenedWarnings' => [],
+            'flattenedNotices' => [],
+            'hasErrors' => false,
+            'hasWarnings' => false,
+            'hasNotices' => false
         ];
 
-        // Generate validation selector based on form element
         if ($element) {
+            // Generate validation selector based on EXT:form element
             $for = $element->getRootForm()->getIdentifier() . '.' . $element->getIdentifier();
+            $translatePrefix = '';
+        } else {
+            // Generate static language prefix for validation translations outsite of EXT:form
+            $translatePrefix = ($arguments['translatePrefix']) ? rtrim($arguments['translatePrefix'], '.') . '.' : '';
+            $translatePrefix .= ($for) ? $for . '.' : '';
         }
 
         // Fetch validation results from API
@@ -88,6 +107,7 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
 
         // Translate validation results
         if ($validationResults) {
+            // Translate validation messages that refer to the current form field
             $levels = [
                 'errors' => $validationResults->getErrors(),
                 'warnings' => $validationResults->getWarnings(),
@@ -95,34 +115,38 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
             ];
             foreach ($levels as $level => $messages) {
                 foreach ($messages as $message) {
-                    if ($element) {
-                        // Use form framework for translation
-                        $translatedMessage = static::translateFormElementError(
+                    $translatedResults[$level][] = static::translateMessage(
+                        $renderingContext,
+                        $message,
+                        $translatePrefix,
+                        $element,
+                        $extensionName,
+                        $arguments['languageKey'],
+                        $arguments['alternativeLanguageKeys']
+                    );
+                }
+            }
+
+            // Translate validation messages that refer to child fields (flattenedErrors)
+            $levels = [
+                'flattenedErrors' => $validationResults->getFlattenedErrors(),
+                'flattenedWarnings' => $validationResults->getFlattenedWarnings(),
+                'flattenedNotices' => $validationResults->getFlattenedNotices()
+            ];
+            foreach ($levels as $level => $flattened) {
+                foreach ($flattened as $identifier => $messages) {
+                    $translatedResults[$level][$identifier] = [];
+                    foreach ($messages as $message) {
+                        $translatedResults[$level][$identifier][] = static::translateMessage(
+                            $renderingContext,
+                            $message,
+                            $translatePrefix . $identifier . '.',
                             $element,
-                            $message->getCode(),
-                            $message->getArguments(),
-                            $message->getMessage(),
-                            $renderingContext
-                        );
-                    } else {
-                        // Use TYPO3 for translation
-                        $translatedMessage = static::translate(
-                            $arguments['translatePrefix'] . $message->getCode(),
-                            $arguments['extensionName'] ?? $extensionName,
-                            $message->getArguments(),
+                            $extensionName,
                             $arguments['languageKey'],
                             $arguments['alternativeLanguageKeys']
                         );
-                        $translatedMessage = $translatedMessage ?? $message->getMessage();
                     }
-
-                    $translatedResults[$level][] = [
-                        'message' => $translatedMessage,
-                        'originalMessage' => $message->getMessage(),
-                        'code' => $message->getCode(),
-                        'title' => $message->getTitle(),
-                        'arguments' => $message->getArguments()
-                    ];
                 }
             }
         }
@@ -139,42 +163,124 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
     }
 
     /**
-     * Returns the localized label of the LOCAL_LANG key, $key.
+     * Translates a validation message, either by using EXT:form's translation chain
+     * or by the custom implementation of fluid_components for validation translations
      *
-     * @param string $key The key from the LOCAL_LANG array for which to return the value.
-     * @param string|null $extensionName The name of the extension
+     * @param RenderingContextInterface $renderingContext
+     * @param Message $message
+     * @param string $translatePrefix
+     * @param RootRenderableInterface $element
+     * @param string $extensionName
+     * @param string $languageKey
+     * @param array $alternativeLanguageKeys
+     * @return void
+     */
+    protected static function translateMessage(
+        RenderingContextInterface $renderingContext,
+        Message $message,
+        string $translatePrefix = '',
+        RootRenderableInterface $element = null,
+        string $extensionName = null,
+        string $languageKey = null,
+        array $alternativeLanguageKeys = null
+    ) {
+        // Make sure that messages are translated only once
+        $hash = spl_object_hash($message);
+        if (isset(static::$translatedMessagesCache[$hash])) {
+            return static::$translatedMessagesCache[$hash];
+        }
+
+        if ($element) {
+            // Use EXT:form for translation
+            $translatedMessage = static::translateFormElementError(
+                $renderingContext,
+                $element,
+                $message->getCode(),
+                $message->getArguments(),
+                $message->getMessage()
+            );
+        } else {
+            // Use TYPO3 for translation
+            $translatedMessage = static::translateValidationError(
+                [$translatePrefix],
+                $message->getCode(),
+                $message->getArguments(),
+                $message->getMessage(),
+                $extensionName,
+                $languageKey,
+                $alternativeLanguageKeys
+            );
+        }
+
+        // Create new message object from the translated message
+        $messageClass = get_class($message);
+        $newMessage = new $messageClass(
+            $translatedMessage,
+            $message->getCode(),
+            $message->getArguments(),
+            $message->getTitle()
+        );
+
+        // Prevent double translations
+        self::$translatedMessagesCache[$hash] = $newMessage;
+        self::$translatedMessagesCache[spl_object_hash($newMessage)] = $newMessage;
+
+        return $newMessage;
+    }
+
+    /**
+     * Translates the provided validation message by using TYPO3's localization utility
+     *
+     * @param array $translationChain Chain of translation keys that should be checked for translations
+     * @param int $code Validation error code
      * @param array $arguments The arguments of the extension, being passed over to vsprintf
+     * @param string $defaultValue Default validation message used as a fallback
+     * @param string|null $extensionName The name of the extension
      * @param string $languageKey The language key or null for using the current language from the system
      * @param string[] $alternativeLanguageKeys The alternative language keys if no translation was found. If null and we are in the frontend, then the language_alt from TypoScript setup will be used
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
      */
-    public static function translate(
-        string $key,
+    public static function translateValidationError(
+        array $translationChain,
+        int $code,
+        array $arguments,
+        string $defaultValue = '',
         string $extensionName = null,
-        array $arguments = null,
         string $languageKey = null,
         array $alternativeLanguageKeys = null
     ): ?string {
-        return LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+        foreach ($translationChain as $translatePrefix) {
+            $translatedMessage = LocalizationUtility::translate(
+                $translatePrefix . $code,
+                $extensionName,
+                $arguments,
+                $languageKey,
+                $alternativeLanguageKeys
+            );
+            if ($translatedMessage) {
+                return $translatedMessage;
+            }
+        }
+        return $defaultValue;
     }
 
     /**
      * Translates the provided validation message by using the translation chain by EXT:form
      *
+     * @param RenderingContextInterface $renderingContext
      * @param RootRenderableInterface $element
      * @param int $code
      * @param string $defaultValue
      * @param array $arguments
-     * @param RenderingContextInterface $renderingContext
      * @return string
      * @throws \InvalidArgumentException
      */
     public static function translateFormElementError(
+        RenderingContextInterface $renderingContext,
         RootRenderableInterface $element,
         int $code,
         array $arguments,
-        string $defaultValue = '',
-        RenderingContextInterface $renderingContext
+        string $defaultValue = ''
     ): string {
         /** @var FormRuntime $formRuntime */
         $formRuntime = $renderingContext
