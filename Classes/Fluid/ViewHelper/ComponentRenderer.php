@@ -63,9 +63,18 @@ class ComponentRenderer extends AbstractViewHelper
     static protected $componentPrefixerCache = [];
 
     /**
+     * Components are HTML markup which should not be escaped
+     *
      * @var boolean
      */
     protected $escapeOutput = false;
+
+    /**
+     * Children should be treated just like an argument
+     *
+     * @var boolean
+     */
+    protected $escapeChildren = false;
 
     /**
      * Sets the namespace of the component the viewhelper should render
