@@ -120,7 +120,7 @@ class ComponentRenderer extends AbstractViewHelper
         // Create a new rendering context for the component file
         $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
         $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
-
+        $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         $variableContainer = $renderingContext->getVariableProvider();
 
         // Provide information about component to renderer
