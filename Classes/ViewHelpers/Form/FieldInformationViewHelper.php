@@ -83,6 +83,7 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
         $properties['name'] = $this->getName();
         $properties['nameWithoutPrefix'] = $this->getNameWithoutPrefix();
         $properties['formIdentifier'] = ($formRuntime) ? $formRuntime->getFormDefinition()->getIdentifier() : null;
+        $properties['prefix'] = $this->getPrefix();
 
         // Provide form properties to children (e. g. components)
         $this->templateVariableContainer->add($this->arguments['as'], $properties);
@@ -90,5 +91,19 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
         $this->templateVariableContainer->remove($this->arguments['as']);
 
         return $output;
+    }
+
+    /**
+     * returns prefix / namespace
+     *
+     * @return string prefix/namespace
+     */
+    protected function getPrefix()
+    {
+        if (!$this->viewHelperVariableContainer->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix')) {
+            return '';
+        }
+        $fieldNamePrefix = (string)$this->viewHelperVariableContainer->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix');
+        return $fieldNamePrefix;
     }
 }
