@@ -68,6 +68,16 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
+     * Returns all registered component namespaces
+     *
+     * @return array
+     */
+    public function getNamespaces(): array
+    {
+        return $this->namespaces;
+    }
+
+    /**
      * Finds a component file based on its class namespace
      *
      * @param string $class
