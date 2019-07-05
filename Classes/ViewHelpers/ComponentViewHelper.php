@@ -25,6 +25,6 @@ class ComponentViewHelper extends AbstractViewHelper
      */
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
-        return $renderChildrenClosure();
+        return trim($renderChildrenClosure());
     }
 }
