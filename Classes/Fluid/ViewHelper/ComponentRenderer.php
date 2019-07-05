@@ -178,7 +178,7 @@ class ComponentRenderer extends AbstractViewHelper
     {
         if ($argumentValue instanceof \Closure) {
             return $argumentValue($renderingContext);
-        } else if ($argumentValue instanceof NodeInterface) {
+        } elseif ($argumentValue instanceof NodeInterface) {
             return $argumentValue->evaluate($renderingContext);
         } else {
             return $argumentValue;
