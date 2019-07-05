@@ -43,6 +43,8 @@ arguments:
     * `float`
     * `array` or something like `float[]`
     * PHP class names like `DateTime` or `\TYPO3\CMS\Core\Resource\FileInterface`
+* `schema`: JSON schema that should be used for further validation of the parameter.
+See [JSON schema validation](#json-schema-validation) for further information.
 * `description` (optional): A description of the parameter for documentation purposes
 * `optional` (default: `false`): Declares if the parameter can be omitted when using the component
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The
@@ -59,6 +61,10 @@ when using the `f:translate` ViewHelper, you should always specify the `extensio
 <fc:param name="lastName" type="string" />
 <!-- optional parameter -->
 <fc:param name="firstName" type="string" optional="1" />
+<!-- JSON schema validation (inline) -->
+<fc:param name="email" type="string" schema="{ type: 'string', format: 'email' }" />
+<!-- JSON schema validation (external file: MyComponent/person.schema.json) -->
+<fc:param name="person" type="array" schema="person" />
 <!-- parameter with description -->
 <fc:param name="badges" type="array" description="An array of user badges" />
 <!-- parameter with default value -->
@@ -103,6 +109,67 @@ none
     <a href="{link}">{content}</a>
 </fc:renderer>
 ```
+
+### JSON schema validation
+
+In addition to the simple type validation, component parameters can be validated against a
+[JSON schema](https://json-schema.org/). This validation will only be performed in `Development`
+context to prevent minor error messages and performance implications in `Production` contexts.
+
+The schema can be defined either inline or point to a `.schema.json` file placed inside the
+component folder:
+
+#### Inline schema
+
+The following parameter "email" will be checked for a valid email address:
+
+```xml
+<fc:param name="email" type="string" schema="{ type: 'string', format: 'email' }" />
+```
+
+#### Schema in a file
+
+The following parameter "user" will be validated against a separate schema file:
+
+*Components/MyComponent/MyComponent.html:*
+
+```xml
+<fc:param name="user" type="array" schema="user" />
+```
+
+*Components/MyComponent/user.schema.json:*
+
+```json
+{
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "middleName": {
+            "type": "string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string",
+            "format": "email"
+        }
+    },
+    "required": [
+        "firstName",
+        "lastName",
+        "email"
+    ]
+}
+```
+
+To call the component, you can either use objects provided by PHP or define them directly in Fluid:
+
+```xml
+<my:myComponent user="{firstName: 'Jane', lastName: 'Doe', email: 'doe@example.com'}" />
+
 
 ## Form Handling
 
