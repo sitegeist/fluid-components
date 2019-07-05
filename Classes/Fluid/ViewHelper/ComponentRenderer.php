@@ -406,8 +406,7 @@ class ComponentRenderer extends AbstractViewHelper
 
                     // Validate JSON schema if provided
                     // (only in Development context to prevent minor error messages in production contexts)
-                    if (
-                        GeneralUtility::getApplicationContext()->isDevelopment() &&
+                    if (GeneralUtility::getApplicationContext()->isDevelopment() &&
                         $registeredArgument instanceof ArgumentDefinition &&
                         $registeredArgument->hasSchema()
                     ) {
