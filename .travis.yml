@@ -4,7 +4,12 @@ php:
     - '7.1'
     - '7.2'
     - '7.3'
-before_script: composer install
+cache:
+    directories:
+        - $HOME/.composer/cache/files
+before_script:
+    - phpenv config-rm xdebug.ini
+    - composer install --prefer-dist
 script:
     - composer lint
     #- composer test
