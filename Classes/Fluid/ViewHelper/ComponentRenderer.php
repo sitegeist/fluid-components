@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
+use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
@@ -141,8 +142,13 @@ class ComponentRenderer extends AbstractViewHelper
         $variableContainer->add('settings', $this->getComponentSettings());
 
         // Provide supplied arguments from component call to renderer
+        $componentArgumentConverter = $this->getComponentArgumentConverter();
         foreach ($this->arguments as $name => $argument) {
-            $variableContainer->add($name, $this->renderArgument($argument, $renderingContext));
+            $argumentType = $this->argumentDefinitions[$name]->getType();
+
+            $argument = $this->renderArgument($argument, $renderingContext);
+            $argument = $componentArgumentConverter->convertValueToType($argument, $argumentType);
+            $variableContainer->add($name, $argument);
         }
 
         // Provide component content to renderer
@@ -313,6 +319,7 @@ class ComponentRenderer extends AbstractViewHelper
      */
     public function validateArguments()
     {
+        $componentArgumentConverter = $this->getComponentArgumentConverter();
         $argumentDefinitions = $this->prepareArguments();
         foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
             if ($this->hasArgument($argumentName)) {
@@ -321,7 +328,9 @@ class ComponentRenderer extends AbstractViewHelper
                 $type = $registeredArgument->getType();
                 if ($value !== $defaultValue && $type !== 'mixed') {
                     $givenType = is_object($value) ? get_class($value) : gettype($value);
-                    if (!$this->isValidType($type, $value)) {
+                    if (!$this->isValidType($type, $value)
+                        && !$componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
+                    ) {
                         throw new \InvalidArgumentException(
                             'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
                             $givenType . '" in component "' . $this->componentNamespace . '".',
@@ -499,7 +508,7 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * @return ComponentLoader
      */
-    protected function getComponentLoader()
+    protected function getComponentLoader(): ComponentLoader
     {
         return GeneralUtility::makeInstance(ComponentLoader::class);
     }
@@ -507,8 +516,16 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * @return ComponentSettings
      */
-    protected function getComponentSettings()
+    protected function getComponentSettings(): ComponentSettings
     {
         return GeneralUtility::makeInstance(ComponentSettings::class);
+    }
+
+    /**
+     * @return ComponentArgumentConverter
+     */
+    protected function getComponentArgumentConverter(): ComponentArgumentConverter
+    {
+        return GeneralUtility::makeInstance(ComponentArgumentConverter::class);
     }
 }
