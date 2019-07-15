@@ -273,7 +273,7 @@ Usage for one individual form field:
 Usage with EXT:form:
 
 ```xml
-<fc:form.translatedValidationResults field="{field} as="validationResults">
+<fc:form.translatedValidationResults field="{field}" as="validationResults">
 	<my:molecule.fieldLabel
 		validationMessages="{validationResults.errors}"
 	>
