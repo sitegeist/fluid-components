@@ -104,6 +104,37 @@ none
 </fc:renderer>
 ```
 
+## Translations
+
+### Translate.Labels ViewHelper
+
+There are cases in which you need to use several translation labels in your component. Usually, you would define an argument in your component which gets an array of translated labels. Although it is possible to create that array manually in Fluid, it can become cumbersome and hard to read.
+
+The `fc:translate.labels` ViewHelper aims to make that fluid code more readable. It takes an array of translation keys and returns an array of translations.
+
+#### Arguments
+
+* `keys`: Array of translation keys that should be resolved. The array items can either be strings (= the translation key) or arrays to specify translation arguments as well as a default value (see examples). Possible sub-array keys:
+    * `key`: Translation key
+    * `arguments`: Arguments for the translation (sprintf)
+    * `default`: Default value if the translation doesn't exist
+* `extensionName`: Name of the extension that contains the language file
+* `languageKey`: Language key if the current language shouldn't be used
+* `alternativeLanguageKeys`: Alternative language keys that should be used as fallback if the translation doesn't exist
+
+#### Examples
+
+```xml
+<my:organism.header
+    labels="{fc:translate.labels(keys: {
+        login: 'Login',
+        logout: {key: 'Logout', arguments: {0: user.name}},
+        menu: {key: 'Menu', default: 'Menu'}
+    })}"
+/>
+```
+
+
 ## Form Handling
 
 ### Form.FieldInformation ViewHelper
