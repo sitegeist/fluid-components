@@ -16,7 +16,6 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
     protected $target;
     protected $class;
     protected $title;
-    protected $additionalParams;
 
     public function __construct(string $typolink)
     {
@@ -28,7 +27,8 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
 
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         $url = $cObj->typoLink_URL([
-            'parameter' => $typolinkConfiguration['url']
+            'parameter' => $typolinkConfiguration['url'],
+            'additionalParams' => $typolinkConfiguration['additionalParams']
         ]);
 
         $this
@@ -36,8 +36,7 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
             ->setOriginalLink($urn)
             ->setTarget($typolinkConfiguration['target'])
             ->setClass($typolinkConfiguration['class'])
-            ->setTitle($typolinkConfiguration['title'])
-            ->setAdditionalParams($typolinkConfiguration['additionalParams']);
+            ->setTitle($typolinkConfiguration['title']);
     }
 
     public static function fromInteger(int $pageUid): self
@@ -47,11 +46,16 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
 
     public static function fromArray(array $typolinkData): self
     {
-        $instance = new static($typolinkData['uri']);
-        $instance->setTarget($typolinkData['target'] ?? '');
-        $instance->setClass($typolinkData['class'] ?? '');
-        $instance->setTitle($typolinkData['title'] ?? '');
-        $instance->setAdditionalParams($typolinkData['additionalParams'] ?? '');
+        $instance = new static((string) $typolinkData['uri']);
+        if (isset($typolinkData['target'])) {
+            $instance->setTarget((string) $typolinkData['target']);
+        }
+        if (isset($typolinkData['class'])) {
+            $instance->setClass((string) $typolinkData['class']);
+        }
+        if (isset($typolinkData['title'])) {
+            $instance->setTitle((string) $typolinkData['title']);
+        }
         return $instance;
     }
 
@@ -97,16 +101,5 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
     public function getTitle(): string
     {
         return $this->title;
-    }
-
-    public function setAdditionalParams(string $additionalParams): self
-    {
-        $this->additionalParams = $additionalParams;
-        return $this;
-    }
-
-    public function getAdditionalParams(): string
-    {
-        return $this->additionalParams;
     }
 }
