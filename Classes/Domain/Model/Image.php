@@ -15,8 +15,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Generic data structures to pass images from various sources
- * (FAL, file path, placeholder image) to components by
- * using a clear API.
+ * (FAL, file path, external file uri, placeholder image) to components
+ * by using a clear API.
  */
 abstract class Image implements
     ConstructibleFromString,
@@ -53,7 +53,7 @@ abstract class Image implements
     abstract public function getPublicUrl(): string;
 
     /**
-     * Creates an image object based on a static file
+     * Creates an image object based on a static file (local or remote)
      *
      * @param string $value
      * @return self
@@ -119,6 +119,10 @@ abstract class Image implements
      *         ]
      *     ]
      *
+     * Static file uri:
+     *
+     *     [ "file" => "https://example.com/MyImage.png" ]
+     *
      * Placeholder image with dimensions:
      *
      *     [ "width" => 1000, "height": 750 ]
@@ -139,7 +143,7 @@ abstract class Image implements
     {
         // Create an image from file uid
         if (isset($value['fileUid'])) {
-            $image = static::fromInteger((int) $value['fileUid']);
+            $image = static::fromFileUid((int) $value['fileUid']);
         // Create an image from file reference uid
         } elseif (isset($value['fileReferenceUid'])) {
             $image = static::fromFileReferenceUid((int) $value['fileReferenceUid']);
@@ -188,7 +192,7 @@ abstract class Image implements
             }
 
             $image = static::fromExtensionResource($extensionKey, $resource['path']);
-        // Create an image from a file path
+        // Create an image from a file path or uri
         } elseif (isset($value['file'])) {
             $image = static::fromString((string) $value['file']);
         // Create a placeholder image with the specified dimensions
