@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
+use SMS\FluidComponents\Exception\InvalidRemoteImageException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
@@ -59,7 +60,11 @@ abstract class Image implements
      */
     public static function fromString(string $value): self
     {
-        return new LocalImage($value);
+        try {
+            return new RemoteImage($value);
+        } catch (InvalidRemoteImageException $e) {
+            return new LocalImage($value);
+        }
     }
 
     /**
