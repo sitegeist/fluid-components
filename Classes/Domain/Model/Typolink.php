@@ -3,8 +3,9 @@
 namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Domain\Model\Link;
-use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
+use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -46,6 +47,13 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
 
     public static function fromArray(array $typolinkData): self
     {
+        if (!isset($typolinkData['uri'])) {
+            throw new InvalidArgumentException(
+                'At least an URI has to be provided to be able to create a Typolink object.',
+                1564488090
+            );
+        }
+
         $instance = new static((string) $typolinkData['uri']);
         if (isset($typolinkData['target'])) {
             $instance->setTarget((string) $typolinkData['target']);
