@@ -4,14 +4,38 @@ namespace SMS\FluidComponents\Domain\Model;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * Data structure for a placeholder image to be passed to a component
+ */
 class PlaceholderImage extends Image
 {
+    /**
+     * Type of image to differentiate implementations in Fluid templates
+     *
+     * @var string
+     */
     protected $type = 'PlaceholderImage';
 
-    protected $width;
+    /**
+     * Width of the placeholder image
+     *
+     * @var integer
+     */
+    protected $width = 0;
 
-    protected $height;
+    /**
+     * Height of the placeholder image
+     *
+     * @var integer
+     */
+    protected $height = 0;
 
+    /**
+     * Creates an image object for a placeholder image
+     *
+     * @param integer $width
+     * @param integer $height
+     */
     public function __construct(int $width, int $height)
     {
         $this->width = $width;
