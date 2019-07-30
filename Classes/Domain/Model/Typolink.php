@@ -11,40 +11,97 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
 
+/**
+ * Data Structure to provide information extracted from a Typolink string
+ * in a structured matter
+ */
 class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFromArray
 {
-    protected $originalLink;
-    protected $target;
-    protected $class;
-    protected $title;
+    /**
+     * Data interpretation of the provided TYPO3 uri
+     *
+     * @var array
+     * @see LinkService::resolve()
+     */
+    protected $originalLink = [];
 
+    /**
+     * Link target window of the Typolink
+     * e. g. _blank
+     *
+     * @var string
+     */
+    protected $target = '';
+
+    /**
+     * Additional CSS classes for the html element
+     *
+     * @var string
+     */
+    protected $class = '';
+
+    /**
+     * Title attribute for the html element
+     *
+     * @var string
+     */
+    protected $title = '';
+
+    /**
+     * Creates a Typolink data structure from a Typolink string
+     *
+     * @param string $typolink  e. g. t3://page?uid=123 _blank - "Link title"
+     */
     public function __construct(string $typolink)
     {
+        // Extract Typolink array configuration from string
         $typoLinkCodec = GeneralUtility::makeInstance(TypoLinkCodecService::class);
         $typolinkConfiguration = $typoLinkCodec->decode($typolink);
 
+        // Analyze structure of provided TYPO3 uri
         $linkService = GeneralUtility::makeInstance(LinkService::class);
-        $urn = $linkService->resolve($typolinkConfiguration['url']);
+        $uriStructure = $linkService->resolve($typolinkConfiguration['url']);
 
+        // Generate general purpose uri (https://) from TYPO3 uri (t3://)
+        // Could also be a mailto or tel uri
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
-        $url = $cObj->typoLink_URL([
+        $uri = $cObj->typoLink_URL([
             'parameter' => $typolinkConfiguration['url'],
             'additionalParams' => $typolinkConfiguration['additionalParams']
         ]);
 
         $this
-            ->setUri($url)
-            ->setOriginalLink($urn)
+            ->setUri($uri)
+            ->setOriginalLink($uriStructure)
             ->setTarget($typolinkConfiguration['target'])
             ->setClass($typolinkConfiguration['class'])
             ->setTitle($typolinkConfiguration['title']);
     }
 
+    /**
+     * Creates a Typolink data structure from a page uid
+     *
+     * @param integer $pageUid
+     * @return self
+     */
     public static function fromInteger(int $pageUid): self
     {
         return new static((string) $pageUid);
     }
 
+    /**
+     * Creates a Typolink data structure from an array
+     *
+     * Possible array keys are:
+     * - uri (required)
+     * - target
+     * - class
+     * - title
+     *
+     * @param array $typolinkData
+     * @return self
+     * @throws InvalidArgumentException
+     */
     public static function fromArray(array $typolinkData): self
     {
         if (!isset($typolinkData['uri'])) {
@@ -55,15 +112,19 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
         }
 
         $instance = new static((string) $typolinkData['uri']);
+
         if (isset($typolinkData['target'])) {
             $instance->setTarget((string) $typolinkData['target']);
         }
+
         if (isset($typolinkData['class'])) {
             $instance->setClass((string) $typolinkData['class']);
         }
+
         if (isset($typolinkData['title'])) {
             $instance->setTitle((string) $typolinkData['title']);
         }
+
         return $instance;
     }
 
