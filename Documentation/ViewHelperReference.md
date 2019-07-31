@@ -48,9 +48,9 @@ arguments:
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The
 default value can alternatively be defined in the `fc:param` tag content.
 
-In addition to static values, the `default` argument can also contain Fluid variables (mainly `{settings...}`)
-and ViewHelper calls, although this can lead to unexpected results depending on the ViewHelper used. For example,
-when using the `f:translate` ViewHelper, you should always specify the `extensionName` attribute.
+Deprecation Notice: Please note that, while it is technically possible to use certain Fluid variables as
+well as ViewHelpers in the `default` argument, this feature should no longer be used. It will be removed
+in the next major version of the extension.
 
 #### Examples
 
@@ -62,9 +62,9 @@ when using the `f:translate` ViewHelper, you should always specify the `extensio
 <!-- parameter with description -->
 <fc:param name="badges" type="array" description="An array of user badges" />
 <!-- parameter with default value -->
-<fc:param name="googleApiKey" type="string" optional="1" default="{settings.google.apiKey}" />
+<fc:param name="theme" type="string" optional="1" default="dark" />
 <!-- alternative notation -->
-<fc:param name="googleApiKey" type="string" optional="1">{settings.google.apiKey}</fc:param>
+<fc:param name="theme" type="string" optional="1">dark</fc:param>
 ```
 
 ### Renderer ViewHelper
