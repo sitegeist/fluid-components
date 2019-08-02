@@ -82,6 +82,9 @@ abstract class Image implements
      * Creates an image object based on data passed by array. There are numerous
      * array structures that create a valid image object:
      *
+     * FAL file object:
+     *     [ "fileObject" => $myFileObject ]
+     *
      * FAL file uid:
      *
      *     [ "fileUid" => 123 ]
@@ -141,8 +144,11 @@ abstract class Image implements
      */
     public static function fromArray(array $value): self
     {
+        // Create an imafe from an existing FAL object
+        if (isset($value['fileObject'])) {
+            $image = static::fromFileInterface($value['fileObject']);
         // Create an image from file uid
-        if (isset($value['fileUid'])) {
+        } elseif (isset($value['fileUid'])) {
             $image = static::fromFileUid((int) $value['fileUid']);
         // Create an image from file reference uid
         } elseif (isset($value['fileReferenceUid'])) {
