@@ -42,7 +42,7 @@ arguments:
     * `integer`
     * `float`
     * `array` or something like `float[]`
-    * PHP class names like `DateTime` or `\TYPO3\CMS\Core\Resource\FileInterface`
+    * PHP class names like `DateTime` or `SMS\FluidComponents\Domain\Model\Image`
 * `description` (optional): A description of the parameter for documentation purposes
 * `optional` (default: `false`): Declares if the parameter can be omitted when using the component
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The
