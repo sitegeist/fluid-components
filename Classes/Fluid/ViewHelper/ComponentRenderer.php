@@ -408,7 +408,8 @@ class ComponentRenderer extends AbstractViewHelper
                 }
 
                 $optional = $param['optional'] ?? false;
-                $this->registerArgument($param['name'], $param['type'], '', !$optional, $param['default']);
+                $description = $param['description'] ?? '';
+                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default']);
             }
         }
     }
