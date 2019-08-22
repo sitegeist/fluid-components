@@ -125,6 +125,14 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         return null;
     }
 
+    /**
+     * Provides a list of all components that are available in the specified component namespace
+     *
+     * @param string $namespace
+     * @param string $ext
+     * @return array  Array of components where the keys contain the component identifier (FQCN)
+     *                and the values contain the path to the component
+     */
     public function findComponentsInNamespace(string $namespace, string $ext = '.html'): array
     {
         if (!isset($this->namespaces[$namespace])) {
@@ -138,6 +146,14 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         );
     }
 
+    /**
+     * Searches for component files in a directory and maps them to their namespace
+     *
+     * @param string $path
+     * @param string $ext
+     * @param string $namespace
+     * @return array
+     */
     protected function scanForComponents(string $path, string $ext, string $namespace): array
     {
         $components = [];
@@ -145,6 +161,8 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         $componentCandidates = scandir($path);
         foreach ($componentCandidates as $componentName) {
             $componentPath = $path . DIRECTORY_SEPARATOR . $componentName;
+
+            // Only search for directories
             if ($componentName === '.' || $componentName === '..' || !is_dir($componentPath)) {
                 continue;
             }
@@ -152,10 +170,12 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
             $componentNamespace = $namespace . '\\' . $componentName;
             $componentFile = $componentPath . DIRECTORY_SEPARATOR . $componentName . $ext;
 
+            // Only match folders that contain a component file
             if (file_exists($componentFile)) {
                 $components[$componentNamespace] = $componentFile;
             }
 
+            // Continue recursively
             $components = array_merge(
                 $components,
                 $this->scanForComponents($componentPath, $ext, $componentNamespace)
@@ -165,11 +185,23 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         return $components;
     }
 
+    /**
+     * Sanitizes a PHP namespace for use in the component loader
+     *
+     * @param string $namespace
+     * @return string
+     */
     protected function sanitizeNamespace(string $namespace): string
     {
         return trim($namespace, '\\');
     }
 
+    /**
+     * Sanitizes a path for use in the component loader
+     *
+     * @param string $path
+     * @return string
+     */
     protected function sanitizePath(string $path): string
     {
         return rtrim($path, DIRECTORY_SEPARATOR);
