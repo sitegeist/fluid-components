@@ -37,6 +37,10 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function addNamespace(string $namespace, string $path): self
     {
+        // Sanitize namespace data
+        $namespace = $this->sanitizeNamespace($namespace);
+        $path = $this->sanitizePath($path);
+
         $this->namespaces[$namespace] = $path;
         return $this;
     }
@@ -61,9 +65,15 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function setNamespaces(array $namespaces): self
     {
+        // Make sure that namespaces are sanitized
+        $this->namespaces = [];
+        foreach ($namespaces as $namespace => $path) {
+            $this->addNamespace($namespace, $path);
+        }
+
         // Order by namespace specificity
         arsort($namespaces);
-        $this->namespaces = $namespaces;
+
         return $this;
     }
 
@@ -94,8 +104,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         // Walk through available namespaces, ordered from specific to unspecific
         $class = ltrim($class, '\\');
         foreach ($this->namespaces as $namespace => $path) {
-            $namespace = ltrim($namespace, '\\');
-
             // No match, skip to next
             if (strpos($class, $namespace) !== 0) {
                 continue;
@@ -103,8 +111,8 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
             $componentParts = explode('\\', trim(substr($class, strlen($namespace)), '\\'));
 
-            $componentPath = rtrim($path, '/') . '/' . implode('/', $componentParts) . '/' . end($componentParts);
-            $componentFile = $componentPath . $ext;
+            $componentPath = $path . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $componentParts);
+            $componentFile = $componentPath . DIRECTORY_SEPARATOR . end($componentParts) .  $ext;
 
             // Check if component file exists
             if (file_exists($componentFile)) {
@@ -114,5 +122,15 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         return null;
+    }
+
+    protected function sanitizeNamespace(string $namespace): string
+    {
+        return trim($namespace, '\\');
+    }
+
+    protected function sanitizePath(string $path): string
+    {
+        return rtrim($path, DIRECTORY_SEPARATOR);
     }
 }
