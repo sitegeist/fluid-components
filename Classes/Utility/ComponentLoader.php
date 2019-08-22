@@ -72,7 +72,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Order by namespace specificity
-        arsort($namespaces);
+        krsort($this->namespaces);
 
         return $this;
     }
