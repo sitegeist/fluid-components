@@ -97,8 +97,9 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
     public function findComponent(string $class, string $ext = '.html')
     {
         // Try cache first
-        if (isset($this->componentsCache[$class])) {
-            return $this->componentsCache[$class] . $ext;
+        $cacheIdentifier = $class . '|' . $ext;
+        if (isset($this->componentsCache[$cacheIdentifier])) {
+            return $this->componentsCache[$cacheIdentifier];
         }
 
         // Walk through available namespaces, ordered from specific to unspecific
@@ -116,7 +117,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
             // Check if component file exists
             if (file_exists($componentFile)) {
-                $this->componentsCache[$class] = $componentPath;
+                $this->componentsCache[$cacheIdentifier] = $componentFile;
                 return $componentFile;
             }
         }
