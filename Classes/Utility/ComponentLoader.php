@@ -125,6 +125,46 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         return null;
     }
 
+    public function findComponentsInNamespace(string $namespace, string $ext = '.html'): array
+    {
+        if (!isset($this->namespaces[$namespace])) {
+            return [];
+        }
+
+        return $this->scanForComponents(
+            $this->namespaces[$namespace],
+            $ext,
+            $namespace
+        );
+    }
+
+    protected function scanForComponents(string $path, string $ext, string $namespace): array
+    {
+        $components = [];
+
+        $componentCandidates = scandir($path);
+        foreach ($componentCandidates as $componentName) {
+            $componentPath = $path . DIRECTORY_SEPARATOR . $componentName;
+            if ($componentName === '.' || $componentName === '..' || !is_dir($componentPath)) {
+                continue;
+            }
+
+            $componentNamespace = $namespace . '\\' . $componentName;
+            $componentFile = $componentPath . DIRECTORY_SEPARATOR . $componentName . $ext;
+
+            if (file_exists($componentFile)) {
+                $components[$componentNamespace] = $componentFile;
+            }
+
+            $components = array_merge(
+                $components,
+                $this->scanForComponents($componentPath, $ext, $componentNamespace)
+            );
+        }
+
+        return $components;
+    }
+
     protected function sanitizeNamespace(string $namespace): string
     {
         return trim($namespace, '\\');
