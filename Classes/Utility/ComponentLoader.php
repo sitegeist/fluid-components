@@ -105,7 +105,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         $class = ltrim($class, '\\');
         foreach ($this->namespaces as $namespace => $path) {
             // No match, skip to next
-            if (strpos($class, $namespace) !== 0) {
+            if (strpos($class, $namespace . '\\') !== 0) {
                 continue;
             }
 
