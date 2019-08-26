@@ -139,10 +139,12 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
             return [];
         }
 
+        $scannedPaths = [];
         return $this->scanForComponents(
             $this->namespaces[$namespace],
             $ext,
-            $namespace
+            $namespace,
+            $scannedPaths
         );
     }
 
@@ -152,20 +154,27 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $path
      * @param string $ext
      * @param string $namespace
+     * @param array $scannedPaths  Collection of paths that have already been scanned for components;
+     *                             this prevents infinite loops caused by circular symlinks
      * @return array
      */
-    protected function scanForComponents(string $path, string $ext, string $namespace): array
+    protected function scanForComponents(string $path, string $ext, string $namespace, array &$scannedPaths): array
     {
         $components = [];
 
         $componentCandidates = scandir($path);
         foreach ($componentCandidates as $componentName) {
-            $componentPath = $path . DIRECTORY_SEPARATOR . $componentName;
-
-            // Only search for directories
-            if ($componentName === '.' || $componentName === '..' || !is_dir($componentPath)) {
+            // Skip relative links
+            if ($componentName === '.' || $componentName === '..') {
                 continue;
             }
+
+            // Only search for directories and prevent infinite loops
+            $componentPath = realpath($path . DIRECTORY_SEPARATOR . $componentName);
+            if (!is_dir($componentPath) || isset($scannedPaths[$componentPath])) {
+                continue;
+            }
+            $scannedPaths[$componentPath] = true;
 
             $componentNamespace = $namespace . '\\' . $componentName;
             $componentFile = $componentPath . DIRECTORY_SEPARATOR . $componentName . $ext;
@@ -178,7 +187,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
             // Continue recursively
             $components = array_merge(
                 $components,
-                $this->scanForComponents($componentPath, $ext, $componentNamespace)
+                $this->scanForComponents($componentPath, $ext, $componentNamespace, $scannedPaths)
             );
         }
 

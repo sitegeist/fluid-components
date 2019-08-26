@@ -15,7 +15,7 @@ class ComponentLoaderTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 
     protected function getFixturePath($fixtureName)
     {
-        return dirname(__FILE__) . '/../Fixtures/' . $fixtureName;
+        return realpath(dirname(__FILE__) . '/../Fixtures/' . $fixtureName);
     }
 
     public function addNamespaceProvider()
@@ -177,6 +177,7 @@ class ComponentLoaderTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
                 '.html',
                 [
                     'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => $this->getFixturePath('ComponentLoader/Atom/Button/Button.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\ComponentLoaderSymlink' => $this->getFixturePath('ComponentLoader/Atom/ComponentLoaderSymlink/ComponentLoaderSymlink.html'),
                     'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => $this->getFixturePath('ComponentLoader/Atom/Link/Link.html'),
                     'Sitegeist\\Fixtures\\ComponentLoader\\Example' => $this->getFixturePath('ComponentLoader/Example/Example.html'),
                     'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser' => $this->getFixturePath('ComponentLoader/Molecule/Teaser/Teaser.html'),
