@@ -135,7 +135,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function findComponentsInNamespace(string $namespace, string $ext = '.html'): array
     {
-        if (!isset($this->namespaces[$namespace])) {
+        if (!isset($this->namespaces[$namespace]) || !is_dir($this->namespaces[$namespace])) {
             return [];
         }
 

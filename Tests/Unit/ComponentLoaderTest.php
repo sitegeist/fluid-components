@@ -212,4 +212,33 @@ class ComponentLoaderTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
             $this->loader->findComponentsInNamespace($namespace, $fileExtension)
         );
     }
+
+    /**
+     * @depends addNamespace
+     * @test
+     */
+    public function findComponentsInNonexistingNamespace()
+    {
+        $this->assertEquals(
+            [],
+            $this->loader->findComponentsInNamespace('Sitegeist\\Fixtures\\NonExistingNamespace', '.html')
+        );
+    }
+
+    /**
+     * @depends addNamespace
+     * @test
+     */
+    public function findComponentsInNonexistingNamespacePath()
+    {
+        $namespace = 'Sitegeist\\Fixtures\\NonExistingPath';
+        $this->loader->addNamespace(
+            $namespace,
+            $this->getFixturePath('ComponentLoader') . '/NonExisting/'
+        );
+        $this->assertEquals(
+            [],
+            $this->loader->findComponentsInNamespace($namespace, '.html')
+        );
+    }
 }
