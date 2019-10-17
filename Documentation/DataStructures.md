@@ -9,10 +9,10 @@ ViewHelpers or components.
 This allows us to define complex data structures which make the component interface
 more formal but also more flexible during integration.
 
-## Links and TypoLink
+## Links and Typolink
 
 `SMS\FluidComponents\Domain\Model\Link`
-`SMS\FluidComponents\Domain\Model\TypoLink`
+`SMS\FluidComponents\Domain\Model\Typolink`
 
 TYPO3's backend link wizards generate a link definition in the so-called Typolink format:
 
@@ -24,14 +24,14 @@ It contains the link itself, but also allows you to specify a target, a link tit
 
 When a component takes a link as one of its parameters, it should on the one hand be able
 to use a Typolink, but on the other hand it should be able to use a simple HTTP url. This
-is where the TypoLink datastructure as well as argument converters come into play:
+is where the Typolink datastructure as well as argument converters come into play:
 
 Our sample component `Atom.Link`:
 
 ```xml
 <fc:component>
     <fc:param name="label" type="string" />
-    <fc:param name="link" type="SMS\FluidComponents\Domain\Model\TypoLink" />
+    <fc:param name="link" type="SMS\FluidComponents\Domain\Model\Typolink" />
 
     <fc:renderer>
         <a href="{link.uri}" target="{link.target}" title="{link.title}" class="{link.class}">
@@ -84,7 +84,7 @@ Fluid Components offers:
 />
 ```
 
-In addition to the TypoLink parsing, the Link data structure also gives access to the individual parts
+In addition to the Typolink parsing, the Link data structure also gives access to the individual parts
 of the URI by using `parse_url`. You get access to the following link properties in the component renderer:
 
 * `originalLink`: TYPO3 link data structure, e. g. `['type' => 'page', 'pageuid' => 1]`
