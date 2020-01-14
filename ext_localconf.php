@@ -13,4 +13,7 @@ call_user_func(function () {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'] = [];
     }
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'][] = 'SMS\\FluidComponents\\ViewHelpers';
+
+    $GLOBALS['TYPO3_CONF_VARS']['FE']['ContentObjects']['FLUIDCOMPONENT'] =
+        \Spiegel\Sitepackage\ContentObject\FluidComponentContentObject::class;
 });
