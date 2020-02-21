@@ -13,4 +13,10 @@ call_user_func(function () {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'] = [];
     }
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'][] = 'SMS\\FluidComponents\\ViewHelpers';
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'] = [
+        'Image' => SMS\FluidComponents\Domain\Model\Image::class,
+        'Link' => SMS\FluidComponents\Domain\Model\Link::class,
+        'Typolink' => SMS\FluidComponents\Domain\Model\Typolink::class,
+    ];
 });
