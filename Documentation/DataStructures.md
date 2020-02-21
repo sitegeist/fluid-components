@@ -203,3 +203,19 @@ no matter which image variant is used:
 
 In addition, the different implementations offer additional properties that can
 be used safely after checking the `type` property accordingly.
+
+## Type Aliases
+
+The included data structures can also be defined with their alias. These are `Image`, `Link` and `Typolink`.
+
+```xml
+<fc:component>
+    <fc:param name="image" type="Image" />
+</fc:component>
+```
+
+To register aliases for other classes extend the typeAliases array in your `ext_localconf.php` (e.g. Phonenumber)
+
+```php
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Phonenumber'] = VENDOR\MyExtension\Domain\Model\Phonenumber::class;
+```
