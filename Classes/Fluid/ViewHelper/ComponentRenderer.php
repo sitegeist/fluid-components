@@ -407,6 +407,9 @@ class ComponentRenderer extends AbstractViewHelper
                     $param['default'] = new BooleanNode($param['default']);
                 }
 
+                // Resolve type aliases
+                $param['type'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'][$param['type']] ?? $param['type'];
+
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
                 $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default']);
