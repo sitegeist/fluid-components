@@ -6,9 +6,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GenerateXsdCommand extends Command
 {
+    /**
+     * @var \SMS\FluidComponents\Service\XsdGenerator
+     */
+    private $xsdGenerator;
+
     protected function configure()
     {
         $this->setDescription(
@@ -29,13 +35,14 @@ class GenerateXsdCommand extends Command
 //            InputOption::VALUE_NONE,
 //            ' Do nothing'
 //        );
-
+        $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $xsd = $this->xsdGenerator->generateXsd();
         // Do nothing
-        $output->writeln('Done.');
+        $output->writeln($xsd);
     }
 
 }
