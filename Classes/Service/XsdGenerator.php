@@ -134,6 +134,7 @@ class XsdGenerator
      * generate xsd file for each component namespace
      *
      * @param $path
+     * @param null $namespace
      * @return array Array of generated XML target namespaces
      */
     public function generateXsd($path, $namespace = null)
