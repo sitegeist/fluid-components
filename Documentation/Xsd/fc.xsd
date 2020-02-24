@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://typo3.org/ns/SMS/FluidComponents/ViewHelpers"><xsd:element name="component"><xsd:annotation><xsd:documentation><![CDATA[]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence><xsd:attribute type="xsd:string" name="description"><xsd:annotation><xsd:documentation><![CDATA[Description of the component]]></xsd:documentation></xsd:annotation></xsd:attribute></xsd:complexType></xsd:element><xsd:element name="form.fieldInformation"><xsd:annotation><xsd:documentation><![CDATA[This ViewHelper serves as glue code between TYPO3/ExtBase form handling and Fluid Components. It separates
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://typo3.org/ns/SMS/FluidComponents/ViewHelpers">
+    <xsd:element name="component">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="description">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Description of the component]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="form.fieldInformation">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[This ViewHelper serves as glue code between TYPO3/ExtBase form handling and Fluid Components. It separates
  the concerns "presentation" and "integration" by simulating a form element without actually rendering it.
  The ViewHelper takes care of ExtBase's form magic (e. g. trusted properties), while Fluid Components are
  responsible for the actual markup.
@@ -33,7 +52,51 @@
      property => 'text-2'
      nameWithoutPrefix => 'register-168[text-2]',
      formIdentifier => register-168
- ]]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence><xsd:attribute type="xsd:string" name="additionalAttributes"><xsd:annotation><xsd:documentation><![CDATA[Additional tag attributes. They will be added directly to the resulting HTML tag.]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="data"><xsd:annotation><xsd:documentation><![CDATA[Additional data-* attributes. They will each be added with a "data-" prefix.]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="name"><xsd:annotation><xsd:documentation><![CDATA[Name of input tag]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="value"><xsd:annotation><xsd:documentation><![CDATA[Value of input tag]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="property"><xsd:annotation><xsd:documentation><![CDATA[Name of Object Property. If used in conjunction with <f:form object="...">, "name" and "value" properties will be ignored.]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="as"><xsd:annotation><xsd:documentation><![CDATA[Name of the variable that should contain information about the current form field]]></xsd:documentation></xsd:annotation></xsd:attribute></xsd:complexType></xsd:element><xsd:element name="form.translatedValidationResults"><xsd:annotation><xsd:documentation><![CDATA[This ViewHelper provides translated validation result messages. When used with EXT:form, the already existing
+ ]]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="additionalAttributes">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Additional tag attributes. They will be added directly to the resulting HTML tag.]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="data">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Additional data-* attributes. They will each be added with a "data-" prefix.]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="name">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Name of input tag]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="value">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Value of input tag]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="property">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Name of Object Property. If used in conjunction with <f:form object="...">, "name" and "value" properties will be ignored.]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="as">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Name of the variable that should contain information about the current form field]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="form.translatedValidationResults">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[This ViewHelper provides translated validation result messages. When used with EXT:form, the already existing
  translation chain will be used. Within ExtBase, a translate prefix can be defined which will be prepended
  to the validation error code in question. The result is an array of errors/warnings/notices which can be used
  by Fluid Components without any special knowledge or dependency on TYPO3's data structures.
@@ -46,5 +109,133 @@
      <!-- or -->
      <my:molecule.messageBox messages="{validationResults.errors}" />
    </fc:form.translatedValidationResults>
- </code>]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence><xsd:attribute type="xsd:string" name="for"><xsd:annotation><xsd:documentation><![CDATA[The name of the error name (e.g. argument name or property name). This can also be a property path (like blog.title), and will then only display the validation errors of that property.]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="as"><xsd:annotation><xsd:documentation><![CDATA[The name of the variable to store the current error]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="translatePrefix"><xsd:annotation><xsd:documentation><![CDATA[String that should be prepended to every language key; Will be ignored if $element is set.]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="element"><xsd:annotation><xsd:documentation><![CDATA[Form Element to translate]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="extensionName"><xsd:annotation><xsd:documentation><![CDATA[UpperCamelCased extension key (for example BlogExample)]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="languageKey"><xsd:annotation><xsd:documentation><![CDATA[Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="alternativeLanguageKeys"><xsd:annotation><xsd:documentation><![CDATA[Alternative language keys if no translation does exist]]></xsd:documentation></xsd:annotation></xsd:attribute></xsd:complexType></xsd:element><xsd:element name="param"><xsd:annotation><xsd:documentation><![CDATA[]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence><xsd:attribute type="xsd:string" name="name" use="required"><xsd:annotation><xsd:documentation><![CDATA[Parameter name]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="type" use="required"><xsd:annotation><xsd:documentation><![CDATA[Parameter type]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="optional"><xsd:annotation><xsd:documentation><![CDATA[Is parameter optional?]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="default"><xsd:annotation><xsd:documentation><![CDATA[Default value]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="description"><xsd:annotation><xsd:documentation><![CDATA[Description of the parameter]]></xsd:documentation></xsd:annotation></xsd:attribute></xsd:complexType></xsd:element><xsd:element name="renderer"><xsd:annotation><xsd:documentation><![CDATA[]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence></xsd:complexType></xsd:element><xsd:element name="translate.labels"><xsd:annotation><xsd:documentation><![CDATA[]]></xsd:documentation></xsd:annotation><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded"/></xsd:sequence><xsd:attribute type="xsd:string" name="keys" use="required"><xsd:annotation><xsd:documentation><![CDATA[Array of translation keys; Can also contain subarrays, then "key" is key, "arguments" is an array of sprintf arguments, and "default" is a default value]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="extensionName"><xsd:annotation><xsd:documentation><![CDATA[UpperCamelCased extension key (for example BlogExample)]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="languageKey"><xsd:annotation><xsd:documentation><![CDATA[Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language]]></xsd:documentation></xsd:annotation></xsd:attribute><xsd:attribute type="xsd:string" name="alternativeLanguageKeys"><xsd:annotation><xsd:documentation><![CDATA[Alternative language keys if no translation does exist]]></xsd:documentation></xsd:annotation></xsd:attribute></xsd:complexType></xsd:element></xsd:schema>
+ </code>]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="for">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[The name of the error name (e.g. argument name or property name). This can also be a property path (like blog.title), and will then only display the validation errors of that property.]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="as">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[The name of the variable to store the current error]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="translatePrefix">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[String that should be prepended to every language key; Will be ignored if $element is set.]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="element">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Form Element to translate]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="extensionName">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[UpperCamelCased extension key (for example BlogExample)]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="languageKey">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="alternativeLanguageKeys">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Alternative language keys if no translation does exist]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="param">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="name" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Parameter name]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="type" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Parameter type]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="optional">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Is parameter optional?]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="default">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Default value]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="description">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[Description of the parameter]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="renderer">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="translate.labels">
+        <xsd:annotation>
+            <xsd:documentation><![CDATA[]]></xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType mixed="true">
+            <xsd:sequence>
+                <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute type="xsd:string" name="keys" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Array of translation keys; Can also contain subarrays, then "key" is key, "arguments" is an array of sprintf arguments, and "default" is a default value]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="extensionName">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[UpperCamelCased extension key (for example BlogExample)]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="languageKey">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute type="xsd:string" name="alternativeLanguageKeys">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[Alternative language keys if no translation does exist]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
 

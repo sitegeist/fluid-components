@@ -42,11 +42,11 @@ class XsdGenerator
             } catch (\Exception $e) {
                 $defaultTag = '';
             }
-            $xsd .= "\n" . '           <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() . '"' . $requiredTag . $defaultTag . '>
+            $xsd .= "\n" . '            <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() . '"' . $requiredTag . $defaultTag . '>
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[' . $argumentDefinition->getDescription() . ']]></xsd:documentation>
                 </xsd:annotation>
-           </xsd:attribute>';
+            </xsd:attribute>';
         }
         $xsd .= '</xsd:complexType>
     </xsd:element>';
