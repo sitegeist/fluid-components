@@ -43,7 +43,7 @@
             "@lint:php",
             "@lint:editorconfig"
         ],
-        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore='\\.Build,Tests,ext_emconf\\.php' .",
+        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore='\\.Build,Tests,ext_emconf\\.php,Documentation\\/Xsd' .",
         "lint:editorconfig": "editorconfig-checker -d .",
         "test": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/"
     }
