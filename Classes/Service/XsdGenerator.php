@@ -52,12 +52,20 @@ class XsdGenerator
         return $xsd;
     }
 
-    protected function generateXsdForNamespace($namespace, $components) {
+    protected function convertNameSpaceToPathSegment($namespace)
+    {
+        return str_replace('\\', '/', $namespace);
+    }
 
-        $namespaceToPath = str_replace('\\', '/', $namespace);
-        $xsd = '<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://typo3.org/ns/' . $namespaceToPath . '">' . "\n";
+    protected function getTargetXMLNameSpace($namespace)
+    {
+        return 'http://typo3.org/ns/' . $this->convertNameSpaceToPathSegment($namespace);
+    }
+
+    protected function generateXsdForNamespace($namespace, $components)
+    {
+        $xsd = '<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="' . $this->getTargetXMLNameSpace($namespace) . '">' . "\n";
         foreach ($components as $componentName => $componentFile) {
             $componentRenderer = GeneralUtility::makeInstance(ComponentRenderer::class);
             $componentRenderer->setComponentNamespace($componentName);
@@ -79,14 +87,78 @@ class XsdGenerator
         return $tagName;
     }
 
-    public function generateXsd() {
+    /**
+     * returns only the upper chars of a given string
+     *
+     * @param $string
+     * @return string
+     */
+    private function strUpperChars($string)
+    {
         $output = '';
-        $namespaces = $this->componentLoader->getNamespaces();
-        foreach($namespaces as $namespace => $path) {
-            $components = $this->componentLoader->findComponentsInNamespace($namespace);
-
-            $output .= $this->generateXsdForNamespace($namespace, $components);
+        $strLength = strlen($string);
+        for ($i=0; $i < $strLength; $i++) {
+            if (ctype_upper($string[$i])) {
+                $output .= $string[$i];
+            }
         }
         return $output;
+    }
+
+    /**
+     * returns default prefix for a namespace if defined
+     * otherwise it builds a prefix from the extension name part of the namespace
+     *
+     * @param $namespace
+     * @return int|string
+     */
+    protected function getDefaultPrefixForNamespace($namespace)
+    {
+        $defaultNamespaceDefinitions = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'];
+        foreach ($defaultNamespaceDefinitions as $prefix => $registeredNameSpaces) {
+            foreach ($registeredNameSpaces as $registeredNameSpace) {
+                if ($registeredNameSpace === $namespace) {
+                    return $prefix;
+                }
+            }
+        }
+        // no registered default prefix found, so build one from extension name part of the namespace
+        // f.e. Vendor\MyExtension\Components => me (converting only the upper chars from 'MyExtension' to lower case
+        $nameSpaceParts = explode('\\', $namespace);
+        $lastFragment = $nameSpaceParts[1];
+        return strtolower($this->strUpperChars($lastFragment));
+    }
+
+    /**
+     * generate xsd file for each component namespace
+     *
+     * @param $path
+     * @return array Array of generated XML target namespaces
+     */
+    public function generateXsd($path, $namespace = null)
+    {
+        $generatedNameSpaces = [];
+        $namespaces = $this->componentLoader->getNamespaces();
+        foreach ($namespaces as $registeredNamespace => $registeredNamepacePath) {
+            if ($namespace === null || $registeredNamespace === $namespace) {
+                $components = $this->componentLoader->findComponentsInNamespace($registeredNamespace);
+                $filePath = rtrim($path,
+                        DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->getFileNameForNamespace($registeredNamespace);
+                file_put_contents($filePath, $this->generateXsdForNamespace($registeredNamespace, $components));
+                $generatedNameSpaces[$this->getDefaultPrefixForNamespace($registeredNamespace)][] = $this->getTargetXMLNameSpace($registeredNamespace);
+            }
+        }
+        return $generatedNameSpaces;
+    }
+
+    /**
+     * returns a default filename for a given namespace
+     *
+     * @param $namespace
+     * @return string
+     */
+    protected function getFileNameForNamespace($namespace)
+    {
+        return str_replace('\\', '_', $namespace) . '.xsd';
     }
 }

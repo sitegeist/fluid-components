@@ -18,31 +18,63 @@ class GenerateXsdCommand extends Command
     protected function configure()
     {
         $this->setDescription(
-            'Generates a xsd file for all fluid-components'
+            'Generates xsd files for all fluid-components'
         );
         $this->setHelp(
-            'Generates a xsd file for all fluid-components for auto completion in your IDE'
+            <<<'EOH'
+Generates Schema documentation (XSD) for your fluid components, preparing the
+file to be placed online and used by any XSD-aware editor.
+After creating the XSD file, reference it in your IDE and import the namespace
+in your Fluid template by adding the xmlns:* attribute(s):
+<code><html xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers" ...></code>
+EOH
         );
-//        $this->addArgument(
-//            'First Name',
-//            InputArgument::OPTIONAL,
-//            'My description for the argument First Name',
-//            'The default value (if argument is optional)'
-//		);
-//		$this->addOption(
-//            'nothing',
-//            null,
-//            InputOption::VALUE_NONE,
-//            ' Do nothing'
-//        );
+        $this->addArgument(
+            'path',
+            InputArgument::OPTIONAL,
+            'Path where to store the xsd files',
+            '.'
+		);
+        $this->addOption(
+            'namespace',
+            'nc',
+            InputOption::VALUE_OPTIONAL,
+            'Namespace to generate xsd for',
+            null
+        );
         $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $xsd = $this->xsdGenerator->generateXsd();
-        // Do nothing
-        $output->writeln($xsd);
+        $path = $input->getArgument('path');
+        if (substr($path, 0, 1) !== DIRECTORY_SEPARATOR) {
+            $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $path);
+        }
+        if ($output->isVerbose()) {
+            $output->writeln('Path: ' . $path);
+        }
+        if (!is_dir($path)) {
+            throw new \Exception('Directory \'' . $input->getArgument('path') . '\' does not exist.', 1582535395);
+        }
+        $xsdTargetNameSpaces = $this->xsdGenerator->generateXsd($path, $input->getOption('namespace'));
+        if(count($xsdTargetNameSpaces) === 0) {
+            $output->writeln('<error>Namespace(s) not found.</error>');
+        } else {
+            // add fluid component view helpers (only to complete the namespace xml declaration)
+            $xsdTargetNameSpaces['fc'][] = 'http://typo3.org/ns/SMS/FluidComponents/ViewHelpers';
+            if ($output->isVerbose()) {
+                $xmlHeader = '<html ';
+                foreach ($xsdTargetNameSpaces as $prefix => $targetNameSpacesForPrefix) {
+                    foreach ($targetNameSpacesForPrefix as $targetNameSpaceForPrefix) {
+                        $xmlHeader .= 'xmlns:' . $prefix . '="' . $targetNameSpaceForPrefix . '"' . "\n";
+                    }
+                }
+                $xmlHeader .= 'data-namespace-typo3-fluid="true">';
+                $output->writeln('Import the namespaces in your Fluid template by adding the xmlns:* attributes:');
+                $output->writeln('<info>' . $xmlHeader . '</info>');
+            }
+        }
     }
 
 }

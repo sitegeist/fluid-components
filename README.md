@@ -145,3 +145,4 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
 * [Usage with Forms](Documentation/Forms.md)
+* [Add auto-completion in your IDE](Documentation/AutoCompletion.md)
