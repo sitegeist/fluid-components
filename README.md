@@ -61,7 +61,7 @@ The following component implements a simple teaser element:
 <fc:component>
     <fc:param name="title" type="string" />
     <fc:param name="description" type="string" />
-    <fc:param name="link" type="SMS\FluidComponents\Domain\Model\Typolink" />
+    <fc:param name="link" type="Typolink" />
     <fc:param name="icon" type="string" optional="1" />
     <fc:param name="theme" type="string" optional="1">light</fc:param>
 

@@ -11,8 +11,8 @@ more formal but also more flexible during integration.
 
 ## Links and Typolink
 
-`SMS\FluidComponents\Domain\Model\Link`
-`SMS\FluidComponents\Domain\Model\Typolink`
+`SMS\FluidComponents\Domain\Model\Link` (alias: `Link`)
+`SMS\FluidComponents\Domain\Model\Typolink` (alias: `Typolink`)
 
 TYPO3's backend link wizards generate a link definition in the so-called Typolink format:
 
@@ -31,7 +31,7 @@ Our sample component `Atom.Link`:
 ```xml
 <fc:component>
     <fc:param name="label" type="string" />
-    <fc:param name="link" type="SMS\FluidComponents\Domain\Model\Typolink" />
+    <fc:param name="link" type="Typolink" />
 
     <fc:renderer>
         <a href="{link.uri}" target="{link.target}" title="{link.title}" class="{link.class}">
@@ -107,7 +107,7 @@ Components should be able to accept an image as a parameter, no matter where it 
 for images that are stored in the File Abstraction Layer. However, there are cases where you want to use
 images from inside extensions or even external image urls. This is what the Image data structures offer:
 
-* `SMS\FluidComponents\Domain\Model\Image` is the base class of all image types as well as a factory
+* `SMS\FluidComponents\Domain\Model\Image` (alias: `Image`) is the base class of all image types as well as a factory
 * `SMS\FluidComponents\Domain\Model\LocalImage` wraps a local image resource, e. g. from an extension
 * `SMS\FluidComponents\Domain\Model\RemoteImage` wraps a remote image uri
 * `SMS\FluidComponents\Domain\Model\FalImage` wraps existing FAL objects, such as `File` and `FileReference`
@@ -117,7 +117,7 @@ This is how it could look like in the `Atom.Image` component:
 
 ```xml
 <fc:component>
-    <fc:param name="image" type="SMS\FluidComponents\Domain\Model\Image" />
+    <fc:param name="image" type="Image" />
     <fc:param name="width" type="integer" optional="1" />
     <fc:param name="height" type="integer" optional="1" />
 
@@ -217,5 +217,5 @@ The included data structures can also be defined with their alias. These are `Im
 To register aliases for other classes extend the typeAliases array in your `ext_localconf.php` (e.g. Phonenumber)
 
 ```php
-$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Phonenumber'] = VENDOR\MyExtension\Domain\Model\Phonenumber::class;
+$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Phonenumber'] = \VENDOR\MyExtension\Domain\Model\Phonenumber::class;
 ```
