@@ -25,10 +25,11 @@ class XsdGenerator
      * @param ArgumentDefinition[] $arguments
      * @return string
      */
-    protected function generateXsdForComponent($componentName, $arguments) {
+    protected function generateXsdForComponent($componentName, $arguments)
+    {
         $xsd = '<xsd:element name="' . $componentName . '">
         <xsd:annotation>
-            <xsd:documentation><![CDATA[Component ' . $componentName .']]></xsd:documentation>
+            <xsd:documentation><![CDATA[Component ' . $componentName . ']]></xsd:documentation>
         </xsd:annotation>
         <xsd:complexType mixed="true">
             <xsd:sequence>
@@ -38,10 +39,10 @@ class XsdGenerator
             $requiredTag = $argumentDefinition->isRequired() ? ' use="required"' : '';
             try {
                 $defaultTag = (string)$argumentDefinition->getDefaultValue() !== '' ? ' default="' . $argumentDefinition->getDefaultValue() . '"' : '';
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $defaultTag = '';
             }
-            $xsd .= "\n" . '           <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() .'"' . $requiredTag . $defaultTag . '>
+            $xsd .= "\n" . '           <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() . '"' . $requiredTag . $defaultTag . '>
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[' . $argumentDefinition->getDescription() . ']]></xsd:documentation>
                 </xsd:annotation>
@@ -97,7 +98,7 @@ class XsdGenerator
     {
         $output = '';
         $strLength = strlen($string);
-        for ($i=0; $i < $strLength; $i++) {
+        for ($i = 0; $i < $strLength; $i++) {
             if (ctype_upper($string[$i])) {
                 $output .= $string[$i];
             }
@@ -142,8 +143,9 @@ class XsdGenerator
         foreach ($namespaces as $registeredNamespace => $registeredNamepacePath) {
             if ($namespace === null || $registeredNamespace === $namespace) {
                 $components = $this->componentLoader->findComponentsInNamespace($registeredNamespace);
-                $filePath = rtrim($path,
-                        DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->getFileNameForNamespace($registeredNamespace);
+                $filePath = rtrim($path, DIRECTORY_SEPARATOR) .
+                    DIRECTORY_SEPARATOR .
+                    $this->getFileNameForNamespace($registeredNamespace);
                 file_put_contents($filePath, $this->generateXsdForNamespace($registeredNamespace, $components));
                 $generatedNameSpaces[$this->getDefaultPrefixForNamespace($registeredNamespace)][] = $this->getTargetXMLNameSpace($registeredNamespace);
             }

@@ -1,4 +1,5 @@
 <?php
+
 namespace SMS\FluidComponents\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -34,7 +35,7 @@ EOH
             InputArgument::OPTIONAL,
             'Path where to store the xsd files',
             '.'
-		);
+        );
         $this->addOption(
             'namespace',
             'nc',
@@ -58,7 +59,7 @@ EOH
             throw new \Exception('Directory \'' . $input->getArgument('path') . '\' does not exist.', 1582535395);
         }
         $xsdTargetNameSpaces = $this->xsdGenerator->generateXsd($path, $input->getOption('namespace'));
-        if(count($xsdTargetNameSpaces) === 0) {
+        if (count($xsdTargetNameSpaces) === 0) {
             $output->writeln('<error>Namespace(s) not found.</error>');
         } else {
             // add fluid component view helpers (only to complete the namespace xml declaration)
@@ -76,5 +77,4 @@ EOH
             }
         }
     }
-
 }
