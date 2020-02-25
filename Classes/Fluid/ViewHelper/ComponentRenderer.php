@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
-use SMS\FluidComponents\Fluid\Rendering\RenderingContext;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
@@ -12,11 +11,10 @@ use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\BooleanNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
-use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\RootNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -146,7 +144,6 @@ class ComponentRenderer extends AbstractViewHelper
         foreach ($this->arguments as $name => $argument) {
             $argumentType = $this->argumentDefinitions[$name]->getType();
 
-            $argument = $this->renderArgument($argument, $renderingContext);
             $argument = $componentArgumentConverter->convertValueToType($argument, $argumentType);
             $variableContainer->add($name, $argument);
         }
@@ -171,24 +168,6 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Render component
         return $this->parsedTemplate->render($renderingContext);
-    }
-
-    /**
-     * Renders an argument by rendering its default value if necessary
-     *
-     * @param mixed $argument
-     * @param RenderingContext $renderingContext
-     * @return mixed
-     */
-    public function renderArgument($argumentValue, $renderingContext)
-    {
-        if ($argumentValue instanceof \Closure) {
-            return $argumentValue($renderingContext);
-        } elseif ($argumentValue instanceof NodeInterface) {
-            return $argumentValue->evaluate($renderingContext);
-        } else {
-            return $argumentValue;
-        }
     }
 
     /**
@@ -323,8 +302,8 @@ class ComponentRenderer extends AbstractViewHelper
         $argumentDefinitions = $this->prepareArguments();
         foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
             if ($this->hasArgument($argumentName)) {
-                $value = $this->renderArgument($this->arguments[$argumentName], $this->renderingContext);
-                $defaultValue = $this->renderArgument($registeredArgument->getDefaultValue(), $this->renderingContext);
+                $value = $this->arguments[$argumentName];
+                $defaultValue = $registeredArgument->getDefaultValue();
                 $type = $registeredArgument->getType();
                 if ($value !== $defaultValue && $type !== 'mixed') {
                     $givenType = is_object($value) ? get_class($value) : gettype($value);
@@ -384,14 +363,14 @@ class ComponentRenderer extends AbstractViewHelper
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
-                    // Store default value as node to be able to render it dynamically
-                    $param[$argumentName] = ($argumentName === 'default')
-                        ? $argumentNode
-                        : $argumentNode->evaluate($renderingContext);
+                    $param[$argumentName] = $argumentNode->evaluate($renderingContext);
                 }
-                if (!isset($param['default']) && $paramNode->getChildNodes()) {
-                    // Store default value as node to be able to render it dynamically
-                    $param['default'] = $this->convertToRootNode($paramNode);
+
+                // Use tag content as default value instead of attribute
+                if (!isset($param['default'])) {
+                    $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
+                        return $node->evaluate($renderingContext);
+                    }, $paramNode->getChildNodes()));
                 }
 
                 if (in_array($param['name'], $this->reservedArguments)) {
@@ -402,13 +381,16 @@ class ComponentRenderer extends AbstractViewHelper
                     ), 1532960145);
                 }
 
-                // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
-                if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
-                    $param['default'] = new BooleanNode($param['default']);
-                }
-
                 // Resolve type aliases
                 $param['type'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'][$param['type']] ?? $param['type'];
+
+                // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
+                if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
+                    $param['default'] = (bool) $param['default'];
+                // Make sure that default value for object parameters is either a valid object or null
+                } elseif (class_exists($param['type']) && !$param['default'] instanceof $param['type']) {
+                    $param['default'] = null;
+                }
 
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
@@ -444,21 +426,6 @@ class ComponentRenderer extends AbstractViewHelper
         }
 
         return $viewHelperNodes;
-    }
-
-    /**
-     * Converts a Fluid SyntaxTree node with child nodes to an independent root node
-     *
-     * @param NodeInterface $node
-     * @return RootNode
-     */
-    protected function convertToRootNode(NodeInterface $node)
-    {
-        $rootNode = new RootNode;
-        foreach ($node->getChildNodes() as $childNode) {
-            $rootNode->addChildNode($childNode);
-        }
-        return $rootNode;
     }
 
     /**
