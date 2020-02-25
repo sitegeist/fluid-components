@@ -43,7 +43,8 @@ EOH
             'Namespace to generate xsd for',
             null
         );
-        $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class);
+        $componentLoader = GeneralUtility::makeInstance(\SMS\FluidComponents\Utility\ComponentLoader::class);
+        $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class, $componentLoader);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

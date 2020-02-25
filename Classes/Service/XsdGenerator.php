@@ -2,9 +2,8 @@
 
 namespace SMS\FluidComponents\Service;
 
-use Sitegeist\FluidStyleguide\Domain\Model\Component;
-use Sitegeist\FluidStyleguide\Domain\Model\ComponentName;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
+use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 
@@ -15,9 +14,9 @@ class XsdGenerator
      */
     private $componentLoader;
 
-    public function __construct()
+    public function __construct(ComponentLoader $componentLoader)
     {
-        $this->componentLoader = GeneralUtility::makeInstance(\SMS\FluidComponents\Utility\ComponentLoader::class);
+        $this->componentLoader = $componentLoader;
     }
 
     /**
