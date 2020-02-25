@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Tests\Unit;
 
 use SMS\FluidComponents\Service\XsdGenerator;
+use SMS\FluidComponents\Utility\ComponentLoader;
 
 class XsdGeneratorTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 {
@@ -11,12 +12,14 @@ class XsdGeneratorTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
      */
     protected $generator = null;
     protected $fluidNamespaces = null;
+    protected $componentLoader = null;
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->generator = new XsdGenerator();
+        $this->componentLoader = new ComponentLoader();
+        $this->generator = new XsdGenerator($this->componentLoader);
         $this->fluidNamespaces = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'];
     }
 
