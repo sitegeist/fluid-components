@@ -384,11 +384,16 @@ class ComponentRenderer extends AbstractViewHelper
                 // Resolve type aliases
                 $param['type'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'][$param['type']] ?? $param['type'];
 
+                $componentArgumentConverter = $this->getComponentArgumentConverter();
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
                     $param['default'] = (bool) $param['default'];
                 // Make sure that default value for object parameters is either a valid object or null
-                } elseif (class_exists($param['type']) && !$param['default'] instanceof $param['type']) {
+                } elseif (
+                    class_exists($param['type']) &&
+                    !$param['default'] instanceof $param['type'] &&
+                    !$componentArgumentConverter->canTypeBeConvertedToType(gettype($param['default']), $param['type'])
+                ) {
                     $param['default'] = null;
                 }
 
