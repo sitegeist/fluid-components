@@ -48,10 +48,6 @@ arguments:
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The
 default value can alternatively be defined in the `fc:param` tag content.
 
-Deprecation Notice: Please note that, while it is technically possible to use certain Fluid variables as
-well as ViewHelpers in the `default` argument, this feature should no longer be used. It will be removed
-in the next major version of the extension.
-
 #### Examples
 
 ```xml
