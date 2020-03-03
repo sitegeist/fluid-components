@@ -5,7 +5,7 @@ namespace SMS\FluidComponents\Tests\Unit;
 use SMS\FluidComponents\Service\XsdGenerator;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
-class XsdGeneratorTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
     /**
      * @var XsdGenerator null
@@ -76,7 +76,7 @@ class XsdGeneratorTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 
     public function tearDown()
     {
-        parent::tearDown();
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'] = $this->fluidNamespaces;
+        parent::tearDown();
     }
 }
