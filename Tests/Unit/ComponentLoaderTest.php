@@ -4,7 +4,7 @@ namespace SMS\FluidComponents\Tests\Unit;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
 
-class ComponentLoaderTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
+class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
     protected function setUp()
     {

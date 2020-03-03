@@ -3,7 +3,7 @@
 namespace SMS\FluidComponents\Utility;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAccess
 {
