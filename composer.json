@@ -19,9 +19,9 @@
         "php": ">=7.2.0 <8"
     },
     "require-dev": {
-        "typo3/testing-framework": "^1.0",
-        "squizlabs/php_codesniffer": "2.*",
-        "editorconfig-checker/editorconfig-checker": "^7.0"
+        "typo3/testing-framework": "^4.0",
+        "squizlabs/php_codesniffer": "^3.0",
+        "editorconfig-checker/editorconfig-checker": "^10.0"
     },
     "autoload": {
         "psr-4": {
@@ -43,8 +43,8 @@
             "@lint:php",
             "@lint:editorconfig"
         ],
-        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore='\\.Build,Tests,ext_emconf\\.php' .",
-        "lint:editorconfig": "editorconfig-checker -d --exclude '\\.xsd$' . ",
+        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,Tests,ext_emconf.php .",
+        "lint:editorconfig": "ec .",
         "test": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/"
     }
 }

@@ -54,14 +54,14 @@ class ComponentRenderer extends AbstractViewHelper
      * ViewHelper class many times throughout the rendering process.
      * @var array
      */
-    static protected $componentArgumentDefinitionCache = [];
+    protected static $componentArgumentDefinitionCache = [];
 
     /**
      * Cache of component prefixer objects
      *
      * @var array
      */
-    static protected $componentPrefixerCache = [];
+    protected static $componentPrefixerCache = [];
 
     /**
      * Components are HTML markup which should not be escaped
