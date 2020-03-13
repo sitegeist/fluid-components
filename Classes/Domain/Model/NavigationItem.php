@@ -105,7 +105,7 @@ class NavigationItem implements ConstructibleFromArray
      * Creates a navigation item object based on a TYPO3 navigation item array
      *
      * @param array $navigationItem  respected properties that will become part of the data structure:
-     *                               title, link, current, active, spacer, children, data
+     *                               title, link, target, current, active, spacer, children, data
      * @return self
      */
     public static function fromArray(array $navigationItem): self
@@ -113,6 +113,9 @@ class NavigationItem implements ConstructibleFromArray
         // Convert link and sub navigation to the appropriate data structure
         if (isset($navigationItem['link']) && !$navigationItem['link'] instanceof Typolink) {
             $navigationItem['link'] = new Typolink($navigationItem['link']);
+            if (isset($navigationItem['target'])) {
+                $navigationItem['link']->setTarget($navigationItem['target']);
+            }
         }
         if (isset($navigationItem['children']) && !$navigationItem['children'] instanceof Navigation) {
             $navigationItem['children'] = new Navigation($navigationItem['children']);
