@@ -78,7 +78,7 @@ class NavigationItem implements ConstructibleFromArray
         string $title,
         Typolink $link = null,
         bool $current = false,
-        bool $active = false,
+        bool $active = null,
         bool $spacer = false,
         Navigation $children = null,
         array $data = []
@@ -95,7 +95,7 @@ class NavigationItem implements ConstructibleFromArray
             ->setTitle($title)
             ->setLink($link)
             ->setCurrent($current)
-            ->setActive($active)
+            ->setActive($active ?? $current ?? false)
             ->setSpacer($spacer)
             ->setChildren($children)
             ->setData($data);
@@ -124,9 +124,9 @@ class NavigationItem implements ConstructibleFromArray
         return new static(
             $navigationItem['title'] ?? '',
             $navigationItem['link'] ?? null,
-            $navigationItem['current'] ?? false,
-            $navigationItem['active'] ?? false,
-            $navigationItem['spacer'] ?? false,
+            (bool) ($navigationItem['current'] ?? false),
+            (bool) ($navigationItem['active'] ?? $navigationItem['current'] ?? false),
+            (bool) ($navigationItem['spacer'] ?? false),
             $navigationItem['children'] ?? null,
             $navigationItem['data'] ?? []
         );
