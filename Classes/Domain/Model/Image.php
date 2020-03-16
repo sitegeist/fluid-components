@@ -6,6 +6,7 @@ use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Exception\InvalidRemoteImageException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
 use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
@@ -22,7 +23,8 @@ abstract class Image implements
     ConstructibleFromString,
     ConstructibleFromInteger,
     ConstructibleFromArray,
-    ConstructibleFromFileInterface
+    ConstructibleFromFileInterface,
+    ConstructibleFromExtbaseFile
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
@@ -234,6 +236,11 @@ abstract class Image implements
     public static function fromFileInterface(FileInterface $value): self
     {
         return new FalImage($value);
+    }
+
+    public static function fromExtbaseFile(\TYPO3\CMS\Extbase\Domain\Model\FileReference $value): self
+    {
+        return new FalImage($value->getOriginalResource());
     }
 
     /**
