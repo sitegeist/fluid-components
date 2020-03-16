@@ -204,9 +204,82 @@ no matter which image variant is used:
 In addition, the different implementations offer additional properties that can
 be used safely after checking the `type` property accordingly.
 
+## Navigations
+
+`SMS\FluidComponents\Domain\Model\Navigation` (alias: `Navigation`)
+`SMS\FluidComponents\Domain\Model\NavigationItem` (alias: `NavigationItem`)
+
+TYPO3 generates navigations by using TypoScript. Nowadays, the modern approach is to use
+Data Processors, namely the MenuProcessor. It has various configuration parameters that are consistent
+to the *old* TypoScript approach, but provides an array to the Fluid template.
+
+To pass this array structure to your components, you can use the `Navigation` and `NavigationItem` data
+structures that are part of Fluid Components. `NavigationItem` represents one item in a navigation, while
+`Navigation` represents a whole navigation. `NavigationItems` can have children, which are represented by
+a `Navigation` object as well.
+
+Example navigation in TypoScript:
+
+```
+page.10 = FLUIDTEMPLATE
+page.10 {
+    templateName = TestNavigation
+    dataProcessing {
+        10 = TYPO3\CMS\Frontend\DataProcessing\MenuProcessor
+        10 {
+            special = directory
+            special.value = {$homePage}
+            levels = 1
+            as = headerMenu
+        }
+    }
+}
+```
+
+Fluid Template `TestNavigation.html`:
+
+```xml
+<my:molecule.navigation items="{headerMenu}" />
+```
+
+Fluid Component `Molecule/Navigation/Navigation.html`:
+
+```xml
+<fc:component>
+    <fc:param name="items" type="Navigation" />
+    <fc:renderer>
+        <ul>
+            <f:for each="{items}" as="item">
+                <li>
+                    <a href="{item.link}" target="{item.target}">
+                        <f:if condition="{item.active}">
+                            <f:then><strong>{item.title}</strong></f:then>
+                            <f:else>{item.title}</f:else>
+                        </f:if>
+                    </a>
+                </li>
+            </f:for>
+        </ul>
+    </fc:renderer>
+</fc:component>
+```
+
+You can also create a navigation manually in your template and simply omit the attributes you don't need:
+
+```xml
+<my:molecule.navigation items="{
+    0: { title: 'Simple item', link: 123 },
+    1: { title: 'Current item', link: 456, current: 1 },
+    2: { title: 'External item', link: 'https://domain.tld/path/to/page.html', target: '_blank' },
+    3: { title: 'Item with subitems', children: {
+        0: { title: 'Subitem', link: 23 }
+    }}
+}" />
+```
+
 ## Type Aliases
 
-The included data structures can also be defined with their alias. These are `Image`, `Link` and `Typolink`.
+The included data structures can also be defined with their alias. These are `Image`, `Link`, `Typolink`, `Navigation` and `NavigationItem`.
 
 ```xml
 <fc:component>
