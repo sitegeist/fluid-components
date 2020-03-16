@@ -13,6 +13,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
+use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\BooleanNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
@@ -386,7 +387,7 @@ class ComponentRenderer extends AbstractViewHelper
 
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
-                    $param['default'] = (bool) $param['default'];
+                    $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);
                 // Make sure that default value for object parameters is either a valid object or null
                 } elseif (class_exists($param['type']) && !$param['default'] instanceof $param['type']) {
                     $param['default'] = null;
