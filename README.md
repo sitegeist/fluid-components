@@ -59,22 +59,22 @@ The following component implements a simple teaser element:
 
 ```xml
 <fc:component>
-    <fc:param name="title" type="string" />
-    <fc:param name="description" type="string" />
-    <fc:param name="link" type="Typolink" />
-    <fc:param name="icon" type="string" optional="1" />
-    <fc:param name="theme" type="string" optional="1">light</fc:param>
+	<fc:param name="title" type="string" />
+	<fc:param name="description" type="string" />
+	<fc:param name="link" type="Typolink" />
+	<fc:param name="icon" type="string" optional="1" />
+	<fc:param name="theme" type="string" optional="1">light</fc:param>
 
-    <fc:renderer>
-        <a href="{link}" class="{component.class} {component.class}-{theme}">
-            <h3 class="{component.prefix}title">{title}</h3>
-            <p class="{component.prefix}description">{description}</p>
+	<fc:renderer>
+		<a href="{link}" class="{component.class} {component.class}-{theme}">
+			<h3 class="{component.prefix}title">{title}</h3>
+			<p class="{component.prefix}description">{description}</p>
 
-            <f:if condition="{icon}">
-                <i class="icon icon-{icon} {component.prefix}icon"></i>
-            </f:if>
-        </a>
-    </fc:renderer>
+			<f:if condition="{icon}">
+				<i class="icon icon-{icon} {component.prefix}icon"></i>
+			</f:if>
+		</a>
+	</fc:renderer>
 </fc:component>
 ```
 
@@ -83,10 +83,10 @@ Use the following code in your template to render a teaser about TYPO3:
 ```xml
 {namespace my=VENDOR\MyExtension\Components}
 <my:teaser
-    title="TYPO3"
-    description="The professional, flexible Content Management System"
-    link="https://typo3.org"
-    icon="typo3"
+	title="TYPO3"
+	description="The professional, flexible Content Management System"
+	link="https://typo3.org"
+	icon="typo3"
 />
 ```
 
@@ -94,10 +94,10 @@ The result is the following HTML:
 
 ```xml
 <a href="https://typo3.org" class="smsExampleTeaser smsExampleTeaser-light">
-    <h3 class="smsExampleTeaser_title">TYPO3</h3>
-    <p class="smsExampleTeaser_description">The professional, flexible Content Management System</p>
+	<h3 class="smsExampleTeaser_title">TYPO3</h3>
+	<p class="smsExampleTeaser_description">The professional, flexible Content Management System</p>
 
-    <i class="icon icon-typo3 smsExampleTeaser_icon"></i>
+	<i class="icon icon-typo3 smsExampleTeaser_icon"></i>
 </a>
 ```
 *(improved indentation for better readability)*
@@ -116,14 +116,16 @@ defined interface instead of debating implementation details.
 
 1. [Install the extension](#installation)
 
-2. Define the component namespace in your *ext_localconf.php*:
+2. Register your component package in *ext_localconf.php*:
 
 	```php
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces']['VENDOR\\MyExtension\\Components'] =
-		\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('my_extension', 'Resources/Private/Components');
+	\SMS\FluidComponents\Utility\ComponentLoader::registerPackage(
+		'my_extension', // Extension key
+		'my' // Fluid namespace alias
+	);
 	```
 
-	Use your own vendor name for `VENDOR`, extension name for `MyExtension`, and extension key for `my_extension`.
+	Use your own extension key for `my_extension` and an arbitrary Fluid namespace alias instead of `my`.
 
 3. Create your first component in *EXT:my_extension/Resources/Private/Components/* by creating a directory
 *MyComponent* containing a file *MyComponent.html*
@@ -134,7 +136,6 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 5. Render your component by including the namespace and calling the component by its name:
 
 	```xml
-	{namespace my=VENDOR\MyExtension\Components}
 	<my:myComponent someParameter="someValue" />
 	```
 

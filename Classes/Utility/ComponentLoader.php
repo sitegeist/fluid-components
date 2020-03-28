@@ -2,6 +2,9 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+
 class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
@@ -26,6 +29,59 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         $this->setNamespaces(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] ?? []
         );
+    }
+
+    /**
+     * Registers a component package both in fluid components and as global
+     * Fluid namespace. This is the recommended way to register components
+     * if your extension only provides one folder of components.
+     *
+     * @param string $extensionKey    extension key
+     * @param string $fluidAlias      Namespace alias that exposes components to Fluid templates,
+     *                                defaults to the extension key
+     * @param string $componentsPath  path in which components are located,
+     *                                defaults to Resources/Private/Components
+     * @return string                 the generated package namespace for identification of the
+     *                                package in Fluid
+     */
+    public function registerPackage(
+        string $extensionKey,
+        string $fluidAlias = null,
+        string $componentsPath = null
+    ): string {
+        $fluidAlias = $fluidAlias ?? $extensionKey;
+        $componentsPath = $componentsPath ?? implode(DIRECTORY_SEPARATOR, [
+            'Resources',
+            'Private',
+            'Components'
+        ]);
+
+        $packageNamespace = $this->generatePackageNamespace($extensionKey);
+
+        // Register component namespace
+        $componentsPath = ExtensionManagementUtility::extPath($extensionKey, $componentsPath);
+        $this->addNamespace($packageNamespace, $componentsPath);
+
+        // Register global fluid namespace
+        if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'][$fluidAlias])) {
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'][$fluidAlias] = [];
+        }
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'][$fluidAlias][] = $packageNamespace;
+
+        return $packageNamespace;
+    }
+
+    /**
+     * Generates a component package namespace for an extension key
+     *
+     * @param string $extensionKey
+     * @return string
+     */
+    public function generatePackageNamespace(string $extensionKey): string
+    {
+        // Generate generic component namespace
+        $packageName = GeneralUtility::underscoredToUpperCamelCase($extensionKey);
+        return 'SMS\\FluidComponents\\ComponentPackages\\' . $packageName;
     }
 
     /**
