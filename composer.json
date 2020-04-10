@@ -15,8 +15,9 @@
         "issues": "https://github.com/sitegeist/fluid-components/issues"
     },
     "require": {
+        "php": ">=7.2.0 <8",
         "typo3/cms-core": "^9.5 || ^10.2",
-        "php": ">=7.2.0 <8"
+        "typo3fluid/fluid": "^2"
     },
     "require-dev": {
         "typo3/testing-framework": "^4.0",

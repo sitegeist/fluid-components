@@ -26,6 +26,17 @@ Alternatively, you can install the extension from TER:
 
 After that, proceed with [Getting Started](#getting-started)
 
+## Updating from 1.x
+
+There is only one breaking change: It isn't possible anymore to use Fluid variables in default values
+for component parameters. This will **NOT WORK ANYMORE**:
+
+```xml
+<fc:param name="firstName" type="string" optional="1" default="{settings.defaultFirstName}" />
+```
+
+As this was a pretty esoteric feature, you shouldn't have any problems when updating to 2.x!
+
 ## What does it do?
 
 Fluid templates usually consist of three parts:
@@ -107,7 +118,8 @@ The result is the following HTML:
 * Components encourage **markup reusage and refactoring**. Only the component knows about its implementation
 details. As long as the interface stays compatible, the implementation can change.
 * Components can be a tool to **enforce design guidelines**. If the component's implementation respects the
-guidelines, they are respected everywhere the component is used.
+guidelines, they are respected everywhere the component is used. A helpful tool to accomplish that is the corresponding
+living styleguide: [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide).
 * Components **formalize and improve communication**. Frontend developers and integrators agree on a clearly
 defined interface instead of debating implementation details.
 * Components **reduce dependencies**. Frontend developers can work independent of integrators and backend developers.
@@ -137,6 +149,8 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 	{namespace my=VENDOR\MyExtension\Components}
 	<my:myComponent someParameter="someValue" />
 	```
+
+6. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components
 
 ## Extended Documentation
 
