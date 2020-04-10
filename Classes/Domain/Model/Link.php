@@ -90,8 +90,12 @@ class Link implements ConstructibleFromString
      * @param string $uri
      * @return self
      */
-    public static function fromString(string $uri): self
+    public static function fromString(string $uri): ?self
     {
+        if ($uri === '') {
+            return null;
+        }
+
         return new static($uri);
     }
 

@@ -60,8 +60,12 @@ abstract class Image implements
      * @param string $value
      * @return self
      */
-    public static function fromString(string $value): self
+    public static function fromString(string $value): ?self
     {
+        if ($value === '') {
+            return null;
+        }
+
         try {
             return new RemoteImage($value);
         } catch (InvalidRemoteImageException $e) {
