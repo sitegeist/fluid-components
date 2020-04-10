@@ -107,7 +107,8 @@ The result is the following HTML:
 * Components encourage **markup reusage and refactoring**. Only the component knows about its implementation
 details. As long as the interface stays compatible, the implementation can change.
 * Components can be a tool to **enforce design guidelines**. If the component's implementation respects the
-guidelines, they are respected everywhere the component is used.
+guidelines, they are respected everywhere the component is used. A helpful tool to accomplish that is the corresponding
+living styleguide: [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide).
 * Components **formalize and improve communication**. Frontend developers and integrators agree on a clearly
 defined interface instead of debating implementation details.
 * Components **reduce dependencies**. Frontend developers can work independent of integrators and backend developers.
@@ -137,6 +138,8 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 	{namespace my=VENDOR\MyExtension\Components}
 	<my:myComponent someParameter="someValue" />
 	```
+
+6. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components
 
 ## Extended Documentation
 
