@@ -131,7 +131,7 @@ defined interface instead of debating implementation details.
 2. Define the component namespace in your *ext_localconf.php*:
 
 	```php
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces']['VENDOR\\MyExtension\\Components'] =
+	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces']['\\VENDOR\\MyExtension\\Components'] =
 		\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('my_extension', 'Resources/Private/Components');
 	```
 
