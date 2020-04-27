@@ -15,7 +15,7 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
      */
     public function createViewHelperInstanceFromClassName($viewHelperClassName)
     {
-        if ($this->getObjectManager()->isRegistered($viewHelperClassName)) {
+        if (class_exists($viewHelperClassName, true)) {
             return $this->getObjectManager()->get($viewHelperClassName);
         } else {
             // Redirect all components to special ViewHelper ComponentRenderer
