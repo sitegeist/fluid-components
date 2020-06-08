@@ -6,6 +6,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
 use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
+use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\FileReference;
@@ -32,6 +33,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         'array' => [
             ConstructibleFromArray::class,
             'fromArray'
+        ],
+        'NULL' => [
+            ConstructibleFromNull::class,
+            'fromNull'
         ],
         FileReference::class => [
             ConstructibleFromFileInterface::class,
