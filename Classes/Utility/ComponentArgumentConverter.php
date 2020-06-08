@@ -61,6 +61,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     ];
 
     /**
+     * Runtime cache to speed up conversion checks
+     *
+     * @var array
+     */
+    protected $conversionCache = [];
+
+    /**
      * Adds an interface to specify argument type conversion to list
      *
      * @param string $fromType
@@ -96,22 +103,32 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function canTypeBeConvertedToType(string $givenType, string $toType): bool
     {
+        // No need to convert equal types
+        if ($givenType === $toType) {
+            return false;
+        }
+
+        // Has this check already been computed?
+        if (isset($this->conversionCache[$givenType . '|' . $toType])) {
+            return $this->conversionCache[$givenType . '|' . $toType];
+        }
+
         // Check if a constructor interface exists for the given type
-        if (!isset($this->conversionInterfaces[$givenType])) {
-            return false;
-        }
-
         // Check if the target type is a PHP class
-        if (!class_exists($toType)) {
-            return false;
+        $canBeConverted = false;
+        if (isset($this->conversionInterfaces[$givenType]) && class_exists($toType)) {
+            // Check if the target type implements the constructor interface
+            // required for conversion
+            $canBeConverted = is_subclass_of(
+                $toType,
+                $this->conversionInterfaces[$givenType][0]
+            );
         }
 
-        // Check if the target type implements the constructor interface
-        // required for conversion
-        return is_subclass_of(
-            $toType,
-            $this->conversionInterfaces[$givenType][0]
-        );
+        // Add to runtime cache
+        $this->conversionCache[$givenType . '|' . $toType] = $canBeConverted;
+
+        return $canBeConverted;
     }
 
     /**
