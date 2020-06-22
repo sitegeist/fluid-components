@@ -2,10 +2,11 @@
 
 namespace SMS\FluidComponents\ViewHelpers;
 
+use SMS\FluidComponents\ViewHelpers\RendererViewHelper;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
-class RendererViewHelper extends AbstractViewHelper
+class RenderContextViewHelper extends AbstractViewHelper
 {
     /**
      * @var boolean
@@ -14,7 +15,7 @@ class RendererViewHelper extends AbstractViewHelper
 
     public function initializeArguments()
     {
-        $this->registerArgument('name', 'string', 'Renderer name', false, 'default');
+        $this->registerArgument('name', 'string', 'Renderer name', true);
     }
 
     /*
@@ -26,12 +27,12 @@ class RendererViewHelper extends AbstractViewHelper
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
         $viewHelperVariableContainer = $renderingContext->getViewHelperVariableContainer();
-        $requestedRenderer = $viewHelperVariableContainer->get(self::class, 'renderer') ?? 'default';
+        $parentRenderer = $viewHelperVariableContainer->get(RendererViewHelper::class, 'renderer');
 
-        if ($arguments['name'] === $requestedRenderer) {
-            return $renderChildrenClosure();
-        } else {
-            return '';
-        }
+        $viewHelperVariableContainer->add(RendererViewHelper::class, 'renderer', $arguments['name']);
+        $content = $renderChildrenClosure();
+        $viewHelperVariableContainer->add(RendererViewHelper::class, 'renderer', $parentRenderer);
+
+        return $content;
     }
 }
