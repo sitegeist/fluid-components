@@ -6,7 +6,7 @@ use SMS\FluidComponents\Utility\ComponentLoader;
 
 class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
