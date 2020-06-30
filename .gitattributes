@@ -1,4 +1,4 @@
 /.gitattributes export-ignore
 /.editorconfig export-ignore
+/.ecrc export-ignore
 /Tests/ export-ignore
-/.travis.yml export-ignore

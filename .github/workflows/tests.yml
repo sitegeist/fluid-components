@@ -1,0 +1,72 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+    lint:
+        name: Source code linting
+        runs-on: ubuntu-latest
+        steps:
+            -
+                uses: actions/checkout@v2
+
+            -
+                name: Validate composer.json
+                run: composer validate
+
+            -
+                name: Cache composer dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ~/.composer/cache
+                    key: composer
+
+            -
+                name: Install composer dependencies
+                run: composer install --prefer-dist --no-progress --no-suggest
+
+            -
+                name: PHP Linting
+                run: composer lint:php
+
+            -
+                name: Editorconfig Linting
+                run: composer lint:editorconfig
+
+
+    test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            max-parallel: 2
+            matrix:
+                php-versions: [7.2, 7.3, 7.4]
+                # typo3-versions: [9.5, 10.4]
+                typo3-versions: [9.5]
+
+        name: PHP ${{ matrix.php-versions }} with TYPO3 ${{ matrix.typo3-versions }}
+        steps:
+            -
+                uses: actions/checkout@v2
+
+            -
+                name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-versions }}
+                    extensions: intl, mbstring, pdo_sqlite
+
+            -
+                name: Cache composer dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ~/.composer/cache
+                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+
+            -
+                name: Install composer dependencies
+                run: composer require typo3/minimal "^${{ matrix.typo3-versions }}" --prefer-dist --no-progress --no-suggest
+
+            -
+                name: Automated Testing
+                run: composer test
