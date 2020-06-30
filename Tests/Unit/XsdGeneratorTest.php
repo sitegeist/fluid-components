@@ -14,7 +14,7 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
     protected $fluidNamespaces = null;
     protected $componentLoader = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -74,7 +74,7 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'] = $this->fluidNamespaces;
         parent::tearDown();

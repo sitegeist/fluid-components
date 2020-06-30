@@ -392,8 +392,7 @@ class ComponentRenderer extends AbstractViewHelper
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
                     $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);
                 // Make sure that default value for object parameters is either a valid object or null
-                } elseif (
-                    class_exists($param['type']) &&
+                } elseif (class_exists($param['type']) &&
                     !$param['default'] instanceof $param['type'] &&
                     !$componentArgumentConverter->canTypeBeConvertedToType(gettype($param['default']), $param['type'])
                 ) {
