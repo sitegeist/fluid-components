@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
@@ -148,6 +149,12 @@ class ComponentRenderer extends AbstractViewHelper
             $argumentType = $this->argumentDefinitions[$name]->getType();
 
             $argument = $componentArgumentConverter->convertValueToType($argument, $argumentType);
+
+            // Provide component namespace to certain data structures
+            if ($argument instanceof ComponentAware) {
+                $argument->setComponentNamespace($this->componentNamespace);
+            }
+
             $variableContainer->add($name, $argument);
         }
 
