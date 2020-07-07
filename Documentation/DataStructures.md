@@ -277,6 +277,51 @@ You can also create a navigation manually in your template and simply omit the a
 }" />
 ```
 
+## DateTime
+
+`SMS\FluidComponents\Domain\Model\DateTime`
+
+This is a more comfortable implementation, compared to the DateTime class.
+
+Parameters of this type accept 
+
+* a DateTime object,
+* a string ('2020-07-07 08:29:33') or
+* an integer (1594110573).
+
+This type makes sense if, for example, so-called fixtures are used as data sources within a FluidStyleguide. In the data source (yaml, json, etc.) there is no adequate way to define DateTime objects.
+
+Fluid Template `Event.html` with a native DateTime object:
+
+```xml
+<my:molecule.event date="{event.date}" />
+```
+
+Fluid Component `Molecule/Event/Event.html`:
+
+```xml
+<fc:component>
+    <fc:param name="date" type="SMS\FluidComponents\Domain\Model\DateTime" />
+    <fc:renderer>
+        {date -> f:format.date(format: "%e. %B %Y")}
+    </fc:renderer>
+</fc:component>
+```
+
+Fluid Component Fixture `Molecule/Event/Event.fixtures.yaml`  with a string, which should be converted to DateTime::
+
+```yaml
+default:
+  date: '2020-07-07 08:29:33'
+```
+
+Fluid Component Fixture `Molecule/Event/Event.fixtures.yaml` with an integer, which should be converted to DateTime:
+
+```yaml
+default:
+  date: 1594110573
+```
+
 ## Type Aliases
 
 The included data structures can also be defined with their alias. These are `Image`, `Link`, `Typolink`, `Navigation` and `NavigationItem`.
