@@ -42,6 +42,6 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
      */
     public static function fromDateTime(\DateTime $value): self
     {
-        return new static('@' . $value->getTimestamp());
+        return new static($value->format(\DateTimeInterface::RFC3339_EXTENDED));
     }
 }
