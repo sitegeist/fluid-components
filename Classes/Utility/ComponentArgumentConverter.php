@@ -128,6 +128,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
                 $toType,
                 $this->conversionInterfaces[$givenType][0]
             );
+        } elseif (substr($toType, -2) === '[]' && $this->isAccessibleArray($givenType)) {
+            $canBeConverted = true;
         }
 
         // Add to runtime cache
@@ -153,8 +155,28 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             return $value;
         }
 
+        // Attempt to convert a collection of objects
+        if (substr($toType, -2) === '[]') {
+            $subtype = substr($toType, 0, -2);
+            foreach ($value as &$item) {
+                $item = $this->convertValueToType($item, $subtype);
+            }
+            return $value;
+        }
+
         // Call alternative constructor provided by interface
         $constructor = $this->conversionInterfaces[$givenType][1];
         return $toType::$constructor($value);
+    }
+
+    /**
+     * Checks if the given type is behaving like an array
+     *
+     * @param string $typeOrClassName
+     * @return boolean
+     */
+    protected function isAccessibleArray(string $typeOrClassName): bool
+    {
+        return $typeOrClassName === 'array' || is_subclass_of($typeOrClassName, \ArrayAccess::class);
     }
 }
