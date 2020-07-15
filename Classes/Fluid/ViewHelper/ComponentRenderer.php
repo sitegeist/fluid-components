@@ -447,9 +447,15 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return string
      */
-    protected function getTemplateIdentifier(string $templateFile)
+    protected function getTemplateIdentifier(string $pathAndFilename, string $prefix = 'fluidcomponent')
     {
-        return 'fluidcomponent_' . $this->componentNamespace . '_' . sha1_file($templateFile);
+        $templateModifiedTimestamp = $pathAndFilename !== 'php://stdin' && file_exists($pathAndFilename) ? filemtime($pathAndFilename) : 0;
+        return sprintf(
+            '%s_%s_%s',
+            $prefix,
+            substr(strrchr($this->componentNamespace, "\\"), 1),
+            sha1($pathAndFilename . '|' . $templateModifiedTimestamp)
+        );
     }
 
     /**
