@@ -149,7 +149,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     public function resolveTypeAlias(string $type): string
     {
         if ($this->isCollectionType($type)) {
-            $subtype = $this->extractCollectionType($type);
+            $subtype = $this->extractCollectionItemType($type);
             return $this->resolveTypeAlias($subtype) . '[]';
         } else {
             return $this->typeAliases[$type] ?? $type;
@@ -215,7 +215,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
         // Attempt to convert a collection of objects
         if ($this->isCollectionType($toType)) {
-            $subtype = $this->extractCollectionType($toType);
+            $subtype = $this->extractCollectionItemType($toType);
             foreach ($value as &$item) {
                 $item = $this->convertValueToType($item, $subtype);
             }
@@ -244,7 +244,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $type  e. g. Vendor\MyExtension\MyClass[]
      * @return string       e. g. Vendor\MyExtension\MyClass
      */
-    protected function extractCollectionType(string $type): string
+    protected function extractCollectionItemType(string $type): string
     {
         return substr($type, 0, -2);
     }
