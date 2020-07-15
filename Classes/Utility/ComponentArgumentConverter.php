@@ -66,11 +66,28 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     ];
 
     /**
+     * Registered argument type aliases
+     * [alias => full php class name]
+     *
+     * @var array
+     */
+    protected $typeAliases = [];
+
+    /**
      * Runtime cache to speed up conversion checks
      *
      * @var array
      */
     protected $conversionCache = [];
+
+    public function __construct()
+    {
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'])
+            && is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'])
+        ) {
+            $this->typeAliases =& $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'];
+        }
+    }
 
     /**
      * Adds an interface to specify argument type conversion to list
@@ -96,6 +113,47 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     {
         unset($this->conversionInterfaces[$fromType]);
         return $this;
+    }
+
+    /**
+     * Adds an alias for an argument type
+     *
+     * @param string $alias
+     * @param string $type
+     * @return self
+     */
+    public function addTypeAlias(string $alias, string $type): self
+    {
+        $this->typeAliases[$alias] = $type;
+        return $this;
+    }
+
+    /**
+     * Removes an alias for an argument type
+     *
+     * @param string $alias
+     * @return self
+     */
+    public function removeTypeAlias(string $alias): self
+    {
+        unset($this->typeAliases[$alias]);
+        return $this;
+    }
+
+    /**
+     * Replaces potential argument type alias with real php class name
+     *
+     * @param string $type  e. g. MyAlias
+     * @return string       e. g. Vendor\MyExtension\MyRealClass
+     */
+    public function resolveTypeAlias(string $type): string
+    {
+        if ($this->isCollectionType($type)) {
+            $subtype = $this->extractCollectionType($type);
+            return $this->resolveTypeAlias($subtype) . '[]';
+        } else {
+            return $this->typeAliases[$type] ?? $type;
+        }
     }
 
     /**

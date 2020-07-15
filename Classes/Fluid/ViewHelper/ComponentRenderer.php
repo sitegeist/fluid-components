@@ -391,10 +391,11 @@ class ComponentRenderer extends AbstractViewHelper
                     ), 1532960145);
                 }
 
-                // Resolve type aliases
-                $param['type'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'][$param['type']] ?? $param['type'];
-
                 $componentArgumentConverter = $this->getComponentArgumentConverter();
+
+                // Resolve type aliases
+                $param['type'] = $componentArgumentConverter->resolveTypeAlias($param['type']);
+
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
                     $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);
