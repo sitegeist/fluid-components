@@ -128,7 +128,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
                 $toType,
                 $this->conversionInterfaces[$givenType][0]
             );
-        } elseif (substr($toType, -2) === '[]' && $this->isAccessibleArray($givenType)) {
+        } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
             $canBeConverted = true;
         }
 
@@ -156,8 +156,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Attempt to convert a collection of objects
-        if (substr($toType, -2) === '[]') {
-            $subtype = substr($toType, 0, -2);
+        if ($this->isCollectionType($toType)) {
+            $subtype = $this->extractCollectionType($toType);
             foreach ($value as &$item) {
                 $item = $this->convertValueToType($item, $subtype);
             }
@@ -167,6 +167,28 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         // Call alternative constructor provided by interface
         $constructor = $this->conversionInterfaces[$givenType][1];
         return $toType::$constructor($value);
+    }
+
+    /**
+     * Checks if the provided type describes a collection of values
+     *
+     * @param string $type
+     * @return boolean
+     */
+    protected function isCollectionType(string $type): bool
+    {
+        return substr($type, -2) === '[]';
+    }
+
+    /**
+     * Extracts the type of individual items from a collection type
+     *
+     * @param string $type  e. g. Vendor\MyExtension\MyClass[]
+     * @return string       e. g. Vendor\MyExtension\MyClass
+     */
+    protected function extractCollectionType(string $type): string
+    {
+        return substr($type, 0, -2);
     }
 
     /**
