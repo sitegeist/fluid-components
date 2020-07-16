@@ -370,6 +370,7 @@ class ComponentRenderer extends AbstractViewHelper
             );
 
             // Register argument definitions from parameter viewhelpers
+            $componentArgumentConverter = $this->getComponentArgumentConverter();
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
@@ -390,8 +391,6 @@ class ComponentRenderer extends AbstractViewHelper
                         $this->getComponentNamespace()
                     ), 1532960145);
                 }
-
-                $componentArgumentConverter = $this->getComponentArgumentConverter();
 
                 // Resolve type aliases
                 $param['type'] = $componentArgumentConverter->resolveTypeAlias($param['type']);
