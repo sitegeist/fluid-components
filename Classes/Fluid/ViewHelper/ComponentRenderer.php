@@ -370,6 +370,7 @@ class ComponentRenderer extends AbstractViewHelper
             );
 
             // Register argument definitions from parameter viewhelpers
+            $componentArgumentConverter = $this->getComponentArgumentConverter();
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
@@ -392,9 +393,8 @@ class ComponentRenderer extends AbstractViewHelper
                 }
 
                 // Resolve type aliases
-                $param['type'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'][$param['type']] ?? $param['type'];
+                $param['type'] = $componentArgumentConverter->resolveTypeAlias($param['type']);
 
-                $componentArgumentConverter = $this->getComponentArgumentConverter();
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
                     $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);

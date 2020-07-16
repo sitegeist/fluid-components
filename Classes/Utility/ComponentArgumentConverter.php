@@ -66,11 +66,28 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     ];
 
     /**
+     * Registered argument type aliases
+     * [alias => full php class name]
+     *
+     * @var array
+     */
+    protected $typeAliases = [];
+
+    /**
      * Runtime cache to speed up conversion checks
      *
      * @var array
      */
     protected $conversionCache = [];
+
+    public function __construct()
+    {
+        if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'])
+            && is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'])
+        ) {
+            $this->typeAliases =& $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'];
+        }
+    }
 
     /**
      * Adds an interface to specify argument type conversion to list
@@ -96,6 +113,47 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     {
         unset($this->conversionInterfaces[$fromType]);
         return $this;
+    }
+
+    /**
+     * Adds an alias for an argument type
+     *
+     * @param string $alias
+     * @param string $type
+     * @return self
+     */
+    public function addTypeAlias(string $alias, string $type): self
+    {
+        $this->typeAliases[$alias] = $type;
+        return $this;
+    }
+
+    /**
+     * Removes an alias for an argument type
+     *
+     * @param string $alias
+     * @return self
+     */
+    public function removeTypeAlias(string $alias): self
+    {
+        unset($this->typeAliases[$alias]);
+        return $this;
+    }
+
+    /**
+     * Replaces potential argument type alias with real php class name
+     *
+     * @param string $type  e. g. MyAlias
+     * @return string       e. g. Vendor\MyExtension\MyRealClass
+     */
+    public function resolveTypeAlias(string $type): string
+    {
+        if ($this->isCollectionType($type)) {
+            $subtype = $this->extractCollectionItemType($type);
+            return $this->resolveTypeAlias($subtype) . '[]';
+        } else {
+            return $this->typeAliases[$type] ?? $type;
+        }
     }
 
     /**
@@ -128,6 +186,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
                 $toType,
                 $this->conversionInterfaces[$givenType][0]
             );
+        } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
+            $canBeConverted = true;
         }
 
         // Add to runtime cache
@@ -153,8 +213,50 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             return $value;
         }
 
+        // Attempt to convert a collection of objects
+        if ($this->isCollectionType($toType)) {
+            $subtype = $this->extractCollectionItemType($toType);
+            foreach ($value as &$item) {
+                $item = $this->convertValueToType($item, $subtype);
+            }
+            return $value;
+        }
+
         // Call alternative constructor provided by interface
         $constructor = $this->conversionInterfaces[$givenType][1];
         return $toType::$constructor($value);
+    }
+
+    /**
+     * Checks if the provided type describes a collection of values
+     *
+     * @param string $type
+     * @return boolean
+     */
+    protected function isCollectionType(string $type): bool
+    {
+        return substr($type, -2) === '[]';
+    }
+
+    /**
+     * Extracts the type of individual items from a collection type
+     *
+     * @param string $type  e. g. Vendor\MyExtension\MyClass[]
+     * @return string       e. g. Vendor\MyExtension\MyClass
+     */
+    protected function extractCollectionItemType(string $type): string
+    {
+        return substr($type, 0, -2);
+    }
+
+    /**
+     * Checks if the given type is behaving like an array
+     *
+     * @param string $typeOrClassName
+     * @return boolean
+     */
+    protected function isAccessibleArray(string $typeOrClassName): bool
+    {
+        return $typeOrClassName === 'array' || is_subclass_of($typeOrClassName, \ArrayAccess::class);
     }
 }
