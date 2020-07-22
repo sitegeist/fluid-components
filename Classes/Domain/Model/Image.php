@@ -48,6 +48,13 @@ abstract class Image implements
     protected $title;
 
     /**
+     * Description of the image
+     *
+     * @var string|null
+     */
+    protected $description;
+
+    /**
      * Should return the public URL of the image to be used in an img tag
      *
      * @return string
@@ -228,6 +235,10 @@ abstract class Image implements
             $image->setTitle($value['title']);
         }
 
+        if (isset($value['description'])) {
+            $image->setDescription($value['description']);
+        }
+
         return $image;
     }
 
@@ -360,6 +371,17 @@ abstract class Image implements
     public function setTitle(?string $title): self
     {
         $this->title = $title;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
         return $this;
     }
 
