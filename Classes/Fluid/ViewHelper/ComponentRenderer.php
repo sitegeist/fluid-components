@@ -133,6 +133,7 @@ class ComponentRenderer extends AbstractViewHelper
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
+        $renderingContext->setTemplatePaths($this->renderingContext->getTemplatePaths());
         $variableContainer = $renderingContext->getVariableProvider();
 
         // Provide information about component to renderer
