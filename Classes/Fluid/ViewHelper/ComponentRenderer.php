@@ -22,6 +22,7 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Core\Configuration\Features;
 
 class ComponentRenderer extends AbstractViewHelper
 {
@@ -133,7 +134,9 @@ class ComponentRenderer extends AbstractViewHelper
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
-        $renderingContext->setTemplatePaths($this->renderingContext->getTemplatePaths());
+        if (static::shouldUseTemplatePaths()) {
+            $renderingContext->setTemplatePaths($this->renderingContext->getTemplatePaths());
+        }
         $variableContainer = $renderingContext->getVariableProvider();
 
         // Provide information about component to renderer
@@ -519,5 +522,17 @@ class ComponentRenderer extends AbstractViewHelper
     protected function getComponentArgumentConverter(): ComponentArgumentConverter
     {
         return GeneralUtility::makeInstance(ComponentArgumentConverter::class);
+    }
+
+    /**
+     * @return bool
+     */
+    protected static function shouldUseTemplatePaths(): bool
+    {
+        static $assertion = null;
+        if ($assertion === null) {
+            $assertion = GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('FluidComponentsTemplatePaths');
+        }
+        return $assertion;
     }
 }
