@@ -531,7 +531,7 @@ class ComponentRenderer extends AbstractViewHelper
     {
         static $assertion = null;
         if ($assertion === null) {
-            $assertion = GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('FluidComponentsTemplatePaths');
+            $assertion = GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('fluidComponents.partialsInComponents');
         }
         return $assertion;
     }
