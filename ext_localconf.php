@@ -19,4 +19,7 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Typolink'] = \SMS\FluidComponents\Domain\Model\Typolink::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Navigation'] = \SMS\FluidComponents\Domain\Model\Navigation::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['NavigationItem'] = \SMS\FluidComponents\Domain\Model\NavigationItem::class;
+    if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['fluidComponents.partialsInComponents'])) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['fluidComponents.partialsInComponents'] = false;
+    }
 });
