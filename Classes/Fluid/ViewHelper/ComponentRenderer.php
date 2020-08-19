@@ -135,7 +135,9 @@ class ComponentRenderer extends AbstractViewHelper
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
-            $renderingContext->setTemplatePaths($this->renderingContext->getTemplatePaths());
+            $renderingContext->getTemplatePaths()->setPartialRootPaths(
+                $this->renderingContext->getTemplatePaths()->getPartialRootPaths()
+            );
         }
         $variableContainer = $renderingContext->getVariableProvider();
 
