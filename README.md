@@ -150,7 +150,9 @@ the [ViewHelper Reference](Documentation/ViewHelperReference.md).
 	<my:myComponent someParameter="someValue" />
 	```
 
-6. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components
+6. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components.
+
+If you have any questions, need support or want to discuss components in TYPO3, feel free to join [#ext-fluid_components](https://typo3.slack.com/archives/ext-fluid_components).
 
 ## Extended Documentation
 
