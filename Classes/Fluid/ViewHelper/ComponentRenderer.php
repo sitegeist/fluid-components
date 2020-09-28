@@ -472,7 +472,9 @@ class ComponentRenderer extends AbstractViewHelper
     protected function getComponentPrefixer()
     {
         if (!isset(self::$componentPrefixerCache[$this->componentNamespace])) {
-            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'])) {
+            if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']) &&
+                is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'])
+            ) {
                 arsort($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']);
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'] as $namespace => $prefixer) {
                     $namespace = ltrim($namespace, '\\');
@@ -483,7 +485,7 @@ class ComponentRenderer extends AbstractViewHelper
                 }
             }
 
-            if (!$componentPrefixerClass) {
+            if (empty($componentPrefixerClass)) {
                 $componentPrefixerClass = GenericComponentPrefixer::class;
             }
 
