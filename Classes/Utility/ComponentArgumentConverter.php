@@ -100,6 +100,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     public function addConversionInterface(string $fromType, string $interface, string $constructor): self
     {
         $this->conversionInterfaces[$fromType] = [$interface, $constructor];
+        $this->conversionCache = [];
         return $this;
     }
 
@@ -112,6 +113,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     public function removeConversionInterface(string $fromType): self
     {
         unset($this->conversionInterfaces[$fromType]);
+        $this->conversionCache = [];
         return $this;
     }
 
