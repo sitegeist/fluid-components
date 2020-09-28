@@ -29,6 +29,11 @@
             "SMS\\FluidComponents\\": "Classes/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "SMS\\FluidComponents\\Tests\\": "Tests/"
+        }
+    },
     "config": {
         "vendor-dir": ".Build/vendor",
         "bin-dir": ".Build/bin"
