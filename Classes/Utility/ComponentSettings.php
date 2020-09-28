@@ -75,7 +75,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     public function set(string $path, $value)
     {
         $path = explode('.', $path);
-        $variable = $this->settings;
+        $variable =& $this->settings;
         foreach ($path as $segment) {
             if (!isset($variable[$segment])) {
                 $variable[$segment] = [];
