@@ -259,6 +259,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      */
     protected function isAccessibleArray(string $typeOrClassName): bool
     {
-        return $typeOrClassName === 'array' || is_subclass_of($typeOrClassName, \ArrayAccess::class);
+        return $typeOrClassName === 'array' ||
+            (is_subclass_of($typeOrClassName, \ArrayAccess::class) && is_subclass_of($typeOrClassName, \Traversable::class));
     }
 }
