@@ -6,9 +6,20 @@ use SMS\FluidComponents\Utility\ComponentSettings;
 
 class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
+    protected $componentSettings;
+    protected $tsfe;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->componentSettings = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? null;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [];
+
+        $this->tsfe = $GLOBALS['TSFE'] ?? null;
+        $GLOBALS['TSFE'] = new \StdClass;
+        $GLOBALS['TSFE']->tmpl = new \StdClass;
+        $GLOBALS['TSFE']->tmpl->setup = [];
 
         $this->settings = new ComponentSettings();
     }
@@ -38,9 +49,6 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
      */
     public function settingsProvidedByPhpTypoScript()
     {
-        $GLOBALS['TSFE'] = new \StdClass;
-        $GLOBALS['TSFE']->tmpl = new \StdClass;
-        $GLOBALS['TSFE']->tmpl->setup = [];
         $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] = [
             'nested.' => ['mySetting' => 'myValue'],
             'anotherSetting' => 'anotherValue'
@@ -67,9 +75,6 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
             'nested' => ['mySetting' => 'myValue'],
             'anotherSetting' => 'anotherValue'
         ];
-        $GLOBALS['TSFE'] = new \StdClass;
-        $GLOBALS['TSFE']->tmpl = new \StdClass;
-        $GLOBALS['TSFE']->tmpl->setup = [];
         $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] = [
             'nested.' => ['myNewSetting' => 'myNewValue'],
             'anotherSetting' => 'newValue',
@@ -124,5 +129,12 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $this->assertEquals('myValue', $this->settings->get('mySetting'));
         $this->settings->unset('mySetting');
         $this->assertEquals(null, $this->settings->get('mySetting'));
+    }
+
+    public function tearDown(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = $this->componentSettings;
+        $GLOBALS['TSFE'] = $this->tsfe;
+        parent::tearDown();
     }
 }
