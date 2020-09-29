@@ -34,7 +34,7 @@ jobs:
                 run: composer lint:editorconfig
 
 
-    test:
+    unittest:
         runs-on: ubuntu-latest
 
         strategy:
@@ -67,5 +67,41 @@ jobs:
                 run: composer require typo3/minimal "^${{ matrix.typo3-versions }}" --prefer-dist --no-progress --no-suggest
 
             -
-                name: Automated Testing
-                run: composer test
+                name: Automated Unit Testing
+                run: composer test:unit
+
+    integrationtest:
+        runs-on: ubuntu-latest
+
+        strategy:
+            max-parallel: 2
+            matrix:
+                php-versions: [7.4, 7.3, 7.2]
+                typo3-versions: [9.5]
+
+        name: PHP ${{ matrix.php-versions }} with TYPO3 ${{ matrix.typo3-versions }}
+        steps:
+            -
+                uses: actions/checkout@v2
+
+            -
+                name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-versions }}
+                    extensions: intl, mbstring, pdo_sqlite
+
+            -
+                name: Cache composer dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ~/.composer/cache
+                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+
+            -
+                name: Install composer dependencies
+                run: composer require typo3/minimal "^${{ matrix.typo3-versions }}" --prefer-dist --no-progress --no-suggest
+
+            -
+                name: Automated Integration Testing
+                run: composer test:integration
