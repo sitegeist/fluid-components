@@ -54,6 +54,7 @@ class ComponentRendererTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
                 'trueParameter' => true, // strange fluid behavior: will be 1
                 'falseParameter' => false, // strange fluid behavior: will be empty string
             ], '', 'This is a string|123|1|'],
+            ['DateTimeParameter', ['date' => 1601371704], '', 'Tue, 29 Sep 2020 09:28:24 +0000']
         ];
     }
 
