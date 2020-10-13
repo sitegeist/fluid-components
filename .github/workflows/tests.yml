@@ -43,7 +43,7 @@ jobs:
                 php-versions: [7.4, 7.3, 7.2]
                 typo3-versions: [10.4, 9.5]
 
-        name: PHP ${{ matrix.php-versions }} with TYPO3 ${{ matrix.typo3-versions }}
+        name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
             -
                 uses: actions/checkout@v2
@@ -79,7 +79,7 @@ jobs:
                 php-versions: [7.4, 7.3, 7.2]
                 typo3-versions: [9.5]
 
-        name: PHP ${{ matrix.php-versions }} with TYPO3 ${{ matrix.typo3-versions }}
+        name: Integration (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
             -
                 uses: actions/checkout@v2
