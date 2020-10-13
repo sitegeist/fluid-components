@@ -15,7 +15,7 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
     protected function getFixturePath($fixtureName)
     {
-        return realpath(dirname(__FILE__) . '/../Fixtures/' . $fixtureName);
+        return realpath(dirname(__FILE__) . '/../Fixtures/Unit/' . $fixtureName);
     }
 
     public function addNamespaceProvider()

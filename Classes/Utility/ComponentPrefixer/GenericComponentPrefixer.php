@@ -18,7 +18,7 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
      */
     public function prefix(string $namespace): string
     {
-        $namespace = explode('\\', $namespace);
+        $namespace = explode('\\', trim($namespace, '\\'));
         unset($namespace[1], $namespace[2]);
         return GeneralUtility::underscoredToLowerCamelCase(
             implode('_', $namespace)
