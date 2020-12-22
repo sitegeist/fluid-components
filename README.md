@@ -2,44 +2,14 @@
 
 This TYPO3 extensions puts frontend developers in a position to create encapsulated components
 in pure Fluid. By defining a clear interface (API) for the integration, frontend developers can
-implement components independent of backend developers. The goal is to create presentational
-components which have no side effects and aren't responsible for data acquisition. The sole
-concern of a presentational component should be how things look.
+implement components independent of backend developers. The goal is to create highly reusable
+presentational components which have no side effects and aren't responsible for data acquisition.
 
-## Authors & Sponsors
-
-* Simon Praetorius - praetorius@sitegeist.de
-* [All contributors](https://github.com/sitegeist/fluid-components/graphs/contributors)
-
-*The development and the public-releases of this package is generously sponsored
-by my employer https://sitegeist.de.*
-
-## Installation
-
-This TYPO3 extension is available via packagist:
-
-```composer require sitegeist/fluid-components```
-
-Alternatively, you can install the extension from TER:
-
-[TER: fluid_components](https://typo3.org/extensions/repository/view/fluid_components)
-
-After that, proceed with [Getting Started](#getting-started)
-
-## Updating from 1.x
-
-There is only one breaking change: It isn't possible anymore to use Fluid variables in default values
-for component parameters. This will **NOT WORK ANYMORE**:
-
-```xml
-<fc:param name="firstName" type="string" optional="1" default="{settings.defaultFirstName}" />
-```
-
-As this was a pretty esoteric feature, you shouldn't have any problems when updating to 2.x!
+⬇️ **[TL;DR? Get started right away](#getting-started)** ⬇️
 
 ## What does it do?
 
-Fluid templates usually consist of three parts:
+[Fluid](https://github.com/typo3/fluid) templates usually consist of three ingredients:
 
 * **Templates**,
 * **Layouts**, which structure and wrap the markup defined in the template, and
@@ -64,9 +34,9 @@ the component. You don't need to know what the component does internally to be a
 
 ## How do components look like?
 
-The following component implements a simple teaser element:
+The following component implements a simple teaser card element:
 
-*Components/Teaser/Teaser.html*
+*Components/TeaserCard/TeaserCard.html*
 
 ```xml
 <fc:component>
@@ -74,7 +44,7 @@ The following component implements a simple teaser element:
     <fc:param name="description" type="string" />
     <fc:param name="link" type="Typolink" />
     <fc:param name="icon" type="string" optional="1" />
-    <fc:param name="theme" type="string" optional="1">light</fc:param>
+    <fc:param name="theme" type="string" optional="1" default="light" />
 
     <fc:renderer>
         <a href="{link}" class="{component.class} {component.class}-{theme}">
@@ -89,11 +59,11 @@ The following component implements a simple teaser element:
 </fc:component>
 ```
 
-Use the following code in your template to render a teaser about TYPO3:
+Use the following code in your template to render a teaser card about TYPO3:
 
 ```xml
 {namespace my=VENDOR\MyExtension\Components}
-<my:teaser
+<my:teaserCard
     title="TYPO3"
     description="The professional, flexible Content Management System"
     link="https://typo3.org"
@@ -104,29 +74,23 @@ Use the following code in your template to render a teaser about TYPO3:
 The result is the following HTML:
 
 ```xml
-<a href="https://typo3.org" class="smsExampleTeaser smsExampleTeaser-light">
-    <h3 class="smsExampleTeaser_title">TYPO3</h3>
-    <p class="smsExampleTeaser_description">The professional, flexible Content Management System</p>
+<a href="https://typo3.org" class="smsExampleTeaserCard smsExampleTeaserCard-light">
+    <h3 class="smsExampleTeaserCard_title">TYPO3</h3>
+    <p class="smsExampleTeaserCard_description">The professional, flexible Content Management System</p>
 
-    <i class="icon icon-typo3 smsExampleTeaser_icon"></i>
+    <i class="icon icon-typo3 smsExampleTeaserCard_icon"></i>
 </a>
 ```
 *(improved indentation for better readability)*
 
-## Why should I use components?
-
-* Components encourage **markup reusage and refactoring**. Only the component knows about its implementation
-details. As long as the interface stays compatible, the implementation can change.
-* Components can be a tool to **enforce design guidelines**. If the component's implementation respects the
-guidelines, they are respected everywhere the component is used. A helpful tool to accomplish that is the corresponding
-living styleguide: [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide).
-* Components **formalize and improve communication**. Frontend developers and integrators agree on a clearly
-defined interface instead of debating implementation details.
-* Components **reduce dependencies**. Frontend developers can work independent of integrators and backend developers.
-
 ## Getting Started
 
-1. [Install the extension](#installation)
+1. Install the extension either [from TER](https://typo3.org/extensions/repository/view/fluid_components)
+or [via composer](https://packagist.org/packages/sitegeist/fluid-components):
+
+    ```
+    composer require sitegeist/fluid-components
+    ```
 
 2. Define the component namespace in your *ext_localconf.php*:
 
@@ -140,25 +104,43 @@ defined interface instead of debating implementation details.
 3. Create your first component in *EXT:my_extension/Resources/Private/Components/* by creating a directory
 *MyComponent* containing a file *MyComponent.html*
 
-4. Define your component according to [How do components look like?](#how-do-components-look-like) as well as
-the [ViewHelper Reference](Documentation/ViewHelperReference.md).
+4. Define and apply your component according to [How do components look like?](#how-do-components-look-like). The [Extended Documentation](#extended-documentation)
+can be helpful as well.
 
-5. Render your component by including the namespace and calling the component by its name:
-
-	```xml
-	{namespace my=VENDOR\MyExtension\Components}
-	<my:myComponent someParameter="someValue" />
-	```
-
-6. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components, and [Fluid Components Linter](https://github.com/sitegeist/fluid-components-linter) to improve the quality and reusability of your components.
+5. Check out [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide), a living styleguide for Fluid Components, and [Fluid Components Linter](https://github.com/sitegeist/fluid-components-linter) to improve the quality and reusability of your components.
 
 If you have any questions, need support or want to discuss components in TYPO3, feel free to join [#ext-fluid_components](https://typo3.slack.com/archives/ext-fluid_components).
 
+## Why should I use components?
+
+* Components encourage **markup reusage and refactoring**. Only the component knows about its implementation
+details. As long as the interface stays compatible, the implementation can change.
+* Components can be a tool to **enforce design guidelines**. If the component's implementation respects the
+guidelines, they are respected everywhere the component is used. A helpful tool to accomplish that is the corresponding
+living styleguide: [Fluid Styleguide](https://github.com/sitegeist/fluid-styleguide).
+* Components **formalize and improve communication**. Frontend developers and integrators agree on a clearly
+defined interface instead of debating implementation details.
+* Components **reduce dependencies**. Frontend developers can work independent of integrators and backend developers.
+
 ## Extended Documentation
+
+Feature References
 
 * [ViewHelper Reference](Documentation/ViewHelperReference.md)
 * [Included Data Structures](Documentation/DataStructures.md)
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
+
+How-To's
+
 * [Usage with Forms](Documentation/Forms.md)
 * [Add auto-completion in your IDE](Documentation/AutoCompletion.md)
+* [Updating from 1.x](Documentation/UpdateNotes.md)
+
+## Authors & Sponsors
+
+* Simon Praetorius - praetorius@sitegeist.de
+* [All contributors](https://github.com/sitegeist/fluid-components/graphs/contributors)
+
+*The development and the public-releases of this package is generously sponsored
+by my employer https://sitegeist.de.*
