@@ -111,8 +111,10 @@ class NavigationItem implements ConstructibleFromArray
     public static function fromArray(array $navigationItem): self
     {
         // Convert link and sub navigation to the appropriate data structure
-        if (isset($navigationItem['link']) && !$navigationItem['link'] instanceof Typolink) {
-            $navigationItem['link'] = new Typolink($navigationItem['link']);
+        if (isset($navigationItem['link'])) {
+            if (!$navigationItem['link'] instanceof Typolink) {
+                $navigationItem['link'] = new Typolink($navigationItem['link']);
+            }
             if (isset($navigationItem['target'])) {
                 $navigationItem['link']->setTarget($navigationItem['target']);
             }
