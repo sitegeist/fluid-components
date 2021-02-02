@@ -2,8 +2,9 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Domain\Model\LanguageNavigationItem;
 use SMS\FluidComponents\Domain\Model\NavigationItem;
+use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 
 /**
  * Data Structure to generate a navigation in components
@@ -92,7 +93,11 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
         }
 
         if (is_array($item)) {
-            return NavigationItem::fromArray($item);
+            if (isset($item['languageId'])) {
+                return LanguageNavigationItem::fromArray($item);
+            } else {
+                return NavigationItem::fromArray($item);
+            }
         }
 
         return null;
