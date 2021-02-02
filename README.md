@@ -127,7 +127,12 @@ defined interface instead of debating implementation details.
 Feature References
 
 * [ViewHelper Reference](Documentation/ViewHelperReference.md)
-* [Included Data Structures](Documentation/DataStructures.md)
+* [Data Structures](Documentation/DataStructures.md)
+    * [Links and Typolink](Documentation/DataStructures.md#links-and-typolink)
+    * [Images](Documentation/DataStructures.md#images)
+    * [Translations](Documentation/DataStructures.md#translations)
+    * [Navigations](Documentation/DataStructures.md#navigations)
+    * [DateTime](Documentation/DataStructures.md#datetime)
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
 
