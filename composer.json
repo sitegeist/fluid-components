@@ -41,7 +41,8 @@
     "extra": {
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "web-dir": ".Build/Web"
+            "web-dir": ".Build/Web",
+            "extension-key": "fluid_components"
         }
     },
     "scripts": {
@@ -56,6 +57,9 @@
             "@test:integration"
         ],
         "test:unit": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Unit/",
-        "test:integration": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Integration/"
+        "test:integration": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Integration/",
+        "prepare-release": [
+            "rm -r .github .ecrc .editorconfig .gitattributes Tests"
+        ]
     }
 }
