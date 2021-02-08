@@ -249,6 +249,10 @@ All labels can also be overwritten when the component is called:
 <my:molecule.teaserCard labels="{readMore: 'Overwritten read more'}" />
 ```
 
+Please note that due to the way those labels are accessed, it is not possible to use `.` in the
+label identifier. We recommend to use lower camel case (`readMore`) or snake case (`read_more`) in
+component language files.
+
 ## Navigations
 
 `SMS\FluidComponents\Domain\Model\Navigation` (alias: `Navigation`)
