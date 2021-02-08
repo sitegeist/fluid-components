@@ -204,6 +204,55 @@ no matter which image variant is used:
 In addition, the different implementations offer additional properties that can
 be used safely after checking the `type` property accordingly.
 
+## Translations
+
+`SMS\FluidComponents\Domain\Model\Labels` (alias: `Labels`)
+
+Each component can define its own set of translation labels. Those labels can be accessed via an
+instance of the `Labels` class that can needs to be defined as an optional component parameter:
+
+Fluid Component `Molecule/TeaserCard/TeaserCard.html`:
+
+```xml
+<fc:component>
+    <fc:param name="labels" type="Labels" optional="1" />
+    <fc:renderer>
+        [...]
+        <a href="...">{labels.readMore}</a>
+    </fc:renderer>
+</fc:component>
+```
+
+The `readMore` language label can be defined in an XLIFF translation file that is placed next to
+the component html file. Its file name must be *{ComponentName}.labels.xlf* (or *de.{ComponentName}.labels.xlf*
+for German translations), so in this example the component will pick up the following language file:
+
+Language file `Molecule/TeaserCard/TeaserCard.labels.xlf`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
+    <file source-language="en" datatype="plaintext" original="messages" date="2021-02-02T18:55:32Z" product-name="my_extension">
+        <header/>
+        <body>
+            <trans-unit id="readMore">
+                <source>Read more</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
+```
+
+All labels can also be overwritten when the component is called:
+
+```xml
+<my:molecule.teaserCard labels="{readMore: 'Overwritten read more'}" />
+```
+
+Please note that due to the way those labels are accessed, it is not possible to use `.` in the
+label identifier. We recommend to use lower camel case (`readMore`) or snake case (`read_more`) in
+component language files.
+
 ## Navigations
 
 `SMS\FluidComponents\Domain\Model\Navigation` (alias: `Navigation`)
@@ -324,7 +373,7 @@ default:
 
 ## Type Aliases
 
-The included data structures can also be defined with their alias. These are `Image`, `Link`, `Typolink`, `Navigation` and `NavigationItem`.
+The included data structures can also be defined with their alias. These are `Image`, `Link`, `Typolink`, `Labels`, `Navigation` and `NavigationItem`.
 
 ```xml
 <fc:component>
