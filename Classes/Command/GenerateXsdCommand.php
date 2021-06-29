@@ -47,7 +47,7 @@ EOH
         $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class, $componentLoader);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
         if (substr($path, 0, 1) !== DIRECTORY_SEPARATOR) {
@@ -62,6 +62,7 @@ EOH
         $xsdTargetNameSpaces = $this->xsdGenerator->generateXsd($path, $input->getOption('namespace'));
         if (count($xsdTargetNameSpaces) === 0) {
             $output->writeln('<error>Namespace(s) not found.</error>');
+            return 1;
         } else {
             // add fluid component view helpers (only to complete the namespace xml declaration)
             $xsdTargetNameSpaces['fc'][] = 'http://typo3.org/ns/SMS/FluidComponents/ViewHelpers';
@@ -76,6 +77,7 @@ EOH
                 $output->writeln('Import the namespaces in your Fluid template by adding the xmlns:* attributes:');
                 $output->writeln('<info>' . $xmlHeader . '</info>');
             }
+            return 0;
         }
     }
 }
