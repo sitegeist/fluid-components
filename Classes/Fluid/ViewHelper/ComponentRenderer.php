@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
@@ -79,6 +80,44 @@ class ComponentRenderer extends AbstractViewHelper
     protected $escapeChildren = false;
 
     /**
+     * @var ComponentLoader
+     */
+    protected ComponentLoader $componentLoader;
+
+    /**
+     * @var ComponentSettings
+     */
+    protected ComponentSettings $componentSettings;
+
+    /**
+     * @var ComponentArgumentConverter
+     */
+    protected ComponentArgumentConverter $componentArgumentConverter;
+
+    /**
+     * @var ContainerInterface
+     */
+    protected ContainerInterface $container;
+
+    /**
+     * @param ComponentLoader $componentLoader
+     * @param ComponentSettings $componentSettings
+     * @param ComponentArgumentConverter $componentArgumentConverter
+     * @param ContainerInterface $container
+     */
+    public function __construct(
+        ComponentLoader $componentLoader,
+        ComponentSettings $componentSettings,
+        ComponentArgumentConverter $componentArgumentConverter,
+        ContainerInterface $container
+    ) {
+        $this->componentLoader = $componentLoader;
+        $this->componentSettings = $componentSettings;
+        $this->componentArgumentConverter = $componentArgumentConverter;
+        $this->container = $container;
+    }
+
+    /**
      * Sets the namespace of the component the viewhelper should render
      *
      * @param string $componentNamespace
@@ -129,7 +168,7 @@ class ComponentRenderer extends AbstractViewHelper
     public function render()
     {
         // Create a new rendering context for the component file
-        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
+        $renderingContext = $this->getRenderingContext();
         if ($this->renderingContext->getControllerContext()) {
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
@@ -147,14 +186,13 @@ class ComponentRenderer extends AbstractViewHelper
             'class' => $this->getComponentClass(),
             'prefix' => $this->getComponentPrefix(),
         ]);
-        $variableContainer->add('settings', $this->getComponentSettings());
+        $variableContainer->add('settings', $this->componentSettings);
 
         // Provide supplied arguments from component call to renderer
-        $componentArgumentConverter = $this->getComponentArgumentConverter();
         foreach ($this->arguments as $name => $argument) {
             $argumentType = $this->argumentDefinitions[$name]->getType();
 
-            $argument = $componentArgumentConverter->convertValueToType($argument, $argumentType);
+            $argument = $this->componentArgumentConverter->convertValueToType($argument, $argumentType);
 
             // Provide component namespace to certain data structures
             if ($argument instanceof ComponentAware) {
@@ -171,8 +209,7 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Initialize component rendering template
         if (!isset($this->parsedTemplate)) {
-            $componentLoader = $this->getComponentLoader();
-            $componentFile = $componentLoader->findComponent($this->componentNamespace);
+            $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
 
             $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
                 $this->getTemplateIdentifier($componentFile),
@@ -314,7 +351,6 @@ class ComponentRenderer extends AbstractViewHelper
      */
     public function validateArguments()
     {
-        $componentArgumentConverter = $this->getComponentArgumentConverter();
         $argumentDefinitions = $this->prepareArguments();
         foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
             if ($this->hasArgument($argumentName)) {
@@ -324,7 +360,7 @@ class ComponentRenderer extends AbstractViewHelper
                 if ($value !== $defaultValue && $type !== 'mixed') {
                     $givenType = is_object($value) ? get_class($value) : gettype($value);
                     if (!$this->isValidType($type, $value)
-                        && !$componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
+                        && !$this->componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
                     ) {
                         throw new \InvalidArgumentException(
                             'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
@@ -344,10 +380,9 @@ class ComponentRenderer extends AbstractViewHelper
      */
     protected function initializeComponentParams()
     {
-        $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
+        $renderingContext = $this->getRenderingContext();
 
-        $componentLoader = $this->getComponentLoader();
-        $componentFile = $componentLoader->findComponent($this->componentNamespace);
+        $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
 
         // Parse component template without using the cache
         $parsedTemplate = $renderingContext->getTemplateParser()->parse(
@@ -376,7 +411,6 @@ class ComponentRenderer extends AbstractViewHelper
             );
 
             // Register argument definitions from parameter viewhelpers
-            $componentArgumentConverter = $this->getComponentArgumentConverter();
             foreach ($paramNodes as $paramNode) {
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
@@ -399,7 +433,7 @@ class ComponentRenderer extends AbstractViewHelper
                 }
 
                 // Resolve type aliases
-                $param['type'] = $componentArgumentConverter->resolveTypeAlias($param['type']);
+                $param['type'] = $this->componentArgumentConverter->resolveTypeAlias($param['type']);
 
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
@@ -407,7 +441,7 @@ class ComponentRenderer extends AbstractViewHelper
                 // Make sure that default value for object parameters is either a valid object or null
                 } elseif (class_exists($param['type']) &&
                     !$param['default'] instanceof $param['type'] &&
-                    !$componentArgumentConverter->canTypeBeConvertedToType(gettype($param['default']), $param['type'])
+                    !$this->componentArgumentConverter->canTypeBeConvertedToType(gettype($param['default']), $param['type'])
                 ) {
                     $param['default'] = null;
                 }
@@ -489,7 +523,7 @@ class ComponentRenderer extends AbstractViewHelper
                 $componentPrefixerClass = GenericComponentPrefixer::class;
             }
 
-            $componentPrefixer = GeneralUtility::makeInstance($componentPrefixerClass);
+            $componentPrefixer = $this->container->get($componentPrefixerClass);
 
             if (!($componentPrefixer instanceof ComponentPrefixerInterface)) {
                 throw new Exception(sprintf(
@@ -505,27 +539,11 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * @return ComponentLoader
+     * @return RenderingContext
      */
-    protected function getComponentLoader(): ComponentLoader
+    protected function getRenderingContext(): RenderingContext
     {
-        return GeneralUtility::makeInstance(ComponentLoader::class);
-    }
-
-    /**
-     * @return ComponentSettings
-     */
-    protected function getComponentSettings(): ComponentSettings
-    {
-        return GeneralUtility::makeInstance(ComponentSettings::class);
-    }
-
-    /**
-     * @return ComponentArgumentConverter
-     */
-    protected function getComponentArgumentConverter(): ComponentArgumentConverter
-    {
-        return GeneralUtility::makeInstance(ComponentArgumentConverter::class);
+        return $this->container->get(RenderingContext::class);
     }
 
     /**
