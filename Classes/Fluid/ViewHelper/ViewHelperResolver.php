@@ -3,9 +3,10 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
+use TYPO3\CMS\Core\DependencyInjection\FailsafeContainer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
-use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
+use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
 
 class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver
 {
@@ -13,13 +14,31 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
      * @param string $viewHelperClassName
      * @return \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface
      */
-    public function createViewHelperInstanceFromClassName($viewHelperClassName)
+    public function createViewHelperInstanceFromClassName($viewHelperClassName): ViewHelperInterface
     {
+        if ($this->container instanceof FailsafeContainer) {
+            // The install tool creates VH instances using makeInstance to not rely on symfony DI here,
+            // otherwise we'd have to have all install-tool used ones in ServiceProvider.php. However,
+            // none of the install tool used VH's use injection.
+            /** @var ViewHelperInterface $viewHelperInstance */
+            $viewHelperInstance = GeneralUtility::makeInstance($viewHelperClassName);
+            return $viewHelperInstance;
+        }
+
+        if ($this->container->has($viewHelperClassName)) {
+            /** @var ViewHelperInterface $viewHelperInstance */
+            $viewHelperInstance = $this->container->get($viewHelperClassName);
+            return $viewHelperInstance;
+        }
+
         if (class_exists($viewHelperClassName, true)) {
-            return $this->getObjectManager()->get($viewHelperClassName);
+            /** @var ViewHelperInterface $viewHelperInstance */
+            // @deprecated since v11, will be removed with 12. Fallback if extensions VH has no Services.yaml, yet.
+            $viewHelperInstance = $this->objectManager->get($viewHelperClassName);
+            return $viewHelperInstance;
         } else {
             // Redirect all components to special ViewHelper ComponentRenderer
-            $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
+            $componentRenderer = $this->container->get(ComponentRenderer::class);
 
             $componentRenderer->setComponentNamespace($viewHelperClassName);
 
@@ -113,6 +132,6 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
      */
     protected function getComponentLoader()
     {
-        return GeneralUtility::makeInstance(ComponentLoader::class);
+        return $this->container->get(ComponentLoader::class);
     }
 }
