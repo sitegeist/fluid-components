@@ -5,6 +5,10 @@ call_user_func(function () {
         'className' => \SMS\FluidComponents\Fluid\ViewHelper\ViewHelperResolver::class
     ];
 
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolverFactory::class] = [
+        'className' => \SMS\FluidComponents\Fluid\ViewHelper\ViewHelperResolverFactory::class
+    ];
+
     // Make fc a global namespace
     if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'] = [];
