@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Tests\Unit;
 
 use SMS\FluidComponents\Utility\ComponentSettings;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
@@ -21,7 +22,7 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $GLOBALS['TSFE']->tmpl = new \StdClass;
         $GLOBALS['TSFE']->tmpl->setup = [];
 
-        $this->settings = new ComponentSettings();
+        $this->settings = new ComponentSettings(new TypoScriptService());
     }
 
     /**
