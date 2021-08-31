@@ -11,9 +11,11 @@ use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
+use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\BooleanNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
@@ -23,7 +25,6 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
-use TYPO3\CMS\Core\Configuration\Features;
 
 class ComponentRenderer extends AbstractViewHelper
 {
@@ -543,7 +544,11 @@ class ComponentRenderer extends AbstractViewHelper
      */
     protected function getRenderingContext(): RenderingContext
     {
-        return $this->container->get(RenderingContext::class);
+        if ($this->container->has(RenderingContextFactory::class)) {
+            return $this->container->get(RenderingContextFactory::class)->create();
+        } else {
+            return GeneralUtility::makeInstance(RenderingContext::class);
+        }
     }
 
     /**

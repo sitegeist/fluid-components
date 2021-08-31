@@ -6,7 +6,7 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
-use SMS\FluidComponents\Fluid\ViewHelper\ViewHelperResolver;
+use SMS\FluidComponents\Fluid\ViewHelper\ComponentResolver;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
@@ -78,7 +78,7 @@ class ComponentRendererTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
 
         $namespaces = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'] ?? [];
         $viewHelperResolver = GeneralUtility::makeInstance(
-            ViewHelperResolver::class,
+            ComponentResolver::class,
             $containerProphecy->reveal(),
             $objectManagerProphecy->reveal(),
             $namespaces

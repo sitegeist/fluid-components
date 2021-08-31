@@ -47,15 +47,12 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: [7.4, 7.3, 7.2]
-                typo3-versions: [11, 10, 9]
+                php-versions: [7.4, 8.0]
+                typo3-versions: [10, 11]
                 exclude:
                     -
-                        php-versions: 7.3
-                        typo3-versions: 11
-                    -
-                        php-versions: 7.2
-                        typo3-versions: 11
+                        php-versions: 8.0
+                        typo3-versions: 10
 
         name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
@@ -90,13 +87,12 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: [7.4, 7.3, 7.2]
-                typo3-versions: [11, 10, 9]
+                php-versions: [7.4, 8.0]
+                typo3-versions: [10, 11]
                 exclude:
-                    -   php-versions: 7.3
-                        typo3-versions: 11
-                    -   php-versions: 7.2
-                        typo3-versions: 11
+                    -
+                        php-versions: 8.0
+                        typo3-versions: 10
 
         name: Integration (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
