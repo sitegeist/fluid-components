@@ -81,42 +81,42 @@ jobs:
                 name: Automated Unit Testing
                 run: composer test:unit
 
-    integrationtest:
-        runs-on: ubuntu-latest
+    # integrationtest:
+    #     runs-on: ubuntu-latest
 
-        strategy:
-            max-parallel: 2
-            matrix:
-                php-versions: [7.4, 8.0]
-                typo3-versions: [10, 11]
-                exclude:
-                    -
-                        php-versions: 8.0
-                        typo3-versions: 10
+    #     strategy:
+    #         max-parallel: 2
+    #         matrix:
+    #             php-versions: [7.4, 8.0]
+    #             typo3-versions: [10, 11]
+    #             exclude:
+    #                 -
+    #                     php-versions: 8.0
+    #                     typo3-versions: 10
 
-        name: Integration (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
-        steps:
-            -
-                uses: actions/checkout@v2
+    #     name: Integration (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+    #     steps:
+    #         -
+    #             uses: actions/checkout@v2
 
-            -
-                name: Setup PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: ${{ matrix.php-versions }}
-                    extensions: intl, mbstring, pdo_sqlite
+    #         -
+    #             name: Setup PHP
+    #             uses: shivammathur/setup-php@v2
+    #             with:
+    #                 php-version: ${{ matrix.php-versions }}
+    #                 extensions: intl, mbstring, pdo_sqlite
 
-            -
-                name: Cache composer dependencies
-                uses: actions/cache@v1
-                with:
-                    path: ~/.composer/cache
-                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+    #         -
+    #             name: Cache composer dependencies
+    #             uses: actions/cache@v1
+    #             with:
+    #                 path: ~/.composer/cache
+    #                 key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
 
-            -
-                name: Install composer dependencies
-                run: composer require typo3/minimal "^${{ matrix.typo3-versions }}" --prefer-dist --no-progress --no-suggest
+    #         -
+    #             name: Install composer dependencies
+    #             run: composer require typo3/minimal "^${{ matrix.typo3-versions }}" --prefer-dist --no-progress --no-suggest
 
-            -
-                name: Automated Integration Testing
-                run: composer test:integration
+    #         -
+    #             name: Automated Integration Testing
+    #             run: composer test:integration
