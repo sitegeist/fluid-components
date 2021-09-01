@@ -524,7 +524,11 @@ class ComponentRenderer extends AbstractViewHelper
                 $componentPrefixerClass = GenericComponentPrefixer::class;
             }
 
-            $componentPrefixer = $this->container->get($componentPrefixerClass);
+            if ($this->container->has($componentPrefixerClass)) {
+                $componentPrefixer = $this->container->get($componentPrefixerClass);
+            } else {
+                $componentPrefixer = GeneralUtility::makeInstance($componentPrefixerClass);
+            }
 
             if (!($componentPrefixer instanceof ComponentPrefixerInterface)) {
                 throw new Exception(sprintf(
