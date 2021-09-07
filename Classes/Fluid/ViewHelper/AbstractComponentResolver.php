@@ -3,29 +3,12 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
-use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 
-class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver
+abstract class AbstractComponentResolver extends ViewHelperResolver
 {
-    /**
-     * @param string $viewHelperClassName
-     * @return \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface
-     */
-    public function createViewHelperInstanceFromClassName($viewHelperClassName)
-    {
-        if (class_exists($viewHelperClassName, true)) {
-            return $this->getObjectManager()->get($viewHelperClassName);
-        } else {
-            // Redirect all components to special ViewHelper ComponentRenderer
-            $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
-
-            $componentRenderer->setComponentNamespace($viewHelperClassName);
-
-            return $componentRenderer;
-        }
-    }
+    abstract protected function getComponentLoader(): ComponentLoader;
 
     /**
      * Resolves a ViewHelper class name by namespace alias and
@@ -106,13 +89,5 @@ class ViewHelperResolver extends \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperReso
     protected function generateViewHelperClassName($resolvedViewHelperClassName)
     {
         return implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
-    }
-
-    /**
-     * @return ComponentLoader
-     */
-    protected function getComponentLoader()
-    {
-        return GeneralUtility::makeInstance(ComponentLoader::class);
     }
 }

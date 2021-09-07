@@ -1,9 +1,14 @@
 <?php
 
 call_user_func(function () {
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver::class] = [
-        'className' => \SMS\FluidComponents\Fluid\ViewHelper\ViewHelperResolver::class
-    ];
+    // With TYPO3 11.3, Symfony dependency injection is used to instantiate the ViewHelperResolver,
+    // thus Fluid Components uses XCLASS for older TYPO3 versions and a custom ServiceProvider for
+    // 11.4 and above. TYPO3 11.3 is not supported.
+    if (version_compare(TYPO3_version, '11.3', '<')) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver::class] = [
+            'className' => \SMS\FluidComponents\Fluid\ViewHelper\LegacyComponentResolver::class
+        ];
+    }
 
     // Make fc a global namespace
     if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'])) {

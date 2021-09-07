@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Utility;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAccess
@@ -14,8 +13,17 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
      */
     protected $settings = [];
 
-    public function __construct()
+    /**
+     * @var TypoScriptService
+     */
+    protected TypoScriptService $typoScriptService;
+
+    /**
+     * @param TypoScriptService $typoScriptService
+     */
+    public function __construct(TypoScriptService $typoScriptService)
     {
+        $this->typoScriptService = $typoScriptService;
         $this->reset();
     }
 
@@ -26,10 +34,9 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
      */
     public function reset()
     {
-        $typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
         $this->settings = array_merge(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? [],
-            $typoScriptService->convertTypoScriptArrayToPlainArray(
+            $this->typoScriptService->convertTypoScriptArrayToPlainArray(
                 $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] ?? []
             )
         );
