@@ -71,7 +71,8 @@ jobs:
                 name: Automated Unit Testing
                 run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s unit
 
-     functionaltest:
+
+    functionaltest:
          runs-on: ubuntu-latest
 
          strategy:
