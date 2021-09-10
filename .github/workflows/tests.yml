@@ -40,11 +40,11 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: [7.4, 8.0]
+                php-versions: [7.4, '8.0']
                 typo3-versions: [10, 11]
                 exclude:
                     -
-                        php-versions: 8.0
+                        php-versions: '8.0'
                         typo3-versions: 10
 
         name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
@@ -53,7 +53,7 @@ jobs:
                 uses: actions/checkout@v2
 
             -
-                name: Install composer dependencies
+                name: Validate composer.json
                 run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerValidate
 
             -
