@@ -53,6 +53,11 @@ class FalImage extends Image
         return parent::getDescription() ?? $this->file->getProperty('description');
     }
 
+    public function getCopyright(): ?string
+    {
+        return $this->file->getProperty('copyright');
+    }
+
     public function getPublicUrl(): string
     {
         return $this->file->getPublicUrl();

@@ -55,6 +55,13 @@ abstract class Image implements
     protected $description;
 
     /**
+     * Copyright of the image
+     *
+     * @var string|null
+     */
+    protected $copyright;
+
+    /**
      * Should return the public URL of the image to be used in an img tag
      *
      * @return string
@@ -239,6 +246,10 @@ abstract class Image implements
             $image->setDescription($value['description']);
         }
 
+        if (isset($value['copyright'])) {
+            $image->setCopyright($value['copyright']);
+        }
+
         return $image;
     }
 
@@ -382,6 +393,17 @@ abstract class Image implements
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getCopyright(): ?string
+    {
+        return $this->copyright;
+    }
+
+    public function setCopyright(?string $copyright): self
+    {
+        $this->copyright = $copyright;
         return $this;
     }
 
