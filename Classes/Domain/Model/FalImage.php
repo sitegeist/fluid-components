@@ -58,6 +58,11 @@ class FalImage extends Image
         return $this->file->getProperty('copyright');
     }
 
+    public function getProperties(): ?array
+    {
+        return $this->file->getProperties();
+    }
+
     public function getPublicUrl(): string
     {
         return $this->file->getPublicUrl();

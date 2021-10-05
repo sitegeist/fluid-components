@@ -62,6 +62,13 @@ abstract class Image implements
     protected $copyright;
 
     /**
+     * Properties of the image
+     *
+     * @var array|null
+     */
+    protected $properties;
+
+    /**
      * Should return the public URL of the image to be used in an img tag
      *
      * @return string
@@ -250,6 +257,10 @@ abstract class Image implements
             $image->setCopyright($value['copyright']);
         }
 
+        if (isset($value['properties'])) {
+            $image->setProperties($value['properties']);
+        }
+
         return $image;
     }
 
@@ -404,6 +415,17 @@ abstract class Image implements
     public function setCopyright(?string $copyright): self
     {
         $this->copyright = $copyright;
+        return $this;
+    }
+
+    public function getProperties(): ?array
+    {
+        return $this->properties;
+    }
+
+    public function setProperties(?array $properties): self
+    {
+        $this->properties = $properties;
         return $this;
     }
 
