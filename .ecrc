@@ -8,7 +8,8 @@
         ".Build",
         ".git",
         ".DS_Store",
-        ".xsd"
+        ".xsd",
+        "var/"
     ],
     "AllowedContentTypes": [],
     "PassedFiles": [],
