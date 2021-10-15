@@ -200,6 +200,8 @@ no matter which image variant is used:
 * `publicUrl`: url that can be used in an `<img src...` attribute
 * `alternative`: alt text for the image, to be used in `<img alt...`
 * `title`: title for the image, to be used in `<img title...`
+* `copyright`: copyright text for the image
+* `properties`: array of all fields of `sys_file_metadata` (and its override via `sys_file_reference`)
 
 In addition, the different implementations offer additional properties that can
 be used safely after checking the `type` property accordingly.
