@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit\DataStructure;
+namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Domain\Model\Link;

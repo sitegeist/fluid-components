@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit;
+namespace SMS\FluidComponents\Tests\Unit\Utility;
 
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyConversionInterface;
