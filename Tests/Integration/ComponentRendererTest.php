@@ -39,6 +39,8 @@ class ComponentRendererTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
     {
         parent::setUp();
 
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] ?? [];
+
         // Add fc ViewHelpers
         $this->fluidNamespaces = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'] ?? null;
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'][] = 'SMS\\FluidComponents\\ViewHelpers';
@@ -51,9 +53,8 @@ class ComponentRendererTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
 
         // Register and then disable fluid cache
         // This is necessary because of the way the RenderingContext deals with the fluid cache
-        $cacheClass = $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['fluid_template']['frontend'];
         $cacheManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-        $cacheManager->registerCache(new $cacheClass('fluid_template', new NullBackend(null)));
+        $cacheManager->registerCache(new \TYPO3\CMS\Core\Cache\Frontend\NullFrontend('fluid_template'));
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(Argument::in([
