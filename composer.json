@@ -60,10 +60,10 @@
             "@test:unit",
             "@test:integration"
         ],
-        "test:unit": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Unit/",
-        "test:integration": "phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Integration/",
+        "test:unit": "phpunit -c Build/Testing/UnitTests.xml",
+        "test:integration": "phpunit -c Build/Testing/FunctionalTests.xml",
         "prepare-release": [
-            "rm -r .github .ecrc .editorconfig .gitattributes Tests"
+            "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"
         ]
     }
 }
