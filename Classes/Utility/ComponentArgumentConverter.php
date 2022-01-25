@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Utility;
 
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
+use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
 use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
 use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
@@ -42,6 +43,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         'DateTime' => [
             ConstructibleFromDateTime::class,
             'fromDateTime'
+        ],
+        'DateTimeImmutable' => [
+            ConstructibleFromDateTimeImmutable::class,
+            'fromDateTimeImmutable'
         ],
         FileReference::class => [
             ConstructibleFromFileInterface::class,

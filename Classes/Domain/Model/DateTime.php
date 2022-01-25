@@ -4,10 +4,11 @@ namespace SMS\FluidComponents\Domain\Model;
 
 use Exception;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
+use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 
-class DateTime extends \DateTime implements ConstructibleFromString, ConstructibleFromInteger, ConstructibleFromDateTime
+class DateTime extends \DateTime implements ConstructibleFromString, ConstructibleFromInteger, ConstructibleFromDateTime, ConstructibleFromDateTimeImmutable
 {
     /**
      * Convert string input to datetime object
@@ -41,6 +42,18 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
      * @throws Exception
      */
     public static function fromDateTime(\DateTime $value): self
+    {
+        return new static($value->format(\DateTimeInterface::RFC3339_EXTENDED));
+    }
+
+    /**
+     * Passes immutable datetime object
+     *
+     * @param \DateTimeImmutable $value
+     * @return static
+     * @throws Exception
+     */
+    public static function fromDateTimeImmutable(\DateTimeImmutable $value): self
     {
         return new static($value->format(\DateTimeInterface::RFC3339_EXTENDED));
     }
