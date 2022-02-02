@@ -275,7 +275,8 @@ services:
                     set -x
                 fi
                 php -v | grep '^PHP';
-                .Build/bin/phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,Tests,ext_emconf.php .
+                .Build/bin/phpcs --version;
+                .Build/bin/phpcs -p --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,Tests,ext_emconf.php .
             "
 
     lint_editorconfig:
@@ -292,6 +293,8 @@ services:
                     set -x
                 fi
                 php -v | grep '^PHP';
+                echo -n 'ec version: ';
+                .Build/bin/ec -version;
                 .Build/bin/ec -exclude .phpunit.result.cache .
             "
 
