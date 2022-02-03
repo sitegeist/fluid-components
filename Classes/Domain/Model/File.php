@@ -33,7 +33,8 @@ class File implements
     /**
      * @param FileInterface $file
      */
-    public function __construct(FileInterface $file) {
+    public function __construct(FileInterface $file)
+    {
         $this->file = $file;
     }
 
