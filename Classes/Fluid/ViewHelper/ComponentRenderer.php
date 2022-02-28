@@ -4,7 +4,9 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\ComponentContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
+use SMS\FluidComponents\Utility\ComponentContext;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
@@ -86,9 +88,9 @@ class ComponentRenderer extends AbstractViewHelper
     protected ComponentLoader $componentLoader;
 
     /**
-     * @var ComponentSettings
+     * @var ComponentContext
      */
-    protected ComponentSettings $componentSettings;
+    protected ComponentContext $componentContext;
 
     /**
      * @var ComponentArgumentConverter
@@ -102,18 +104,18 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * @param ComponentLoader $componentLoader
-     * @param ComponentSettings $componentSettings
+     * @param ComponentContext $componentContext
      * @param ComponentArgumentConverter $componentArgumentConverter
      * @param ContainerInterface $container
      */
     public function __construct(
         ComponentLoader $componentLoader,
-        ComponentSettings $componentSettings,
+        ComponentContext $componentContext,
         ComponentArgumentConverter $componentArgumentConverter,
         ContainerInterface $container
     ) {
         $this->componentLoader = $componentLoader;
-        $this->componentSettings = $componentSettings;
+        $this->componentContext = $componentContext;
         $this->componentArgumentConverter = $componentArgumentConverter;
         $this->container = $container;
     }
@@ -138,6 +140,28 @@ class ComponentRenderer extends AbstractViewHelper
     public function getComponentNamespace()
     {
         return $this->componentNamespace;
+    }
+
+    /**
+     * Provides context information for the component that should be rendered
+     *
+     * @param ComponentContext $componentContext
+     * @return self
+     */
+    public function setComponentContext(ComponentContext $componentContext): self
+    {
+        $this->componentContext = $componentContext;
+        return $this;
+    }
+
+    /**
+     * Returns the component context
+     *
+     * @return ComponentContext
+     */
+    public function getComponentContext(): ComponentContext
+    {
+        return $this->componentContext;
     }
 
     /**
@@ -179,15 +203,26 @@ class ComponentRenderer extends AbstractViewHelper
                 $this->renderingContext->getTemplatePaths()->getPartialRootPaths()
             );
         }
+
         $variableContainer = $renderingContext->getVariableProvider();
+        $viewHelperVariableContainer = $renderingContext->getViewHelperVariableContainer();
+
+        // Inherit component context from parent component
+        $parentComponentContext = $viewHelperVariableContainer->get(static::class, 'componentContext');
+        if ($parentComponentContext instanceof ComponentContext) {
+            $this->componentContext->applyDefaultsFromParentContext($parentComponentContext);
+        }
+        $viewHelperVariableContainer->add(static::class, 'componentContext', $this->componentContext);
 
         // Provide information about component to renderer
         $variableContainer->add('component', [
             'namespace' => $this->componentNamespace,
             'class' => $this->getComponentClass(),
             'prefix' => $this->getComponentPrefix(),
+            'context' => $this->componentContext
         ]);
-        $variableContainer->add('settings', $this->componentSettings);
+        // Provide shortcut to component settings
+        $variableContainer->add('settings', $this->componentContext->getSettings());
 
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $argument) {
@@ -198,6 +233,11 @@ class ComponentRenderer extends AbstractViewHelper
             // Provide component namespace to certain data structures
             if ($argument instanceof ComponentAware) {
                 $argument->setComponentNamespace($this->componentNamespace);
+            }
+
+            // Provide component context to certain data structures
+            if ($argument instanceof ComponentContextAware) {
+                $argument->setComponentContext($this->componentContext);
             }
 
             $variableContainer->add($name, $argument);
@@ -221,7 +261,12 @@ class ComponentRenderer extends AbstractViewHelper
         }
 
         // Render component
-        return $this->parsedTemplate->render($renderingContext);
+        $renderedComponent = $this->parsedTemplate->render($renderingContext);
+
+        // Restore original component context
+        $viewHelperVariableContainer->add(static::class, 'componentContext', $parentComponentContext);
+
+        return $renderedComponent;
     }
 
     /**
@@ -257,19 +302,26 @@ class ComponentRenderer extends AbstractViewHelper
      * @param \Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      * @param string $componentNamespace
+     * @param ComponentContext|null $componentContext overwrite component context
      * @return mixed
      */
     public static function renderComponent(
         array $arguments,
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext,
-        $componentNamespace
+        $componentNamespace,
+        ?ComponentContext $componentContext = null
     ) {
         $viewHelperClassName = get_called_class();
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $componentRenderer = $objectManager->get($viewHelperClassName);
         $componentRenderer->setComponentNamespace($componentNamespace);
+        if (isset($componentContext)) {
+            $componentRenderer->setComponentContext($componentContext);
+        } else {
+            $componentRenderer->getComponentContext()->reset();
+        }
 
         return $renderingContext->getViewHelperInvoker()->invoke(
             $componentRenderer,

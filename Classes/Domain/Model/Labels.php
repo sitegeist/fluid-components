@@ -3,13 +3,15 @@
 namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\ComponentContextAware;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
+use SMS\FluidComponents\Utility\ComponentContext;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-class Labels implements ComponentAware, \ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
+class Labels implements ComponentAware, ComponentContextAware, \ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
 {
     /**
      * Static label values that should override those defined in language files
@@ -57,7 +59,7 @@ class Labels implements ComponentAware, \ArrayAccess, ConstructibleFromArray, Co
     }
 
     /**
-     * Receive component context to determine language file path
+     * Receive component namespace to determine language file path
      *
      * @param string $componentNamespace
      * @return void
@@ -65,6 +67,17 @@ class Labels implements ComponentAware, \ArrayAccess, ConstructibleFromArray, Co
     public function setComponentNamespace(string $componentNamespace): void
     {
         $this->componentNamespace = $componentNamespace;
+    }
+
+    /**
+     * Receive component context to be able to override language key
+     *
+     * @param ComponentContext $componentContext
+     * @return void
+     */
+    public function setComponentContext(ComponentContext $componentContext): void
+    {
+        $this->componentContext = $componentContext;
     }
 
     /**
@@ -86,8 +99,17 @@ class Labels implements ComponentAware, \ArrayAccess, ConstructibleFromArray, Co
      */
     public function offsetGet($identifier): ?string
     {
-        return $this->overrideLabels[$identifier]
-            ?? LocalizationUtility::translate($this->generateLabelIdentifier($identifier));
+        if (isset($this->overrideLabels[$identifier])) {
+            return $this->overrideLabels[$identifier];
+        }
+
+        return LocalizationUtility::translate(
+            $this->generateLabelIdentifier($identifier),
+            null,
+            null,
+            $this->componentContext->getLanguageKey(),
+            $this->componentContext->getAlternativeLanguageKeys()
+        );
     }
 
     /**
