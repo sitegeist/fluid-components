@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Utility;
 
-use SMS\FluidComponents\Utility\ComponentContext;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
