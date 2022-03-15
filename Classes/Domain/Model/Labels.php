@@ -14,6 +14,20 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 class Labels implements ComponentAware, ComponentContextAware, \ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
 {
     /**
+     * Namespace of the called component
+     *
+     * @var string
+     */
+    protected $componentNamespace;
+
+    /**
+     * Context in which the component is rendered
+     *
+     * @var ComponentContext
+     */
+    protected $componentContext;
+
+    /**
      * Static label values that should override those defined in language files
      *
      * @var array
