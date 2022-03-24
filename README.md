@@ -135,6 +135,7 @@ Feature References
     * [DateTime](Documentation/DataStructures.md#datetime)
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
+* [Component Context (advanced feature)](Documentation/ComponentContext.md)
 
 How-To's
 
