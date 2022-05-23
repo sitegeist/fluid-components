@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
@@ -198,6 +199,11 @@ class ComponentRenderer extends AbstractViewHelper
             // Provide component namespace to certain data structures
             if ($argument instanceof ComponentAware) {
                 $argument->setComponentNamespace($this->componentNamespace);
+            }
+
+            // Provide rendering context to certain data structures
+            if ($argument instanceof RenderingContextAware) {
+                $argument->setRenderingContext($renderingContext);
             }
 
             $variableContainer->add($name, $argument);
