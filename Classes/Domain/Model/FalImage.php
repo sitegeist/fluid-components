@@ -67,4 +67,14 @@ class FalImage extends Image
     {
         return $this->file->getPublicUrl();
     }
+
+    public function getHeight()
+    {
+        return $this->file->getProperty('height');
+    }
+
+    public function getWidth()
+    {
+        return $this->file->getProperty('width');
+    }
 }
