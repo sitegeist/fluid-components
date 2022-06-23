@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit;
+namespace SMS\FluidComponents\Tests\Unit\Service;
 
 use SMS\FluidComponents\Service\XsdGenerator;
 use SMS\FluidComponents\Utility\ComponentLoader;

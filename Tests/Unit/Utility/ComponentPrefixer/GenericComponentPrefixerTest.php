@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit;
+namespace SMS\FluidComponents\Tests\Unit\Utility\ComponentPrefixer;
 
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 

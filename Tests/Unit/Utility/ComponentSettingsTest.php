@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit;
+namespace SMS\FluidComponents\Tests\Unit\Utility;
 
 use SMS\FluidComponents\Utility\ComponentSettings;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;

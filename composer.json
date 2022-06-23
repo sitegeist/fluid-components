@@ -22,7 +22,8 @@
     "require-dev": {
         "typo3/testing-framework": "^6.0",
         "squizlabs/php_codesniffer": "^3.0",
-        "editorconfig-checker/editorconfig-checker": "^10.0"
+        "editorconfig-checker/editorconfig-checker": "^10.0",
+        "phpspec/prophecy-phpunit": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -54,7 +55,7 @@
             "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
         ],
         "prepare-release": [
-            "rm -r .github .ecrc .editorconfig .gitattributes Tests"
+            "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"
         ]
     }
 }

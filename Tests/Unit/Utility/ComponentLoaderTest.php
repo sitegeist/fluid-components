@@ -1,6 +1,6 @@
 <?php
 
-namespace SMS\FluidComponents\Tests\Unit;
+namespace SMS\FluidComponents\Tests\Unit\Utility;
 
 use SMS\FluidComponents\Utility\ComponentLoader;
 
@@ -15,7 +15,7 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
     protected function getFixturePath($fixtureName)
     {
-        return realpath(dirname(__FILE__) . '/../Fixtures/Unit/' . $fixtureName);
+        return realpath(dirname(__FILE__) . '/../../Fixtures/Unit/' . $fixtureName);
     }
 
     public function addNamespaceProvider()
