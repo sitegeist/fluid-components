@@ -2,10 +2,10 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use SMS\FluidComponents\Exception\InvalidRemoteImageException;
+use SMS\FluidComponents\Exception\InvalidRemoteFileException;
 
 /**
- * Data structure for a remote image resource (URI) to be passed to a component
+ * Data structure for a remote file resource (URI) to be passed to a component
  */
 class RemoteFile extends File
 {
@@ -17,7 +17,7 @@ class RemoteFile extends File
     protected $type = 'RemoteFile';
 
     /**
-     * URI to the remote image
+     * URI to the remote file
      *
      * @var string
      */
@@ -27,15 +27,15 @@ class RemoteFile extends File
      * Creates a file object for a remote resource
      *
      * @param string $uri
-     * @throws InvalidRemoteImageException
+     * @throws InvalidRemoteFileException
      */
     public function __construct(string $uri)
     {
         if (!static::isRemoteUri($uri)) {
-            throw new InvalidRemoteImageException(sprintf(
+            throw new InvalidRemoteFileException(sprintf(
                 'Invalid remote file uri provided: %s',
                 $uri
-            ), 1564502104);
+            ), 1655976410);
         }
 
         $this->uri = $uri;

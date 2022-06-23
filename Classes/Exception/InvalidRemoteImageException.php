@@ -2,6 +2,6 @@
 
 namespace SMS\FluidComponents\Exception;
 
-class InvalidRemoteImageException extends \Exception
+class InvalidRemoteImageException extends InvalidRemoteFileException
 {
 }

@@ -3,20 +3,26 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
-use SMS\FluidComponents\Exception\InvalidArgumentException;
-use SMS\FluidComponents\Exception\InvalidRemoteImageException;
-use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
-use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
-use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
-use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
-use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 use TYPO3\CMS\Core\Resource\FileInterface;
-use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Exception\InvalidArgumentException;
+use SMS\FluidComponents\Interfaces\ConstructibleFromString;
+use SMS\FluidComponents\Exception\InvalidFileArrayException;
+use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
+use SMS\FluidComponents\Exception\InvalidRemoteFileException;
+use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
+use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
+use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 
-class File implements
+/**
+ * Generic data structures to pass files from various sources
+ * (FAL, file path, external file uri) to components
+ * by using a clear API.
+ */
+abstract class File implements
     ConstructibleFromString,
     ConstructibleFromInteger,
     ConstructibleFromArray,
@@ -24,32 +30,42 @@ class File implements
     ConstructibleFromExtbaseFile
 {
     /**
-     * File
+     * Type of file to differentiate implementations in Fluid templates
      *
-     * @var \TYPO3\CMS\Core\Resource\File
+     * @var string
      */
-    protected $file;
+    protected $type = 'File';
 
     /**
-     * @param FileInterface $file
+     * Title of the file
+     *
+     * @var string|null
      */
-    public function __construct(FileInterface $file)
-    {
-        $this->file = $file;
-    }
+    protected $title;
 
     /**
-     * Should return the public URL of the image to be used in an img tag
+     * Description of the file
+     *
+     * @var string|null
+     */
+    protected $description;
+
+    /**
+     * Properties of the file
+     *
+     * @var array|null
+     */
+    protected $properties;
+
+    /**
+     * Should return the public URL of the file to be used in an img tag
      *
      * @return string
      */
-    public function getPublicUrl(): string
-    {
-        return $this->file->getPublicUrl();
-    }
+    abstract public function getPublicUrl(): string;
 
     /**
-     * Creates an image object based on a static file (local or remote)
+     * Creates a file object based on a static file (local or remote)
      *
      * @param string $value
      * @return self
@@ -62,7 +78,7 @@ class File implements
 
         try {
             return new RemoteFile($value);
-        } catch (InvalidRemoteImageException $e) {
+        } catch (InvalidRemoteFileException $e) {
             return new LocalFile($value);
         }
     }
@@ -191,7 +207,7 @@ class File implements
         } elseif (isset($value['file'])) {
             $file = static::fromString((string) $value['file']);
         } else {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidFileArrayException(sprintf(
                 'Invalid set of arguments for conversion to file instance: %s',
                 print_r($value, true)
             ), 1562916607);
@@ -208,12 +224,12 @@ class File implements
      */
     public static function fromFileInterface(FileInterface $value): self
     {
-        return new self($value);
+        return new FalFile($value);
     }
 
     public static function fromExtbaseFile(FileReference $value): self
     {
-        return new self($value->getOriginalResource());
+        return static::fromFileInterface($value->getOriginalResource());
     }
 
     /**
@@ -226,7 +242,7 @@ class File implements
     {
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
         $file = $fileRepository->findByUid($fileUid);
-        return new self($file);
+        return static::fromFileInterface($file);
     }
 
     /**
@@ -239,7 +255,7 @@ class File implements
     {
         $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
         $fileReference = $fileRepository->findFileReferenceByUid($fileReferenceUid);
-        return new self($fileReference);
+        return static::fromFileInterface($fileReference);
     }
 
     /**
@@ -276,7 +292,7 @@ class File implements
             ), 1564495695);
         }
 
-        return new self($fileReferences[$counter]);
+        return static::fromFileInterface($fileReferences[$counter]);
     }
 
     /**
@@ -298,6 +314,39 @@ class File implements
         return $this->type;
     }
 
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getProperties(): ?array
+    {
+        return $this->properties;
+    }
+
+    public function setProperties(?array $properties): self
+    {
+        $this->properties = $properties;
+        return $this;
+    }
+
     /**
      * Use public url of file as string representation of file objects
      *
@@ -306,22 +355,5 @@ class File implements
     public function __toString(): string
     {
         return $this->getPublicUrl();
-    }
-
-    /**
-     * @return \TYPO3\CMS\Core\Resource\File
-     */
-    public function getFile(): FileInterface
-    {
-        return $this->file;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Core\Resource\File $file
-     */
-    public function setFile(FileInterface $file): self
-    {
-        $this->file = $file;
-        return $this;
     }
 }
