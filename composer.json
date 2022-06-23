@@ -45,23 +45,15 @@
                 "serviceProvider": "SMS\\FluidComponents\\ServiceProvider"
             },
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "app-dir": ".Build",
             "web-dir": ".Build/Web",
             "extension-key": "fluid_components"
         }
     },
     "scripts": {
-        "lint": [
-            "@lint:php",
-            "@lint:editorconfig"
+        "post-autoload-dump": [
+            "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
         ],
-        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,Tests,ext_emconf.php .",
-        "lint:editorconfig": "ec .",
-        "test": [
-            "@test:unit",
-            "@test:integration"
-        ],
-        "test:unit": "phpunit -c Build/Testing/UnitTests.xml",
-        "test:integration": "phpunit -c Build/Testing/FunctionalTests.xml",
         "prepare-release": [
             "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"
         ]
