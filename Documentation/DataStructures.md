@@ -101,17 +101,26 @@ of the URI by using `parse_url`. You get access to the following link properties
 * `query`: e. g. `myparam=1`
 * `fragment`: e. g. `myfragment`
 
-## Images
+## Files Images
 
-Components should be able to accept an image as a parameter, no matter where it come from. TYPO3 already has data structures
-for images that are stored in the File Abstraction Layer. However, there are cases where you want to use
-images from inside extensions or even external image urls. This is what the Image data structures offer:
+Components should be able to accept a file or image as a parameter, no matter where it come from. TYPO3 already has data structures
+for files that are stored in the File Abstraction Layer. However, there are cases where you want to use
+files from inside extensions or even external image urls. This is what the File/Image data structures offer:
+
+for images:
 
 * `SMS\FluidComponents\Domain\Model\Image` (alias: `Image`) is the base class of all image types as well as a factory
 * `SMS\FluidComponents\Domain\Model\LocalImage` wraps a local image resource, e. g. from an extension
 * `SMS\FluidComponents\Domain\Model\RemoteImage` wraps a remote image uri
 * `SMS\FluidComponents\Domain\Model\FalImage` wraps existing FAL objects, such as `File` and `FileReference`
 * `SMS\FluidComponents\Domain\Model\PlaceholderImage` generates a placeholder image via placeholder.com
+
+for files:
+
+* `SMS\FluidComponents\Domain\Model\File` (alias: `File`) is the base class of all file types as well as a factory
+* `SMS\FluidComponents\Domain\Model\LocalFile` wraps a local file, e. g. from an extension
+* `SMS\FluidComponents\Domain\Model\RemoteFile` wraps a remote file uri
+* `SMS\FluidComponents\Domain\Model\FalFile` wraps existing FAL objects, such as `File` and `FileReference`
 
 This is how it could look like in the `Atom.Image` component:
 
