@@ -24,9 +24,9 @@ class MapViewHelper extends AbstractViewHelper
     public function initializeArguments()
     {
         parent::initializeArguments();
-        $this->registerArgument('keysMap', 'array', 'Map of keys.');
-        $this->registerArgument('keepFields', 'string', 'Comma separated list of fields to keep in array.');
-        $this->registerArgument('subject', 'mixed', 'The array or Object to remap.');
+        $this->registerArgument('fieldsMapping', 'array', 'Map of fields keys.');
+        $this->registerArgument('keepFields', 'mixed', 'Array or comma separated list of fields to keep in array.');
+        $this->registerArgument('subject', 'mixed', 'The array of Object to remap.');
     }
 
     /**
@@ -38,8 +38,11 @@ class MapViewHelper extends AbstractViewHelper
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
         $subject = $arguments['subject'] ?? $renderChildrenClosure();
-        $mapKeyArray = $arguments['keysMap'] ?? [];
-        $keepFields = array_map('trim', explode(',', $arguments['keepFields'] ?? ''));
+        $mapKeyArray = $arguments['fieldsMapping'] ?? [];
+        $keepFields = $arguments['keepFields'] ?? [];
+        if (false === is_array($keepFields)) {
+            $keepFields = array_map('trim', explode(',', $arguments['keepFields']));
+        }
 
         $newArray = [];
         foreach ($subject as $item) {
