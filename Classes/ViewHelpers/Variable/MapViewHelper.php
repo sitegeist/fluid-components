@@ -50,11 +50,6 @@ class MapViewHelper extends AbstractViewHelper
 
             foreach ($mapKeyArray as $replace => $key) {
                 $newItem[$replace] = VariableExtractor::extract($item, $key);
-
-                //Set static string value from Key if Key not found
-                if (is_null($newItem[$replace])) {
-                    $newItem[$replace] = $key;
-                }
             }
 
             //Add another fields from keepFields list
