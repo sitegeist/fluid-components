@@ -279,3 +279,51 @@ Usage with EXT:form:
 	</my:molecule.fieldLabel>
 </fc:form.translatedValidationResults>
 ```
+
+## Mapping
+
+### Variable.Map ViewHelper
+
+Components should not contain dependencies on how they receive data.
+These can be DataProviders, mask  elements or news items, for example.
+This ViewHelper takes an array of data items (Objects/Arrays) and make a new array with the new keys configured in fieldsMapping and optionally the existing fields specified in the keepFields.
+
+#### Arguments
+
+* `subject`: Source array of data items. If not in arguments then taken from inline construction.
+* `fieldsMapping`: Array of mapping keys. (see examples)
+    * `key`: New key
+    * `value`: Name or dot-separated path to field in source array
+* `keepFields`: Array or comma separated list of fields to keep in array. Is optional.
+
+#### Examples
+
+Items for slider, for example in Mask template:
+```
+items="{data.tx_mask_sliders -> fc:variable.map(fieldsMapping: {image: 'tx_mask_slider_image.0', content: 'tx_mask_slider_text'})}"
+```
+
+Navigation:
+```
+{myNavigation -> fc:variable.map(fieldsMapping: {url: 'link', title: 'data.page_extend_field'}, keepFields: 'data, target')}
+```
+
+### Variable.Push ViewHelper
+
+Adds one variable to the end of the array and returns the result. 
+Similar functionality as in v:iterator.push from VHS
+
+#### Arguments
+
+* `item`: Item to push to specified array variable. If not in arguments then taken from tag content
+* `name`: Name of variable to extend
+* `key`: Key that should be used in the array
+
+#### Examples
+
+```xml
+    <f:variable name="tags"></f:variable>
+    <f:for each="{newsItem.tags}" as="tag">
+        <fc:variable.push name="tags" item="{tag.title}" />
+    </f:for>
+```

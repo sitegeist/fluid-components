@@ -7,6 +7,12 @@ use TYPO3Fluid\Fluid\Core\Variables\VariableExtractor;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
+/**
+ * This ViewHelper takes an array of Objects/Arrays
+ * and return a new array with the new keys
+ * configured in fieldsMapping
+ * and optionally the existing fields specified in the keepFields.
+ */
 class MapViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
