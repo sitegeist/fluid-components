@@ -30,7 +30,7 @@ class PushViewHelper extends AbstractViewHelper
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        $value = $renderChildrenClosure();
+        $value = $arguments['item'] ?? $renderChildrenClosure();
 
         $variable = $renderingContext->getVariableProvider()->get($arguments['name']);
         if (!is_array($variable)) {
@@ -39,7 +39,8 @@ class PushViewHelper extends AbstractViewHelper
         if ($arguments['key']) {
             $variable[$arguments['key']] = $value;
         } else {
-            array_push($variable, $value);
+            //array_push($variable, $value);
+            $variable[] = $value;
         }
 
         $renderingContext->getVariableProvider()->add($arguments['name'], $variable);
