@@ -2,8 +2,6 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 /**
  * Data structure for a placeholder image to be passed to a component
  */

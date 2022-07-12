@@ -36,6 +36,8 @@ services:
                 if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
                     set -x
                 fi
+                composer config allow-plugins.typo3/class-alias-loader true
+                composer config allow-plugins.typo3/cms-composer-installers true
                 composer require typo3/minimal "^${TYPO3_VERSION}" --prefer-dist --no-progress --no-suggest
                 composer install --no-progress --no-interaction;
             "
@@ -53,6 +55,8 @@ services:
                 if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
                     set -x
                 fi
+                composer config allow-plugins.typo3/class-alias-loader true
+                composer config allow-plugins.typo3/cms-composer-installers true
                 composer req typo3/cms-core:"^${TYPO3_VERSION}" \
                     typo3/cms-backend:"^${TYPO3_VERSION}" \
                     typo3/cms-frontend:"^${TYPO3_VERSION}" \
@@ -79,6 +83,8 @@ services:
                 if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
                     set -x
                 fi
+                composer config allow-plugins.typo3/class-alias-loader true
+                composer config allow-plugins.typo3/cms-composer-installers true
                 composer req typo3/cms-core:"^${TYPO3_VERSION}" \
                     typo3/cms-backend:"^${TYPO3_VERSION}" \
                     typo3/cms-frontend:"^${TYPO3_VERSION}" \
