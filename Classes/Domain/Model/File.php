@@ -213,6 +213,18 @@ abstract class File implements
             ), 1562916607);
         }
 
+        if (isset($value['title'])) {
+            $file->setTitle($value['title']);
+        }
+
+        if (isset($value['description'])) {
+            $file->setDescription($value['description']);
+        }
+
+        if (isset($value['properties'])) {
+            $file->setProperties($value['properties']);
+        }
+
         return $file;
     }
 

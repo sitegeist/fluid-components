@@ -138,6 +138,18 @@ abstract class Image extends File
             }
         }
 
+        if (isset($value['title'])) {
+            $image->setTitle($value['title']);
+        }
+
+        if (isset($value['description'])) {
+            $image->setDescription($value['description']);
+        }
+
+        if (isset($value['properties'])) {
+            $image->setProperties($value['properties']);
+        }
+
         if (isset($value['alternative'])) {
             $image->setAlternative($value['alternative']);
         }
