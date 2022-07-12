@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use TYPO3\CMS\Core\Resource\FileInterface;
 use SMS\FluidComponents\Domain\Model\Traits\FalFileTrait;
 
 /**
