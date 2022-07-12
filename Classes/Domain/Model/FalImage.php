@@ -27,7 +27,7 @@ class FalImage extends Image
 
     public function getCopyright(): ?string
     {
-        return $this->file->getProperty('copyright');
+        return parent::getCopyright() ?? $this->file->getProperty('copyright');
     }
 
     public function getHeight()
