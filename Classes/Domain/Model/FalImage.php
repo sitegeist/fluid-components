@@ -2,12 +2,13 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use SMS\FluidComponents\Interfaces\ImageWithDimensions;
 use SMS\FluidComponents\Domain\Model\Traits\FalFileTrait;
 
 /**
  * Data structure as a wrapper around a FAL object to be passed to a component
  */
-class FalImage extends Image
+class FalImage extends Image implements ImageWithDimensions
 {
     use FalFileTrait;
 
@@ -29,13 +30,13 @@ class FalImage extends Image
         return parent::getCopyright() ?? $this->file->getProperty('copyright');
     }
 
-    public function getHeight()
+    public function getHeight(): int
     {
-        return $this->file->getProperty('height');
+        return (int) $this->file->getProperty('height');
     }
 
-    public function getWidth()
+    public function getWidth(): int
     {
-        return $this->file->getProperty('width');
+        return (int) $this->file->getProperty('width');
     }
 }

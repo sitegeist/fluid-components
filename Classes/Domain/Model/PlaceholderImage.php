@@ -2,10 +2,12 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use SMS\FluidComponents\Interfaces\ImageWithDimensions;
+
 /**
  * Data structure for a placeholder image to be passed to a component
  */
-class PlaceholderImage extends Image
+class PlaceholderImage extends Image implements ImageWithDimensions
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
