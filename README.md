@@ -41,7 +41,6 @@ The following component implements a simple teaser card element:
 ```xml
 <fc:component>
     <fc:param name="title" type="string" />
-    <fc:param name="description" type="string" />
     <fc:param name="link" type="Typolink" />
     <fc:param name="icon" type="string" optional="1" />
     <fc:param name="theme" type="string" optional="1" default="light" />
@@ -49,7 +48,9 @@ The following component implements a simple teaser card element:
     <fc:renderer>
         <a href="{link}" class="{component.class} {component.class}-{theme}">
             <h3 class="{component.prefix}title">{title}</h3>
-            <p class="{component.prefix}description">{description}</p>
+            <f:if condition="{content}">
+                <p class="{component.prefix}description">{content}</p>
+            </f:if>
 
             <f:if condition="{icon}">
                 <i class="icon icon-{icon} {component.prefix}icon"></i>
@@ -65,10 +66,11 @@ Use the following code in your template to render a teaser card about TYPO3:
 {namespace my=VENDOR\MyExtension\Components}
 <my:teaserCard
     title="TYPO3"
-    description="The professional, flexible Content Management System"
     link="https://typo3.org"
     icon="typo3"
-/>
+>
+    The professional, flexible Content Management System
+</my:teaserCard>
 ```
 
 The result is the following HTML:
