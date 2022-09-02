@@ -286,26 +286,26 @@ Usage with EXT:form:
 
 Components should not contain dependencies on how they receive data.
 These can be DataProviders, mask  elements or news items, for example.
-This ViewHelper takes an array of data items (Objects/Arrays) and make a new array with the new keys configured in fieldsMapping and optionally the existing fields specified in the keepFields.
+This ViewHelper takes an array of data items (Objects/Arrays) and make a new array with the new keys configured in fieldMapping and optionally the existing fields specified in the keepFields.
 
 #### Arguments
 
-* `subject`: Source array of data items. If not in arguments then taken from inline construction.
-* `fieldsMapping`: Array of mapping keys. (see examples)
+* `subject` (optional): Source array of data items. If not in arguments then taken from inline construction. If not in arguments then taken from tag content
+* `fieldMapping` (optional): Array of mapping keys. (see examples)
     * `key`: New key
     * `value`: Name or dot-separated path to field in source array
-* `keepFields`: Array or comma separated list of fields to keep in array. Is optional.
+* `keepFields` (optional): Array or comma separated list of fields to keep in array. Is optional.
 
 #### Examples
 
 Items for slider, for example in Mask template:
 ```
-items="{data.tx_mask_sliders -> fc:variable.map(fieldsMapping: {image: 'tx_mask_slider_image.0', content: 'tx_mask_slider_text'})}"
+items="{data.tx_mask_sliders -> fc:variable.map(fieldMapping: {image: 'tx_mask_slider_image.0', content: 'tx_mask_slider_text'})}"
 ```
 
 Navigation:
 ```
-{myNavigation -> fc:variable.map(fieldsMapping: {url: 'link', title: 'data.page_extend_field'}, keepFields: 'data, target')}
+{myNavigation -> fc:variable.map(fieldMapping: {url: 'link', title: 'data.page_extend_field'}, keepFields: 'data, target')}
 ```
 
 ### Variable.Push ViewHelper
@@ -315,9 +315,9 @@ Similar functionality as in v:iterator.push from VHS
 
 #### Arguments
 
-* `item`: Item to push to specified array variable. If not in arguments then taken from tag content
+* `item` (optional): Item to push to specified array variable. If not in arguments then taken from tag content
 * `name`: Name of variable to extend
-* `key`: Key that should be used in the array
+* `key` (optional): Key that should be used in the array
 
 #### Examples
 

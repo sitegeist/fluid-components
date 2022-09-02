@@ -5,6 +5,20 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderStatic;
 
+/**
+ * This ViewHelper adds one variable to the end of the array and returns the result.
+ * Similar functionality as in v:iterator.push from VHS
+ *
+ * <code title="Provides array of news tags">
+ *   <f:variable name="tags"></f:variable>
+ *   <f:for each="{newsItem.tags}" as="tag">
+ *     <fc:variable.push name="tags" item="{tag.title}" />
+ *   </f:for>
+ * </code>
+ *
+ * @package SMS\FluidComponents\ViewHelpers\Variable
+ * @author Simon Praetorius <praetorius@sitegeist.de>
+ */
 class PushViewHelper extends AbstractViewHelper
 {
     use CompileWithContentArgumentAndRenderStatic;
@@ -39,7 +53,6 @@ class PushViewHelper extends AbstractViewHelper
         if ($arguments['key']) {
             $variable[$arguments['key']] = $value;
         } else {
-            //array_push($variable, $value);
             $variable[] = $value;
         }
 
