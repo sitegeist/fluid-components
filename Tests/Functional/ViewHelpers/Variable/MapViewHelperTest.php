@@ -23,13 +23,64 @@ class MapViewHelperTest extends FunctionalTestCase
             ]
         ];
 
-        yield 'keep only' => [
+        yield 'keep only (coma separated list)' => [
             $input,
             '{dataSource -> fc:variable.map(keepFields: "keepField1, keepField2") -> f:variable(name: "dataTarget")}',
             [
                 0 => [
                     'keepField1' => 'keepValue1',
                     'keepField2' => 'keepValue2',
+                ]
+            ]
+        ];
+
+        yield 'keep only (array of fields)' => [
+            $input,
+            '{dataSource -> fc:variable.map(keepFields: "{0: \'keepField1\', 1: \'keepField2\'}") -> f:variable(name: "dataTarget")}',
+            [
+                0 => [
+                    'keepField1' => 'keepValue1',
+                    'keepField2' => 'keepValue2',
+                ]
+            ]
+        ];
+
+        yield 'simple field' => [
+            $input,
+            '{dataSource -> fc:variable.map(fieldMapping: {targetSimpleField: "sourceSimpleField"}) -> f:variable(name: "dataTarget")}',
+            [
+                0 => [
+                    'targetSimpleField' => 'sourceSimpleValue',
+                ]
+            ]
+        ];
+
+        yield 'simple field (dataSource as subject)' => [
+            $input,
+            '{fc:variable.map(subject: dataSource, fieldMapping: {targetSimpleField: "sourceSimpleField"}) -> f:variable(name: "dataTarget")}',
+            [
+                0 => [
+                    'targetSimpleField' => 'sourceSimpleValue',
+                ]
+            ]
+        ];
+
+        yield 'simple field (tag version)' => [
+            $input,
+            '<f:variable name="dataTarget"><fc:variable.map fieldMapping="{targetSimpleField: \'sourceSimpleField\'}">{dataSource}</fc:variable.map></f:variable>',
+            [
+                0 => [
+                    'targetSimpleField' => 'sourceSimpleValue',
+                ]
+            ]
+        ];
+
+        yield 'path field' => [
+            $input,
+            '{dataSource -> fc:variable.map(fieldMapping: {targetPathField: "sourcePathField.path"}) -> f:variable(name: "dataTarget")}',
+            [
+                0 => [
+                    'targetPathField' => 'sourcePathValue',
                 ]
             ]
         ];
