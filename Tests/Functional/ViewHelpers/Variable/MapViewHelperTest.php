@@ -23,6 +23,26 @@ class MapViewHelperTest extends FunctionalTestCase
             ]
         ];
 
+        $obj = new \stdClass;
+        $obj->sourceSimpleField = 'sourceSimpleValue';
+        $obj->sourcePathField = new \stdClass;
+        $obj->sourcePathField->path = 'sourcePathValue';
+        $obj->keepField1 = 'keepValue1';
+        $obj->keepField2 = 'keepValue2';
+
+        yield 'array of objects' => [
+            [0 => $obj],
+            '{dataSource -> fc:variable.map(fieldMapping: {targetSimpleField: "sourceSimpleField", targetPathField: "sourcePathField.path"}, keepFields: "keepField1, keepField2") -> f:variable(name: "dataTarget")}',
+            [
+                0 => [
+                    'targetSimpleField' => 'sourceSimpleValue',
+                    'targetPathField' => 'sourcePathValue',
+                    'keepField1' => 'keepValue1',
+                    'keepField2' => 'keepValue2',
+                ]
+            ]
+        ];
+
         yield 'keep only (coma separated list)' => [
             $input,
             '{dataSource -> fc:variable.map(keepFields: "keepField1, keepField2") -> f:variable(name: "dataTarget")}',
