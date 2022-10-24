@@ -7,3 +7,11 @@ services:
     SMS\FluidComponents\:
         resource: '../Classes/*'
         exclude: '../Classes/Domain/Model/*'
+
+    SMS\FluidComponents\Command\GenerateXsdCommand:
+        tags:
+            -   name: 'console.command'
+                command: 'fluidcomponents:generatexsd'
+                description: 'Generates the XSD files for autocompletion in the IDE.'
+                schedulable: true
+                hidden: false
