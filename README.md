@@ -49,7 +49,7 @@ The following component implements a simple teaser card element:
         <a href="{link}" class="{component.class} {component.class}-{theme}">
             <h3 class="{component.prefix}title">{title}</h3>
             <f:if condition="{content}">
-                <p class="{component.prefix}description">{content}</p>
+                <p class="{component.prefix}description">{fc:slot()}</p>
             </f:if>
 
             <f:if condition="{icon}">
@@ -131,10 +131,11 @@ Feature References
 * [ViewHelper Reference](Documentation/ViewHelperReference.md)
 * [Data Structures](Documentation/DataStructures.md)
     * [Links and Typolink](Documentation/DataStructures.md#links-and-typolink)
-    * [Files and Images](Documentation/DataStructures.md#images)
+    * [Files and Images](Documentation/DataStructures.md#files-and-images)
     * [Translations](Documentation/DataStructures.md#translations)
     * [Navigations](Documentation/DataStructures.md#navigations)
     * [DateTime](Documentation/DataStructures.md#datetime)
+    * [Slots](Documentation/DataStructures.md#slots)
 * [Component Prefixers](Documentation/ComponentPrefixers.md)
 * [Component Settings](Documentation/ComponentSettings.md)
 
