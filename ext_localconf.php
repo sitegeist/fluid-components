@@ -27,6 +27,7 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Navigation'] = \SMS\FluidComponents\Domain\Model\Navigation::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['NavigationItem'] = \SMS\FluidComponents\Domain\Model\NavigationItem::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Labels'] = \SMS\FluidComponents\Domain\Model\Labels::class;
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases']['Slot'] = \SMS\FluidComponents\Domain\Model\Slot::class;
 
     if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['fluidComponents.partialsInComponents'])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['fluidComponents.partialsInComponents'] = false;

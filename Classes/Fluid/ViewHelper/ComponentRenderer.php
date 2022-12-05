@@ -3,7 +3,9 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
+use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
@@ -79,7 +81,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @var boolean
      */
-    protected $escapeChildren = false;
+    protected $escapeChildren = true;
 
     /**
      * @var ComponentLoader
@@ -211,7 +213,8 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Provide component content to renderer
         if (!isset($this->arguments['content'])) {
-            $variableContainer->add('content', $this->renderChildren());
+            $children = $this->renderChildren();
+            $variableContainer->add('content', (isset($children)) ? new Slot($children) : null);
         }
 
         // Initialize component rendering template
@@ -300,8 +303,11 @@ class ComponentRenderer extends AbstractViewHelper
         );
         $this->registerArgument(
             'content',
-            'string',
-            'Main content of the component; falls back to ViewHelper tag content'
+            Slot::class,
+            'Main content of the component; falls back to ViewHelper tag content',
+            false,
+            null,
+            true
         );
 
         $this->initializeComponentParams();
@@ -456,7 +462,8 @@ class ComponentRenderer extends AbstractViewHelper
 
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
-                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default']);
+                $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
+                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default'], $escape);
             }
         }
     }
