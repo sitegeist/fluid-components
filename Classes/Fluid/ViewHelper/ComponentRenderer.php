@@ -192,6 +192,11 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
         $variableContainer->add('settings', $this->componentSettings);
 
+        // Provide component content to renderer
+        if ((string)$this->arguments['content'] === '') {
+            $this->arguments['content'] = (string)$this->renderChildren();
+        }
+
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $argument) {
             $argumentType = $this->argumentDefinitions[$name]->getType();
@@ -209,12 +214,6 @@ class ComponentRenderer extends AbstractViewHelper
             }
 
             $variableContainer->add($name, $argument);
-        }
-
-        // Provide component content to renderer
-        if (!isset($this->arguments['content'])) {
-            $children = $this->renderChildren();
-            $variableContainer->add('content', (isset($children)) ? new Slot($children) : null);
         }
 
         // Initialize component rendering template
@@ -306,7 +305,7 @@ class ComponentRenderer extends AbstractViewHelper
             Slot::class,
             'Main content of the component; falls back to ViewHelper tag content',
             false,
-            null,
+            '',
             true
         );
 

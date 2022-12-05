@@ -37,15 +37,15 @@ class SlotViewHelper extends AbstractViewHelper
     {
         $slotContent = $renderingContext->getVariableProvider()->get($arguments['name']);
 
-        if (!isset($slotContent)) {
-            return $arguments['default'] ?? $renderChildrenClosure();
-        }
-
         if (!$slotContent instanceof Slot) {
             throw new InvalidArgumentException(
                 sprintf('Slot "%s" cannot be rendered because it isn\'t a valid slot object.', $arguments['name']),
                 1670247849
             );
+        }
+
+        if ((string)$slotContent === '') {
+            return $arguments['default'] ?: $renderChildrenClosure();
         }
 
         return $slotContent;
