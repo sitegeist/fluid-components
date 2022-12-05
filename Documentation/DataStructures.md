@@ -404,13 +404,13 @@ Fluid Component `Molecule/TeaserCard/TeaserCard.html`:
 ```
 
 ```xml
-<my:atom.test buttons="<button>read more about ABC</button><button>read more about DEF</button>" />
+<my:molecule.teaserCard buttons="<button>read more about ABC</button><button>read more about DEF</button>" />
 
 <!-- doesn't work with malicious user input -->
 <f:variable name="insecure">
     <script>alert('hacked')</script>
 </f:variable>
-<my:atom.test buttons="<button>read more about ABC</button>{insecure}" />
+<my:molecule.teaserCard buttons="<button>read more about ABC</button>{insecure}" />
 ```
 
 ## Type Aliases
