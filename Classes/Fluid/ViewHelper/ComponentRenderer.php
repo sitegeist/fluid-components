@@ -429,6 +429,7 @@ class ComponentRenderer extends AbstractViewHelper
                     $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
                         return $node->evaluate($renderingContext);
                     }, $paramNode->getChildNodes()));
+                    $param['default'] = $param['default'] === '' ? null : $param['default'];
                 }
 
                 if (in_array($param['name'], $this->reservedArguments)) {
