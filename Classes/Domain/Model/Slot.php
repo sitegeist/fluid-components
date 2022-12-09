@@ -8,7 +8,7 @@ use SMS\FluidComponents\Interfaces\EscapedParameter;
 /**
  * Data Structure to encapsulate html markup provided to a component
  */
-class Slot implements EscapedParameter, ConstructibleFromString
+class Slot implements EscapedParameter, ConstructibleFromString, \Countable
 {
     protected $html;
 
@@ -20,6 +20,11 @@ class Slot implements EscapedParameter, ConstructibleFromString
     public static function fromString(string $html): Slot
     {
         return new Slot($html);
+    }
+
+    public function count(): int
+    {
+        return strlen($this->html);
     }
 
     public function __toString(): string
