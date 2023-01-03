@@ -193,7 +193,7 @@ class ComponentRenderer extends AbstractViewHelper
         $variableContainer->add('settings', $this->componentSettings);
 
         // Provide component content to renderer
-        if (isset($this->arguments['content'])) {
+        if (!isset($this->arguments['content'])) {
             $this->arguments['content'] = (string)$this->renderChildren();
         }
 
