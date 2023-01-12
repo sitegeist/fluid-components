@@ -55,12 +55,14 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
         return count($this->items);
     }
 
-    public function current(): mixed
+    #[ReturnTypeWillChange]
+    public function current()
     {
         return current($this->items);
     }
 
-    public function key(): mixed
+    #[ReturnTypeWillChange]
+    public function key()
     {
         return key($this->items);
     }
