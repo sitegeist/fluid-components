@@ -169,13 +169,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @param string $givenType
      * @param string $toType
-     * @return boolean
+     * @return array             information about conversion or empty array
      */
-    public function canTypeBeConvertedToType(string $givenType, string $toType): bool
+    public function canTypeBeConvertedToType(string $givenType, string $toType): array
     {
         // No need to convert equal types
         if ($givenType === $toType) {
-            return false;
+            return [];
         }
 
         // Has this check already been computed?
@@ -184,23 +184,34 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Check if a constructor interface exists for the given type
-        // Check if the target type is a PHP class
-        $canBeConverted = false;
-        if (isset($this->conversionInterfaces[$givenType]) && class_exists($toType)) {
-            // Check if the target type implements the constructor interface
-            // required for conversion
-            $canBeConverted = is_subclass_of(
-                $toType,
-                $this->conversionInterfaces[$givenType][0]
-            );
+        // Check if the target type implements the constructor interface
+        // required for conversion
+        $conversionInfo = [];
+        if (
+            isset($this->conversionInterfaces[$givenType]) &&
+            is_subclass_of($toType, $this->conversionInterfaces[$givenType][0])
+        ) {
+            $conversionInfo = $this->conversionInterfaces[$givenType];
         } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
-            $canBeConverted = true;
+            $conversionInfo = $this->conversionInterfaces[$givenType];
+        }
+
+        if (!$conversionInfo) {
+            $parentClasses = class_parents($givenType);
+            if (is_array($parentClasses)) {
+                foreach ($parentClasses as $className) {
+                    if ($this->canTypeBeConvertedToType($className, $toType)) {
+                        $conversionInfo = $this->conversionInterfaces[$className];
+                        break;
+                    }
+                }
+            }
         }
 
         // Add to runtime cache
-        $this->conversionCache[$givenType . '|' . $toType] = $canBeConverted;
+        $this->conversionCache[$givenType . '|' . $toType] = $conversionInfo;
 
-        return $canBeConverted;
+        return $conversionInfo;
     }
 
     /**
@@ -216,7 +227,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         $givenType = is_object($value) ? get_class($value) : gettype($value);
 
         // Skip if the type can't be converted
-        if (!$this->canTypeBeConvertedToType($givenType, $toType)) {
+        $conversionInfo = $this->canTypeBeConvertedToType($givenType, $toType);
+        if (!$conversionInfo) {
             return $value;
         }
 
@@ -230,7 +242,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Call alternative constructor provided by interface
-        $constructor = $this->conversionInterfaces[$givenType][1];
+        $constructor = $conversionInfo[1];
         return $toType::$constructor($value);
     }
 
