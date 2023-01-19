@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use ReturnTypeWillChange;
 use SMS\FluidComponents\Domain\Model\LanguageNavigationItem;
 use SMS\FluidComponents\Domain\Model\NavigationItem;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
