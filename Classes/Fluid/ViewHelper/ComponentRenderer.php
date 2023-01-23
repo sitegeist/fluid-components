@@ -165,7 +165,7 @@ class ComponentRenderer extends AbstractViewHelper
      * Renders the component the viewhelper is responsible for
      * TODO this can probably be improved by using renderComponent() directly
      *
-     * @return void
+     * @return string
      */
     public function render()
     {
