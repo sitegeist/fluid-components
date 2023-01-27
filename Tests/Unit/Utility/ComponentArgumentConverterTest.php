@@ -2,12 +2,17 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
-use SMS\FluidComponents\Utility\ComponentArgumentConverter;
+use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObject;
+use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObjectConversionInterface;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyConversionInterface;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyValue;
+use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\SpecificObject;
+use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
 class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
+    protected ComponentArgumentConverter $converter;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -94,42 +99,57 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
             DummyConversionInterface::class,
             'fromString'
         );
+        $this->converter->addConversionInterface(
+            BaseObject::class,
+            BaseObjectConversionInterface::class,
+            'fromBaseObject'
+        );
 
         $this->assertEquals(
-            true,
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
         $this->assertEquals(
-            false,
+            [],
             $this->converter->canTypeBeConvertedToType(DummyValue::class, 'string')
         );
         $this->assertEquals(
-            false,
+            [],
             $this->converter->canTypeBeConvertedToType('array', DummyValue::class)
         );
         $this->assertEquals(
-            false,
+            [],
             $this->converter->canTypeBeConvertedToType(DummyValue::class, 'array')
         );
 
         // No conversion necessary
         $this->assertEquals(
-            false,
+            [],
             $this->converter->canTypeBeConvertedToType('string', 'string')
         );
 
         // Collections
         $this->assertEquals(
-            true,
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType('array', DummyValue::class . '[]')
         );
         $this->assertEquals(
-            true,
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType(\ArrayIterator::class, DummyValue::class . '[]')
         );
         $this->assertEquals(
-            false,
+            [],
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class . '[]')
+        );
+
+        // Class inheritance
+        $this->assertEquals(
+            [BaseObjectConversionInterface::class, 'fromBaseObject'],
+            $this->converter->canTypeBeConvertedToType(BaseObject::class, DummyValue::class)
+        );
+        $this->assertEquals(
+            [BaseObjectConversionInterface::class, 'fromBaseObject'],
+            $this->converter->canTypeBeConvertedToType(SpecificObject::class, DummyValue::class)
         );
     }
 
@@ -146,13 +166,13 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
 
         // Uncached result
         $this->assertEquals(
-            true,
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
 
         // Cached result
         $this->assertEquals(
-            true,
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
     }
@@ -193,6 +213,27 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         $this->assertEquals(
             'My string',
             $this->converter->convertValueToType('My string', DummyValue::class)->value
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function convertChildClassToType()
+    {
+        $this->converter->addConversionInterface(
+            BaseObject::class,
+            BaseObjectConversionInterface::class,
+            'fromBaseObject'
+        );
+
+        $this->assertEquals(
+            'My value',
+            $this->converter->convertValueToType(new BaseObject('My value'), DummyValue::class)->value
+        );
+        $this->assertEquals(
+            'My value',
+            $this->converter->convertValueToType(new SpecificObject('My value'), DummyValue::class)->value
         );
     }
 
