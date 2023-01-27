@@ -129,6 +129,10 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
         } else {
             $languageKey = $alternativeLanguageKeys = null;
         }
+        
+        if (!isset($GLOBALS['LANG'])) {
+            $GLOBALS['LANG'] = GeneralUtility::makeInstance(LanguageServiceFactory::class)->create('default');
+        }
 
         return LocalizationUtility::translate(
             $this->generateLabelIdentifier($identifier),
