@@ -179,7 +179,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         ) {
             $conversionInfo = $this->conversionInterfaces[$givenType];
         } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
-            $conversionInfo = $this->conversionInterfaces[$givenType];
+            $conversionInfo = $this->conversionInterfaces['array'] ?? [];
         }
 
         if (!$conversionInfo && class_exists($givenType)) {

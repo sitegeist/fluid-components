@@ -135,7 +135,7 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
             $this->converter->canTypeBeConvertedToType('array', DummyValue::class . '[]')
         );
         $this->assertEquals(
-            [DummyConversionInterface::class, 'fromString'],
+            [ConstructibleFromArray::class, 'fromArray'],
             $this->converter->canTypeBeConvertedToType(\ArrayIterator::class, DummyValue::class . '[]')
         );
         $this->assertEquals(
