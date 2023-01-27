@@ -10,9 +10,8 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
-use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileReference;
-use TYPO3\CMS\Core\Resource\ProcessedFile;
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 {
@@ -48,26 +47,14 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             ConstructibleFromDateTimeImmutable::class,
             'fromDateTimeImmutable'
         ],
+        FileInterface::class => [
+            ConstructibleFromFileInterface::class,
+            'fromFileInterface'
+        ],
         FileReference::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        File::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        ProcessedFile::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        \TYPO3\CMS\Extbase\Domain\Model\FileReference::class => [
             ConstructibleFromExtbaseFile::class,
             'fromExtbaseFile'
-        ],
-        \GeorgRinger\News\Domain\Model\FileReference::class => [
-            ConstructibleFromExtbaseFile::class,
-            'fromExtbaseFile'
-        ],
+        ]
     ];
 
     /**
