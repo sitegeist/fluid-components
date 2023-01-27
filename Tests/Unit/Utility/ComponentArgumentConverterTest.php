@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
-use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObject;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObjectConversionInterface;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyConversionInterface;
@@ -67,7 +66,7 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
     public function addRemoveConversionInterface()
     {
         $this->assertEquals(
-            [],
+            false,
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
 
@@ -78,14 +77,14 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
 
         $this->assertEquals(
-            [DummyConversionInterface::class, 'fromString'],
+            true,
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
 
         $this->converter->removeConversionInterface('string');
 
         $this->assertEquals(
-            [],
+            false,
             $this->converter->canTypeBeConvertedToType('string', DummyValue::class)
         );
     }
@@ -131,11 +130,11 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
 
         // Collections
         $this->assertEquals(
-            [ConstructibleFromArray::class, 'fromArray'],
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType('array', DummyValue::class . '[]')
         );
         $this->assertEquals(
-            [ConstructibleFromArray::class, 'fromArray'],
+            [DummyConversionInterface::class, 'fromString'],
             $this->converter->canTypeBeConvertedToType(\ArrayIterator::class, DummyValue::class . '[]')
         );
         $this->assertEquals(
