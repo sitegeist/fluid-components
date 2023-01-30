@@ -2,13 +2,16 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use SMS\FluidComponents\Interfaces\ImageWithDimensions;
 use SMS\FluidComponents\Domain\Model\Traits\FalFileTrait;
+use SMS\FluidComponents\Interfaces\ImageWithCropVariants;
+use SMS\FluidComponents\Interfaces\ImageWithDimensions;
+use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
+use TYPO3\CMS\Core\Imaging\ImageManipulation\CropVariantCollection;
 
 /**
  * Data structure as a wrapper around a FAL object to be passed to a component
  */
-class FalImage extends Image implements ImageWithDimensions
+class FalImage extends Image implements ImageWithDimensions, ImageWithCropVariants
 {
     use FalFileTrait;
 
@@ -38,5 +41,17 @@ class FalImage extends Image implements ImageWithDimensions
     public function getWidth(): int
     {
         return (int) $this->file->getProperty('width');
+    }
+
+    public function getDefaultCrop(): Area
+    {
+        $cropVariantCollection = CropVariantCollection::create((string)$this->file->getProperty('crop'));
+        return $cropVariantCollection->getCropArea();
+    }
+
+    public function getCropVariant(string $name): Area
+    {
+        $cropVariantCollection = CropVariantCollection::create((string)$this->file->getProperty('crop'));
+        return $cropVariantCollection->getCropArea($name);
     }
 }
