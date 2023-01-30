@@ -5,13 +5,16 @@ namespace SMS\FluidComponents\Domain\Model;
 use SMS\FluidComponents\Domain\Model\Traits\FalFileTrait;
 use SMS\FluidComponents\Interfaces\ImageWithCropVariants;
 use SMS\FluidComponents\Interfaces\ImageWithDimensions;
+use SMS\FluidComponents\Interfaces\ProcessableImage;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\CropVariantCollection;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Service\ImageService;
 
 /**
  * Data structure as a wrapper around a FAL object to be passed to a component
  */
-class FalImage extends Image implements ImageWithDimensions, ImageWithCropVariants
+class FalImage extends Image implements ImageWithDimensions, ImageWithCropVariants, ProcessableImage
 {
     use FalFileTrait;
 
@@ -53,5 +56,17 @@ class FalImage extends Image implements ImageWithDimensions, ImageWithCropVarian
     {
         $cropVariantCollection = CropVariantCollection::create((string)$this->file->getProperty('crop'));
         return $cropVariantCollection->getCropArea($name);
+    }
+
+    public function process(int $height, int $width, string $format, Area $cropArea): FalImage
+    {
+        $imageService = GeneralUtility::makeInstance(ImageService::class);
+        $processedImage = $imageService->applyProcessingInstructions($this->getFile(), [
+            'height' => $height,
+            'width' => $width,
+            'fileExtension' => $format,
+            'crop' => ($cropArea->isEmpty()) ? null : $cropArea->makeAbsoluteBasedOnFile($this->getFile())
+        ]);
+        return new FalImage($processedImage);
     }
 }
