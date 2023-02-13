@@ -174,17 +174,16 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         // Check if the target type implements the constructor interface
         // required for conversion
         $conversionInfo = [];
-        if (
-            isset($this->conversionInterfaces[$givenType]) &&
+        if (isset($this->conversionInterfaces[$givenType]) &&
             is_subclass_of($toType, $this->conversionInterfaces[$givenType][0])
         ) {
             $conversionInfo = $this->conversionInterfaces[$givenType];
         } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
-            $conversionInfo = $this->conversionInterfaces[$givenType];
+            $conversionInfo = $this->conversionInterfaces['array'] ?? [];
         }
 
-        if (!$conversionInfo) {
-            $parentClasses = class_parents($givenType);
+        if (!$conversionInfo && class_exists($givenType)) {
+            $parentClasses = array_merge(class_parents($givenType), class_implements($givenType));
             if (is_array($parentClasses)) {
                 foreach ($parentClasses as $className) {
                     if ($this->canTypeBeConvertedToType($className, $toType)) {
