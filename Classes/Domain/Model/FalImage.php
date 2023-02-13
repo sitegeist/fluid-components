@@ -58,12 +58,12 @@ class FalImage extends Image implements ImageWithDimensions, ImageWithCropVarian
         return $cropVariantCollection->getCropArea($name);
     }
 
-    public function process(int $height, int $width, string $format, Area $cropArea): FalImage
+    public function process(int $width, int $height, string $format, Area $cropArea): FalImage
     {
         $imageService = GeneralUtility::makeInstance(ImageService::class);
         $processedImage = $imageService->applyProcessingInstructions($this->getFile(), [
-            'height' => $height,
             'width' => $width,
+            'height' => $height,
             'fileExtension' => $format,
             'crop' => ($cropArea->isEmpty()) ? null : $cropArea->makeAbsoluteBasedOnFile($this->getFile())
         ]);
