@@ -183,7 +183,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         if (!$conversionInfo && class_exists($givenType)) {
-            $parentClasses = class_parents($givenType);
+            $parentClasses = array_merge(class_parents($givenType), class_implements($givenType));
             if (is_array($parentClasses)) {
                 foreach ($parentClasses as $className) {
                     if ($this->canTypeBeConvertedToType($className, $toType)) {
