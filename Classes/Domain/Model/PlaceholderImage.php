@@ -72,7 +72,7 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
         return 'https://via.placeholder.com/' . $this->width . 'x' . $this->height . '.' . $this->format;
     }
 
-    public function process(int $width, int $height, string $format, Area $cropArea): ProcessableImage
+    public function process(int $width, int $height, ?string $format, Area $cropArea): ProcessableImage
     {
         return new PlaceholderImage(
             $cropArea->getWidth() * $width,
