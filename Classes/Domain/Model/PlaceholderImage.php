@@ -44,6 +44,7 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
      *
      * @param integer $width
      * @param integer $height
+     * @param string $format
      */
     public function __construct(int $width, int $height, string $format = 'gif')
     {
