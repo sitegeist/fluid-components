@@ -6,12 +6,14 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use SMS\FluidComponents\Interfaces\ImageWithDimensions;
 use SMS\FluidComponents\Exception\InvalidFilePathException;
+use SMS\FluidComponents\Interfaces\ProcessableImage;
 use TYPO3\CMS\Core\Imaging\GraphicalFunctions;
+use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 
 /**
  * Data structure for a local image resource to be passed to a component
  */
-class LocalImage extends Image implements ImageWithDimensions
+class LocalImage extends Image implements ImageWithDimensions, ProcessableImage
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
@@ -27,8 +29,18 @@ class LocalImage extends Image implements ImageWithDimensions
      */
     protected $filePath = '';
 
+    /**
+     * Image width, will be determined at first access
+     *
+     * @var integer
+     */
     protected $width = 0;
 
+    /**
+     * Image height, will be determined at first access
+     *
+     * @var integer
+     */
     protected $height = 0;
 
     /**
@@ -91,5 +103,18 @@ class LocalImage extends Image implements ImageWithDimensions
         $imageDimensions = $graphicalFunctions->getImageDimensions($this->getFilePath());
         $this->width = (int) $imageDimensions[0];
         $this->height = (int) $imageDimensions[1];
+    }
+
+    public function process(int $width, int $height, ?string $format, Area $cropArea): ProcessableImage
+    {
+        $imageService = GeneralUtility::makeInstance(ImageService::class);
+        $file = $imageService->getImage($this->getFilePath(), null, false);
+        $processedImage = $imageService->applyProcessingInstructions($file, [
+            'width' => $width,
+            'height' => $height,
+            'fileExtension' => $format,
+            'crop' => ($cropArea->isEmpty()) ? null : $cropArea->makeAbsoluteBasedOnFile($file)
+        ]);
+        return new FalImage($processedImage);
     }
 }
