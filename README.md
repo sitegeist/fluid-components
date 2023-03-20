@@ -144,6 +144,7 @@ How-To's
 * [Usage with Forms](Documentation/Forms.md)
 * [Add auto-completion in your IDE](Documentation/AutoCompletion.md)
 * [Updating from 1.x](Documentation/UpdateNotes.md)
+* [Mitigating XSS issues with 3.5](Documentation/XssIssue.md)
 
 ## Authors & Sponsors
 
