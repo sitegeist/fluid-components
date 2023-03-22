@@ -110,17 +110,15 @@ files from inside extensions or even external image urls. This is what the File/
 for images:
 
 * `SMS\FluidComponents\Domain\Model\Image` (alias: `Image`) is the base class of all image types as well as a factory
-* `SMS\FluidComponents\Domain\Model\LocalImage` wraps a local image resource, e. g. from an extension
 * `SMS\FluidComponents\Domain\Model\RemoteImage` wraps a remote image uri
-* `SMS\FluidComponents\Domain\Model\FalImage` wraps existing FAL objects, such as `File` and `FileReference`
+* `SMS\FluidComponents\Domain\Model\FalImage` wraps existing FAL objects and local image resources, such as `File` and `FileReference` or an image from an extension
 * `SMS\FluidComponents\Domain\Model\PlaceholderImage` generates a placeholder image via placeholder.com
 
 for files:
 
 * `SMS\FluidComponents\Domain\Model\File` (alias: `File`) is the base class of all file types as well as a factory
-* `SMS\FluidComponents\Domain\Model\LocalFile` wraps a local file, e. g. from an extension
 * `SMS\FluidComponents\Domain\Model\RemoteFile` wraps a remote file uri
-* `SMS\FluidComponents\Domain\Model\FalFile` wraps existing FAL objects, such as `File` and `FileReference`
+* `SMS\FluidComponents\Domain\Model\FalFile` wraps existing FAL objects and local files, such as `File` and `FileReference` or a file from an extension
 
 This is how it could look like in the `Atom.Image` component:
 

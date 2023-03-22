@@ -27,7 +27,7 @@ class RemoteImage extends Image
      * Creates an image object for a remote image resource
      *
      * @param string $uri
-     * @throws InvalidFilePathException
+     * @throws InvalidRemoteImageException
      */
     public function __construct(string $uri)
     {

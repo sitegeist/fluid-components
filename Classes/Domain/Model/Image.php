@@ -52,7 +52,8 @@ abstract class Image extends File
         try {
             return new RemoteImage($value);
         } catch (InvalidRemoteImageException $e) {
-            return new LocalImage($value);
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->retrieveFileOrFolderObject($value);
+            return ($file) ? new FalImage($file) : null;
         }
     }
 
