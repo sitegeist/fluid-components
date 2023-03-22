@@ -261,6 +261,10 @@ class CheckContentEscapingCommand extends Command
         }, $activeExtensions);
         $possibleTemplatePaths = array_filter($possibleTemplatePaths, 'file_exists');
 
+        if (empty($possibleTemplatePaths)) {
+            return [];
+        }
+
         // Find all html files
         $finder = new Finder();
         $finder
