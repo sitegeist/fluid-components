@@ -20,6 +20,6 @@ services:
         tags:
             -   name: 'console.command'
                 command: 'fluidcomponents:checkContentEscaping'
-                description: 'Checks for possible escaping issues with content parameter due to new children escaping behavior'
+                description: 'Checks for possible escaping issues with content parameter due to changed children escaping behavior'
                 schedulable: false
                 hidden: false

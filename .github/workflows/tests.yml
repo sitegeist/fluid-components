@@ -78,7 +78,7 @@ jobs:
          strategy:
              max-parallel: 2
              matrix:
-                 php-versions: [7.4, '8.0']
+                 php-versions: ['7.4', '8.0']
                  typo3-versions: [10, 11]
                  exclude:
                      -
