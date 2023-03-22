@@ -101,7 +101,7 @@ of the URI by using `parse_url`. You get access to the following link properties
 * `query`: e. g. `myparam=1`
 * `fragment`: e. g. `myfragment`
 
-## Files Images
+## Files and Images
 
 Components should be able to accept a file or image as a parameter, no matter where it come from. TYPO3 already has data structures
 for files that are stored in the File Abstraction Layer. However, there are cases where you want to use
@@ -380,6 +380,37 @@ Fluid Component Fixture `Molecule/Event/Event.fixtures.yaml` with an integer, wh
 ```yaml
 default:
   date: 1594110573
+```
+
+## Slots
+
+Similar to frontend frameworks [such as Vue.js](https://vuejs.org/guide/components/slots.html), Slots are a data structure that allows you to pass
+arbitrary HTML markup to a component. The default `{content}` parameter is implemented as a slot, but you can add your own slots. Slots behave
+differently compared to other parameters in the way escaping works. If a parameter defined as a Slot gets passed a Fluid variable, the content
+of that variable will be escaped, which makes sure that malicious user input doesn't lead to XSS injections.
+
+To output a slot, you should **always** use the `<fc:slot />` ViewHelper which takes care of a safe HTML output. **format.raw() should no longer be used in Fluid Components since v3.5.0!**
+
+Fluid Component `Molecule/TeaserCard/TeaserCard.html`:
+
+```xml
+<fc:component>
+    <fc:param name="buttons" type="Slot" optional="1" />
+    <fc:renderer>
+        <fc:slot name="buttons" />
+    </fc:renderer>
+</fc:component>
+<>
+```
+
+```xml
+<my:molecule.teaserCard buttons="<button>read more about ABC</button><button>read more about DEF</button>" />
+
+<!-- doesn't work with malicious user input -->
+<f:variable name="insecure">
+    <script>alert('hacked')</script>
+</f:variable>
+<my:molecule.teaserCard buttons="<button>read more about ABC</button>{insecure}" />
 ```
 
 ## Type Aliases
