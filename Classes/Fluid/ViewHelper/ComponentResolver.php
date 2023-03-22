@@ -2,8 +2,13 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DependencyInjection\FailsafeContainer;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
@@ -11,6 +16,29 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
 
 class ComponentResolver extends ViewHelperResolver
 {
+    /**
+     * ViewHelperResolver constructor
+     *
+     * Loads namespaces defined in global TYPO3 configuration. Overlays `f:`
+     * with `f:debug:` when Fluid debugging is enabled in the admin panel,
+     * causing debugging-specific ViewHelpers to be resolved in that case.
+     *
+     * @internal constructor, use `ViewHelperResolverFactory->create()` instead
+     */
+    public function __construct(ContainerInterface $container, array $namespaces)
+    {
+        $this->container = $container;
+        $this->namespaces = $namespaces;
+        if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
+            && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend()
+            && $this->getBackendUser() instanceof BackendUserAuthentication
+        ) {
+            if ($this->getBackendUser()->uc['AdminPanel']['preview_showFluidDebug'] ?? false) {
+                $this->namespaces['f'][] = 'TYPO3\\CMS\\Fluid\\ViewHelpers\\Debug';
+            }
+        }
+    }
+
     /**
      * Uses Symfony dependency injection to inject ComponentRenderer into
      * Fluid viewhelper processing
