@@ -33,19 +33,10 @@ class ComponentResolver extends ViewHelperResolver
             /** @var ViewHelperInterface $viewHelperInstance */
             $viewHelperInstance = $this->container->get($viewHelperClassName);
             return $viewHelperInstance;
-        }
-
-        if (class_exists($viewHelperClassName, true)) {
-            /** @var ViewHelperInterface $viewHelperInstance */
-            // @deprecated since v11, will be removed with 12. Fallback if extensions VH has no Services.yaml, yet.
-            $viewHelperInstance = $this->objectManager->get($viewHelperClassName);
-            return $viewHelperInstance;
         } else {
             // Redirect all components to special ViewHelper ComponentRenderer
             $componentRenderer = $this->container->get(ComponentRenderer::class);
-
             $componentRenderer->setComponentNamespace($viewHelperClassName);
-
             return $componentRenderer;
         }
     }
