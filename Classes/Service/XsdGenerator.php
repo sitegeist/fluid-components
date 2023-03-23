@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Service;
 
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
+use SMS\FluidComponents\Fluid\ViewHelper\ComponentRendererFactory;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
@@ -67,7 +68,7 @@ class XsdGenerator
         $xsd = '<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             targetNamespace="' . $this->getTargetXMLNameSpace($namespace) . '">' . "\n";
         foreach ($components as $componentName => $componentFile) {
-            $componentRenderer = GeneralUtility::makeInstance(ComponentRenderer::class);
+            $componentRenderer = GeneralUtility::makeInstance(ComponentRendererFactory::class)->create();
             $componentRenderer->setComponentNamespace($componentName);
             $arguments = $componentRenderer->prepareArguments();
             $componentNameWithoutNameSpace = $this->getTagName($namespace, $componentName);
