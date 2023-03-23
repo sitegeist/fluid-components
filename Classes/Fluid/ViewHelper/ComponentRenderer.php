@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Domain\Model\Slot;
+use SMS\FluidComponents\Exception\InvalidTypeException;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
@@ -44,6 +45,13 @@ class ComponentRenderer extends AbstractViewHelper
      * @var string
      */
     protected $componentNamespace;
+
+    /**
+     * Whether strict argument validation is enabled
+     *
+     * @var bool
+     */
+    protected $componentNamespaceIsStrict = false;
 
     /**
      * Cache for component template instance used for rendering
@@ -130,6 +138,12 @@ class ComponentRenderer extends AbstractViewHelper
     public function setComponentNamespace($componentNamespace)
     {
         $this->componentNamespace = $componentNamespace;
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['strict'] ?? [] as $strictNamespace) {
+            if (str_starts_with($componentNamespace, $strictNamespace)) {
+                $this->componentNamespaceIsStrict = true;
+                break;
+            }
+        }
         return $this;
     }
 
@@ -200,8 +214,28 @@ class ComponentRenderer extends AbstractViewHelper
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $argument) {
             $argumentType = $this->argumentDefinitions[$name]->getType();
-
-            $argument = $this->componentArgumentConverter->convertValueToType($argument, $argumentType);
+            $argumentIsRequired = $this->argumentDefinitions[$name]->isRequired();
+            $argumentDefaultValue = $this->argumentDefinitions[$name]->getDefaultValue();
+            if (!$argumentIsRequired) {
+                $argument ??= $argumentDefaultValue;
+            }
+            try {
+                $argument = $this->componentArgumentConverter->convertValueToType($argument, $argumentType);
+            } catch (InvalidTypeException $e) {
+                if ($this->componentNamespaceIsStrict && ($argumentIsRequired || $argument !== $this->argumentDefinitions[$name]->getDefaultValue())) {
+                    throw new Exception(
+                        sprintf(
+                            'The argument "%s" defined in "%s" has declared type "%s", but "%s" was given.',
+                            $name,
+                            $this->getComponentNamespace(),
+                            $argumentType,
+                            is_object($argument) ? get_class($argument) : gettype($argument)
+                        ),
+                        1677141778,
+                        $e
+                    );
+                }
+            }
 
             // Provide component namespace to certain data structures
             if ($argument instanceof ComponentAware) {
@@ -427,6 +461,14 @@ class ComponentRenderer extends AbstractViewHelper
                 $param = [];
                 foreach ($paramNode->getArguments() as $argumentName => $argumentNode) {
                     $param[$argumentName] = $argumentNode->evaluate($renderingContext);
+                }
+                if ($this->componentNamespaceIsStrict && !$this->componentArgumentConverter->isValidType($param['type'])) {
+                    throw new Exception(sprintf(
+                        'The argument "%s" defined in "%s" has an invalid type declaration "%s".',
+                        $param['name'],
+                        $this->getComponentNamespace(),
+                        $param['type']
+                    ), 1677141778);
                 }
 
                 // Use tag content as default value instead of attribute
