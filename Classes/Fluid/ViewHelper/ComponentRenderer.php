@@ -3,6 +3,8 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
+use SMS\FluidComponents\Domain\Model\ComponentInfo;
+use SMS\FluidComponents\Domain\Model\ComponentInfoStack;
 use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
@@ -31,9 +33,13 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ComponentRenderer extends AbstractViewHelper
 {
+    public const COMPONENT_INFO_STACK_KEY = 'componentInfoStack';
+    private const COMPONENT_VARIABLE_KEY = 'component';
+    private const REQUIRED_ARGUMENT_DEFAULT = '__REQUIRED__';
+
     protected $reservedArguments = [
         'class',
-        'component',
+        self::COMPONENT_VARIABLE_KEY,
         'content',
         'settings',
     ];
@@ -176,7 +182,8 @@ class ComponentRenderer extends AbstractViewHelper
         if ($this->renderingContext->getControllerContext()) {
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
-        $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
+        $viewHelperVariableContainer = $this->renderingContext->getViewHelperVariableContainer();
+        $renderingContext->setViewHelperVariableContainer($viewHelperVariableContainer);
         if (static::shouldUseTemplatePaths()) {
             $renderingContext->getTemplatePaths()->setPartialRootPaths(
                 $this->renderingContext->getTemplatePaths()->getPartialRootPaths()
@@ -185,16 +192,47 @@ class ComponentRenderer extends AbstractViewHelper
         $variableContainer = $renderingContext->getVariableProvider();
 
         // Provide information about component to renderer
-        $variableContainer->add('component', [
-            'namespace' => $this->componentNamespace,
-            'class' => $this->getComponentClass(),
-            'prefix' => $this->getComponentPrefix(),
-        ]);
+        $componentInfo = new ComponentInfo(
+            $this->componentNamespace,
+            $this->getComponentClass(),
+            $this->getComponentPrefix(),
+            $this->argumentDefinitions,
+            []
+        );
+        $variableContainer->add(self::COMPONENT_VARIABLE_KEY, $componentInfo);
         $variableContainer->add('settings', $this->componentSettings);
-
-        // Provide component content to renderer
+        if (!$viewHelperVariableContainer->exists(ComponentRenderer::class, self::COMPONENT_INFO_STACK_KEY)) {
+            $viewHelperVariableContainer->add(ComponentRenderer::class, self::COMPONENT_INFO_STACK_KEY, new ComponentInfoStack());
+        }
+        // Provide component content to renderer and set content variables if any
         if (!isset($this->arguments['content'])) {
-            $this->arguments['content'] = (string)$this->renderChildren();
+            $viewHelperVariableContainer->get(ComponentRenderer::class, self::COMPONENT_INFO_STACK_KEY)
+                ->push($componentInfo);
+            $children = $this->renderChildren();
+            $viewHelperVariableContainer->get(ComponentRenderer::class, self::COMPONENT_INFO_STACK_KEY)
+                ->pop();
+            $this->arguments['content'] = isset($children) ? new Slot($children) : null;
+
+            $slotArguments = array_filter(
+                $this->arguments,
+                function ($value, $name) {
+                    return $this->argumentDefinitions[$name]->getType() === Slot::class;
+                },
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            foreach ($slotArguments as $name => $value) {
+                $isRequired = $this->argumentDefinitions[$name]->isRequired() || $this->argumentDefinitions[$name]->getDefaultValue() === self::REQUIRED_ARGUMENT_DEFAULT;
+                $valueFromContent = $variableContainer->get(self::COMPONENT_VARIABLE_KEY)->arguments[$name] ?? null;
+                $value = ($isRequired && $value === self::REQUIRED_ARGUMENT_DEFAULT) ? null : $value;
+                if ($isRequired && !isset($value) && !isset($valueFromContent)) {
+                    throw new \TYPO3Fluid\Fluid\Core\Parser\Exception(sprintf('Required argument "%s" was not supplied to component "%s"', $name, $componentInfo->namespace), 1670594008);
+                }
+                if (isset($value, $valueFromContent)) {
+                    throw new \UnexpectedValueException(sprintf('Argument "%s" for component "%s" was supplied as property and content at the same time', $name, $componentInfo->namespace), 1670451514);
+                }
+                $this->arguments[$name] = $value ?? $valueFromContent;
+            }
         }
 
         // Provide supplied arguments from component call to renderer
@@ -273,7 +311,7 @@ class ComponentRenderer extends AbstractViewHelper
         RenderingContextInterface $renderingContext,
         $componentNamespace
     ) {
-        $viewHelperClassName = get_called_class();
+        $viewHelperClassName = static::class;
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $componentRenderer = $objectManager->get($viewHelperClassName);
@@ -462,6 +500,12 @@ class ComponentRenderer extends AbstractViewHelper
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
                 $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
+                // Arguments of type slot can be set after the Fluid parser validates the arguments by content view helper
+                // Therefore they are made optional here and whether they are provided or not, is evaluated later
+                if (!$optional && ($param['type'] === Slot::class || is_subclass_of($param['type'], Slot::class))) {
+                    $optional = true;
+                    $param['default'] = self::REQUIRED_ARGUMENT_DEFAULT;
+                }
                 $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default'], $escape);
             }
         }

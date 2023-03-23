@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\ViewHelpers;
 
+use SMS\FluidComponents\Domain\Model\ComponentInfo;
 use SMS\FluidComponents\Domain\Model\Slot;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
@@ -37,9 +38,11 @@ class SlotViewHelper extends AbstractViewHelper
     {
         $slotContent = $renderingContext->getVariableProvider()->get($arguments['name']);
 
-        if (isset($slotContent) && !$slotContent instanceof Slot) {
+        if (!$slotContent instanceof Slot) {
+            $componentInfo = $renderingContext->getVariableProvider()->get('component');
+            assert($componentInfo instanceof ComponentInfo);
             throw new InvalidArgumentException(
-                sprintf('Slot "%s" cannot be rendered because it isn\'t a valid slot object.', $arguments['name']),
+                sprintf('Slot "%s" cannot be rendered because it isn\'t a valid slot object. %s', $arguments['name'], $componentInfo->namespace),
                 1670247849
             );
         }
