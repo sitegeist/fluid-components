@@ -24,7 +24,7 @@ class Slot implements EscapedParameter, ConstructibleFromString, \Countable
 
     public function count(): int
     {
-        return strlen($this->html);
+        return strlen(trim($this->html));
     }
 
     public function __toString(): string
