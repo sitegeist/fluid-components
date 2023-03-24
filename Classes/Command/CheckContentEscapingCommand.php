@@ -252,7 +252,8 @@ class CheckContentEscapingCommand extends Command
     {
         // All extensions in local extension directory
         $activeExtensions = array_filter($this->packageManager->getActivePackages(), function ($package) {
-            return strpos($package->getPackagePath(), Environment::getExtensionsPath()) === 0;
+            return strpos($package->getPackagePath(), Environment::getExtensionsPath()) === 0
+                || $package->getPackageMetaData()->getPackageType() === 'typo3-cms-extension';
         });
 
         // All template paths (Resources/Private/)
