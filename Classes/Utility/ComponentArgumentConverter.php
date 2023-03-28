@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use ArgumentConversionInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
@@ -10,6 +11,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
+use SMS\FluidComponents\Utility\ComponentArgumentConversion;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
@@ -79,6 +81,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         ) {
             $this->typeAliases =& $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'];
         }
+
+
+    }
+
+    public function addConversionDefinition(ArgumentConversionDefinition $definition): self
+    {
+        $this->c
     }
 
     /**
@@ -150,6 +159,35 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
     }
 
+    protected function determineConversionDefinition(string $givenType): ?ConversionDefinition
+    {
+        // Check parent classes and interfaces for matching conversion definitions
+        // e. g. FileInterface when File was given
+        if (!isset($this->conversionInterfaces[$givenType]) && class_exists($givenType)) {
+            $this->conversionInterfaces[$givenType] = array_reduce(
+                array_merge(class_implements($givenType), class_parents($givenType)),
+                function (?ConversionDefinition $definition, string $className) {
+                    return $definition ?? $this->conversionInterfaces[$className] ?? null;
+                }
+            );
+        }
+        return $this->conversionInterfaces[$givenType] ?? null;
+    }
+
+    /*
+    protected function createCollectionConversion(ConversionDefinition $definition, string $toType): ArgumentConversion
+    {
+        if ($this->isCollectionType($toType)) {
+            return new CollectionArgumentConversion(
+                $definition,
+                $this->createCollectionConversion($this->extractCollectionItemType($toType))
+            );
+        } else {
+            return new ArgumentConversion($this->determineConversionDefinition($toType), $toType);
+        }
+    }
+    */
+
     /**
      * Checks if a given variable type can be converted to another
      * data type by using alternative constructors in $this->conversionInterfaces
@@ -158,11 +196,11 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $toType
      * @return array             information about conversion or empty array
      */
-    public function canTypeBeConvertedToType(string $givenType, string $toType): array
+    public function canTypeBeConvertedToType(string $givenType, string $toType): ?ArgumentConversionInterface
     {
         // No need to convert equal types
         if ($givenType === $toType) {
-            return [];
+            return new PassArgumentConversion;
         }
 
         // Has this check already been computed?
@@ -170,11 +208,43 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             return $this->conversionCache[$givenType . '|' . $toType];
         }
 
-        // Check if a constructor interface exists for the given type
-        // Check if the target type implements the constructor interface
-        // required for conversion
+        try {
+            // Check if a constructor interface exists for the given type
+            $definition = $this->determineConversionDefinition($givenType) ?? new IterableConversionDefinition($givenType);
+
+            // Check if the target type implements the constructor interface
+            if ($this->isCollectionType($toType)) {
+                list($collectionType, $arrayDepth) = $this->extractCollectionItemType($toType);
+                $conversion = new CollectionArgumentConversion(
+                    $definition,
+                    new ArgumentConversion(
+                        $this->determineConversionDefinition($collectionType),
+                        $collectionType
+                    ),
+                    $arrayDepth
+                );
+                $conversion = $this->createCollectionConversion($definition, $toType);
+            } else {
+                $conversion = new ArgumentConversion($definition, $toType);
+            }
+        } catch (\InvalidArgumentException $e) {
+            // TODO
+            if ($this->strict) {
+                throw new \Exception();
+            } else {
+                return null;
+            }
+        }
+
+        // Add to runtime cache
+        $this->conversionCache[$givenType . '|' . $toType] = $conversion;
+
+        return $conversion;
+
+/*
+
         $conversionInfo = [];
-        if (isset($this->conversionInterfaces[$givenType][0]) &&
+        if (isset($this->conversionInterfaces[$givenType]) &&
             is_subclass_of($toType, $this->conversionInterfaces[$givenType][0])
         ) {
             $conversionInfo = $this->conversionInterfaces[$givenType];
@@ -182,22 +252,20 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             $conversionInfo = $this->conversionInterfaces['array'] ?? [];
         }
 
-        if (!$conversionInfo && class_exists($givenType)) {
+        if (!isset($conversionInfo[0]) && class_exists($givenType)) {
             $parentClasses = array_merge(class_parents($givenType), class_implements($givenType));
             if (is_array($parentClasses)) {
                 foreach ($parentClasses as $className) {
-                    if ($this->canTypeBeConvertedToType($className, $toType)) {
-                        $conversionInfo = $this->conversionInterfaces[$className];
+                    $conversionInfo = $this->canTypeBeConvertedToType($className, $toType);
+                    if (isset($conversionInfo[1])) {
                         break;
                     }
                 }
             }
         }
 
-        // Add to runtime cache
-        $this->conversionCache[$givenType . '|' . $toType] = $conversionInfo;
-
         return $conversionInfo;
+*/
     }
 
     /**
@@ -212,6 +280,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     {
         $givenType = is_object($value) ? get_class($value) : gettype($value);
 
+        if ($converter = $this->canTypeBeConvertedToType($givenType, $toType)) {
+            $converter->convert($value);
+        } else {
+            return $value;
+        }
+
+        /*
         // Skip if the type can't be converted
         $conversionInfo = $this->canTypeBeConvertedToType($givenType, $toType);
         if (!$conversionInfo) {
@@ -230,6 +305,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         // Call alternative constructor provided by interface
         $constructor = $conversionInfo[1];
         return $toType::$constructor($value);
+        */
     }
 
     /**
@@ -245,13 +321,18 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Extracts the type of individual items from a collection type
+     * as well as the expected depth of the collection
      *
      * @param string $type  e. g. Vendor\MyExtension\MyClass[]
-     * @return string       e. g. Vendor\MyExtension\MyClass
+     * @return array       e. g. ['Vendor\MyExtension\MyClass', 1]
      */
-    protected function extractCollectionItemType(string $type): string
+    protected function extractCollectionItemType(string $type): array
     {
-        return substr($type, 0, -2);
+        $arrayDepth = explode('[]', $type);
+        return [
+            array_shift($arrayDepth),
+            count($arrayDepth)
+        ];
     }
 
     /**
@@ -260,9 +341,11 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      * @param string $typeOrClassName
      * @return boolean
      */
+    /*
     protected function isAccessibleArray(string $typeOrClassName): bool
     {
         return $typeOrClassName === 'array' ||
             (is_subclass_of($typeOrClassName, \ArrayAccess::class) && is_subclass_of($typeOrClassName, \Traversable::class));
     }
+    */
 }
