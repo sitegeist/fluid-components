@@ -2,7 +2,6 @@
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
-use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
@@ -20,14 +19,12 @@ class LegacyComponentResolver extends ComponentResolver
     {
         if (class_exists($viewHelperClassName, true)) {
             return $this->getObjectManager()->get($viewHelperClassName);
-        } else {
-            // Redirect all components to special ViewHelper ComponentRenderer
-            $componentRenderer = $this->getObjectManager()->get(ComponentRenderer::class);
-
-            $componentRenderer->setComponentNamespace($viewHelperClassName);
-
-            return $componentRenderer;
         }
+        // Redirect all components to special ViewHelper ComponentRenderer
+        $componentRenderer = $this->getObjectManager()->get(ComponentRendererFactory::class)->create();
+        $componentRenderer->setComponentNamespace($viewHelperClassName);
+
+        return $componentRenderer;
     }
 
     protected function getComponentLoader(): ComponentLoader
