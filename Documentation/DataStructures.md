@@ -413,6 +413,17 @@ Fluid Component `Molecule/TeaserCard/TeaserCard.html`:
 <my:molecule.teaserCard buttons="<button>read more about ABC</button>{insecure}" />
 ```
 
+You can also use the `<fc:content />` ViewHelper to specify HTML markup more easily:
+
+```xml
+<my:molecule.teaserCard>
+    <fc:content slot="buttons">
+        <button>read more about ABC</button>
+        <button>read more about DEF</button>
+    </fc:content>
+</my:molecule.teaserCard>
+```
+
 ## Type Aliases
 
 The included data structures can also be defined with their alias. These are `Image`, `Link`, `Typolink`, `Labels`, `Navigation` and `NavigationItem`.
