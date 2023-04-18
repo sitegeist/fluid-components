@@ -63,7 +63,7 @@ In the following examples you need to adjust your template to prevent double esc
 General example:
 
 ```xml
-<f:variable name="variableWithoutHtmlMarkup">some text with <b>html markup</b></f:variable>
+<f:variable name="variableContainingHtmlMarkup">some text with <b>html markup</b></f:variable>
 <!-- this doesn't work anymore: -->
 <my:quote author="Jane Doe">This is a quote that uses a {variableContainingHtmlMarkup}.</my:quote>
 <!-- needs to be changed to: -->

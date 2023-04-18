@@ -470,7 +470,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @param NodeInterface $node
      * @param string $viewHelperClassName
-     * @return void
+     * @return array
      */
     protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName)
     {
