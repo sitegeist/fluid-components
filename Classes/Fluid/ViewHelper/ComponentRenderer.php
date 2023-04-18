@@ -15,8 +15,8 @@ use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
@@ -173,7 +173,7 @@ class ComponentRenderer extends AbstractViewHelper
     {
         // Create a new rendering context for the component file
         $renderingContext = $this->getRenderingContext();
-        if ($this->renderingContext->getControllerContext()) {
+        if ((new Typo3Version())->getMajorVersion() < 12 && $this->renderingContext->getControllerContext()) {
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
@@ -273,10 +273,8 @@ class ComponentRenderer extends AbstractViewHelper
         RenderingContextInterface $renderingContext,
         $componentNamespace
     ) {
-        $viewHelperClassName = get_called_class();
-
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $componentRenderer = $objectManager->get($viewHelperClassName);
+        $container = GeneralUtility::makeInstance(ContainerInterface::class);
+        $componentRenderer = $container->get(static::class);
         $componentRenderer->setComponentNamespace($componentNamespace);
 
         return $renderingContext->getViewHelperInvoker()->invoke(

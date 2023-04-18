@@ -6,13 +6,17 @@ namespace SMS\FluidComponents;
 
 use Psr\Container\ContainerInterface;
 use TYPO3\CMS\Core\Package\AbstractServiceProvider;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class ServiceProvider extends AbstractServiceProvider
 {
     protected static function getPackagePath(): string
     {
         return __DIR__ . '/../';
+    }
+
+    protected static function getPackageName(): string
+    {
+        return 'sitegeist/fluid-components';
     }
 
     public function getFactories(): array
@@ -26,7 +30,6 @@ class ServiceProvider extends AbstractServiceProvider
     {
         return self::new($container, Fluid\ViewHelper\ViewHelperResolverFactory::class, [
             $container,
-            $container->get(ObjectManager::class)
         ]);
     }
 }

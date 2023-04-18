@@ -51,7 +51,7 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
      */
     protected $escapeOutput = false;
 
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument(
