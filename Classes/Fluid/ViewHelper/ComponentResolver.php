@@ -57,7 +57,7 @@ class ComponentResolver extends ViewHelperResolver
             return $viewHelperInstance;
         }
 
-        if ($this->container->has($viewHelperClassName)) {
+        if (class_exists($viewHelperClassName)) {
             /** @var ViewHelperInterface $viewHelperInstance */
             $viewHelperInstance = $this->container->get($viewHelperClassName);
             return $viewHelperInstance;
