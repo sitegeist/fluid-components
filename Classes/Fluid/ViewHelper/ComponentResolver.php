@@ -58,8 +58,13 @@ class ComponentResolver extends ViewHelperResolver
         }
 
         if (class_exists($viewHelperClassName)) {
-            /** @var ViewHelperInterface $viewHelperInstance */
-            $viewHelperInstance = $this->container->get($viewHelperClassName);
+            if ($this->container->has($viewHelperClassName)) {
+                /** @var ViewHelperInterface $viewHelperInstance */
+                $viewHelperInstance = $this->container->get($viewHelperClassName);
+            } else {
+                /** @var ViewHelperInterface $viewHelperInstance */
+                $viewHelperInstance = new $viewHelperClassName;
+            }
             return $viewHelperInstance;
         } else {
             // Redirect all components to special ViewHelper ComponentRenderer
