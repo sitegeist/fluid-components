@@ -3,7 +3,9 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
+use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
@@ -13,8 +15,8 @@ use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
@@ -79,7 +81,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @var boolean
      */
-    protected $escapeChildren = false;
+    protected $escapeChildren = true;
 
     /**
      * @var ComponentLoader
@@ -171,7 +173,7 @@ class ComponentRenderer extends AbstractViewHelper
     {
         // Create a new rendering context for the component file
         $renderingContext = $this->getRenderingContext();
-        if ($this->renderingContext->getControllerContext()) {
+        if ((new Typo3Version())->getMajorVersion() < 12 && $this->renderingContext->getControllerContext()) {
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
@@ -190,6 +192,11 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
         $variableContainer->add('settings', $this->componentSettings);
 
+        // Provide component content to renderer
+        if (!isset($this->arguments['content'])) {
+            $this->arguments['content'] = (string)$this->renderChildren();
+        }
+
         // Provide supplied arguments from component call to renderer
         foreach ($this->arguments as $name => $argument) {
             $argumentType = $this->argumentDefinitions[$name]->getType();
@@ -207,11 +214,6 @@ class ComponentRenderer extends AbstractViewHelper
             }
 
             $variableContainer->add($name, $argument);
-        }
-
-        // Provide component content to renderer
-        if (!isset($this->arguments['content'])) {
-            $variableContainer->add('content', $this->renderChildren());
         }
 
         // Initialize component rendering template
@@ -271,10 +273,8 @@ class ComponentRenderer extends AbstractViewHelper
         RenderingContextInterface $renderingContext,
         $componentNamespace
     ) {
-        $viewHelperClassName = get_called_class();
-
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $componentRenderer = $objectManager->get($viewHelperClassName);
+        $container = GeneralUtility::makeInstance(ContainerInterface::class);
+        $componentRenderer = $container->get(static::class);
         $componentRenderer->setComponentNamespace($componentNamespace);
 
         return $renderingContext->getViewHelperInvoker()->invoke(
@@ -300,8 +300,11 @@ class ComponentRenderer extends AbstractViewHelper
         );
         $this->registerArgument(
             'content',
-            'string',
-            'Main content of the component; falls back to ViewHelper tag content'
+            Slot::class,
+            'Main content of the component; falls back to ViewHelper tag content',
+            false,
+            null,
+            true
         );
 
         $this->initializeComponentParams();
@@ -456,7 +459,8 @@ class ComponentRenderer extends AbstractViewHelper
 
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
-                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default']);
+                $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
+                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default'], $escape);
             }
         }
     }
@@ -466,7 +470,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @param NodeInterface $node
      * @param string $viewHelperClassName
-     * @return void
+     * @return array
      */
     protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName)
     {

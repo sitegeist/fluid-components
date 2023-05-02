@@ -3,7 +3,6 @@ namespace SMS\FluidComponents\ViewHelpers\Form;
 
 use TYPO3\CMS\Extbase\Error\Message;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Fluid\ViewHelpers\Form\ValidationResultsViewHelper;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
 use TYPO3\CMS\Form\Domain\Runtime\FormRuntime;
 use TYPO3\CMS\Form\Service\TranslationService;
@@ -31,7 +30,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
  * @package SMS\FluidComponents\ViewHelpers\Form
  * @author Simon Praetorius <praetorius@sitegeist.de>
  */
-class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
+class TranslatedValidationResultsViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
@@ -47,9 +46,10 @@ class TranslatedValidationResultsViewHelper extends ValidationResultsViewHelper
      */
     protected $escapeOutput = false;
 
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
-        parent::initializeArguments();
+        $this->registerArgument('for', 'string', 'The name of the error name (e.g. argument name or property name). This can also be a property path (like blog.title), and will then only display the validation errors of that property.', false, '');
+        $this->registerArgument('as', 'string', 'The name of the variable to store the current error', false, 'validationResults');
         $this->registerArgument('translatePrefix', 'string', 'String that should be prepended to every language key; Will be ignored if $element is set.', false, 'validation.error.');
         $this->registerArgument('element', RootRenderableInterface::class, 'Form Element to translate');
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');

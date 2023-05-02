@@ -1,5 +1,5 @@
 <?php
-$EM_CONF['fluid_components'] = [
+$EM_CONF[$_EXTKEY] = [
     'title' => 'Fluid Components',
     'description' => 'Encapsulated frontend components with Fluid\'s ViewHelper syntax',
     'category' => 'fe',
@@ -9,10 +9,10 @@ $EM_CONF['fluid_components'] = [
     'state' => 'stable',
     'uploadfolder' => false,
     'clearCacheOnLoad' => false,
-    'version' => '3.4.3',
+    'version' => '4.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-11.9.99',
+            'typo3' => '11.5.0-12.9.99',
             'php' => '7.4.0-8.9.99'
         ],
         'conflicts' => [

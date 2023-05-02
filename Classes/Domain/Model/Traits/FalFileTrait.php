@@ -60,6 +60,6 @@ trait FalFileTrait
 
     public function getPublicUrl(): string
     {
-        return $this->file->getPublicUrl();
+        return $this->file->getPublicUrl() ?? '';
     }
 }

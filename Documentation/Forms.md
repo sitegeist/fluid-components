@@ -41,7 +41,7 @@ Components/Molecule/FieldLabel/FieldLabel.html:
         <div class="fieldLabel">
             <label>
                 <span class="fieldLabelText">{label}</span>
-                {content -> f:format.raw()}
+                {fc:slot()}
             </label>
             <f:if condition="{validationMessages}">
                 <ul class="fieldLabelValidation">
