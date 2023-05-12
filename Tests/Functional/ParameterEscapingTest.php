@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional;
 
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
+use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use SMS\FluidComponents\Utility\ComponentLoader;
+use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class ParameterEscapingTest extends FunctionalTestCase
 {
-    protected $initializeDatabase = false;
-    protected $testExtensionsToLoad = [
+    protected bool $initializeDatabase = false;
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/fluid_components'
     ];
 
@@ -142,7 +145,17 @@ class ParameterEscapingTest extends FunctionalTestCase
      */
     public function render(string $template, string $expected): void
     {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view = new TemplateView();
+        $view->getRenderingContext()->setRequest(
+            new Request(
+                (new ServerRequest)->withAttribute(
+                    'extbase',
+                    new ExtbaseRequestParameters
+                )
+            )
+        );
+        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
+        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');
         $view->assign(
             'maliciousVariable',
             "<script>alert('This JavaScript should not be executed by the browser')</script>"
@@ -151,14 +164,7 @@ class ParameterEscapingTest extends FunctionalTestCase
             'safeVariable',
             '<div>Pre-rendered output without unsafe user input</div>'
         );
-
-        $view->setTemplateSource('<html
-            xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-            xmlns:fc="http://typo3.org/ns/SMS/FluidComponents/ViewHelpers"
-            xmlns:test="http://typo3.org/ns/SMS/FluidComponents/Tests/Fixtures/Functional/Components"
-            data-namespace-typo3-fluid="true"
-            >' . $template);
-
+        $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
         self::assertSame($expected, $view->render());
     }
 }
