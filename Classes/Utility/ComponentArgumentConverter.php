@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use SMS\FluidComponents\Exception\InvalidTypeException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
@@ -16,6 +17,14 @@ use TYPO3\CMS\Core\Resource\ProcessedFile;
 
 class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 {
+    private const NATIVE_TYPES = [
+        'integer',
+        'float',
+        'string',
+        'boolean',
+        'array',
+    ];
+
     /**
      * List of interfaces that provide conversion methods between scalar/compound
      * variable types and complex data structures,
@@ -217,6 +226,14 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
         // Skip if the type can't be converted
         if (!$this->canTypeBeConvertedToType($givenType, $toType)) {
+            if ($givenType !== $toType && !is_a($value, $toType)) {
+                throw new InvalidTypeException(sprintf(
+                    'The argument value is of type "%s", but "%s" is given.',
+                    $toType,
+                    $givenType
+                ), 1677142681);
+
+            }
             return $value;
         }
 
@@ -232,6 +249,18 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         // Call alternative constructor provided by interface
         $constructor = $this->conversionInterfaces[$givenType][1];
         return $toType::$constructor($value);
+    }
+
+    public function isValidType(string $type): bool
+    {
+        if (in_array($type, self::NATIVE_TYPES, true)) {
+            return true;
+        }
+        $type = $this->resolveTypeAlias($type);
+        if ($this->isCollectionType($type)) {
+            return $this->isValidType($this->extractCollectionItemType($type));
+        }
+        return class_exists($type);
     }
 
     /**
