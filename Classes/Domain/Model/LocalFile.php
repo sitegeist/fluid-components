@@ -8,6 +8,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Data structure for a local file resource to be passed to a component
+ * @deprecated, use FalFile instead
  */
 class LocalFile extends File
 {

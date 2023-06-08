@@ -79,7 +79,8 @@ abstract class File implements
         try {
             return new RemoteFile($value);
         } catch (InvalidRemoteFileException $e) {
-            return new LocalFile($value);
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->retrieveFileOrFolderObject($value);
+            return ($file) ? new FalFile($file) : null;
         }
     }
 
