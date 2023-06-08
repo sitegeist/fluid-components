@@ -1,7 +1,7 @@
 <?php
 namespace SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter;
 
-class DummyValue implements DummyConversionInterface
+class DummyValue implements DummyConversionInterface, BaseObjectConversionInterface
 {
     public $value;
 
@@ -13,5 +13,10 @@ class DummyValue implements DummyConversionInterface
     public static function fromString(string $value)
     {
         return new static($value);
+    }
+
+    public static function fromBaseObject(BaseObject $object)
+    {
+        return new static($object->value);
     }
 }
