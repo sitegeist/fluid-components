@@ -11,7 +11,7 @@ use TYPO3\CMS\Core\DependencyInjection\FailsafeContainer;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
@@ -64,7 +64,7 @@ class ComponentResolver extends ViewHelperResolver
                 /** @var ViewHelperInterface $viewHelperInstance */
                 $viewHelperInstance = $this->container->get($viewHelperClassName);
             } elseif ((new Typo3Version())->getMajorVersion() < 12) {
-                $objectManager = GeneralUtility::makeInstance(ObjectManagerInterface::class);
+                $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
                 /** @var ViewHelperInterface $viewHelperInstance */
                 $viewHelperInstance = $objectManager->get($viewHelperClassName);
             } else {
