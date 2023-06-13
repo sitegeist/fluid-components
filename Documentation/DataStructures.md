@@ -411,7 +411,11 @@ Fluid Component `Molecule/TeaserCard/TeaserCard.html`:
 <my:molecule.teaserCard buttons="<button>read more about ABC</button>{insecure}" />
 ```
 
-You can also use the `<fc:content />` ViewHelper to specify HTML markup more easily:
+### Named Slots
+
+With v3.7.0 of Fluid Components you can use the `<fc:content />` ViewHelper to specify HTML markup for
+slots more easily. This makes your templates more readable and can prevent possible XSS issues. The
+syntax is similar both to popular frontend frameworks and the HTML5 web components specification.
 
 ```xml
 <my:molecule.teaserCard>

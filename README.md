@@ -49,7 +49,7 @@ The following component implements a simple teaser card element:
         <a href="{link}" class="{component.class} {component.class}-{theme}">
             <h3 class="{component.prefix}title">{title}</h3>
             <f:if condition="{content}">
-                <p class="{component.prefix}description">{fc:slot()}</p>
+                <p class="{component.prefix}description"><fc:slot /></p>
             </f:if>
 
             <f:if condition="{icon}">
