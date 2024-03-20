@@ -332,7 +332,7 @@ class ComponentRenderer extends AbstractViewHelper
      * @param \Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      * @param string $componentNamespace
-     * @return mixed
+     * @return string
      */
     public static function renderComponent(
         array $arguments,
