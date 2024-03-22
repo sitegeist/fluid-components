@@ -2,6 +2,8 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use SMS\FluidComponents\Domain\Model\Component;
+
 class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
@@ -92,7 +94,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @param string $class
      * @param string $ext
-     * @return string|null
+     * @return Component|null
      */
     public function findComponent(string $class, string $ext = '.html')
     {
@@ -110,15 +112,17 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
                 continue;
             }
 
-            $componentParts = explode('\\', trim(substr($class, strlen($namespace)), '\\'));
+            $componentName = trim(substr($class, strlen($namespace)), '\\');
+            $componentParts = explode('\\', $componentName);
 
             $componentPath = $path . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $componentParts);
             $componentFile = $componentPath . DIRECTORY_SEPARATOR . end($componentParts) .  $ext;
 
             // Check if component file exists
             if (file_exists($componentFile)) {
-                $this->componentsCache[$cacheIdentifier] = $componentFile;
-                return $componentFile;
+                $component = new Component($class, $namespace, $componentName, $componentFile);
+                $this->componentsCache[$cacheIdentifier] = $component;
+                return $component;
             }
         }
 

@@ -2,6 +2,9 @@
 
 namespace SMS\FluidComponents\Utility\ComponentPrefixer;
 
+/**
+ * @deprecated Use ComponentDataProvider instead
+ */
 interface ComponentPrefixerInterface extends \TYPO3\CMS\Core\SingletonInterface
 {
     /**

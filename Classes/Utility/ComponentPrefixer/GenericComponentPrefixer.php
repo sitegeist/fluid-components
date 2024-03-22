@@ -4,6 +4,9 @@ namespace SMS\FluidComponents\Utility\ComponentPrefixer;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+/**
+ * @deprecated Use ComponentDataProvider instead
+ */
 class GenericComponentPrefixer implements ComponentPrefixerInterface
 {
     /**
