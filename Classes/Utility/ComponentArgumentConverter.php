@@ -8,6 +8,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
 use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
 use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
+use SMS\FluidComponents\Interfaces\ConstructibleFromFloat;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
@@ -31,6 +32,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         'integer' => [
             ConstructibleFromInteger::class,
             'fromInteger'
+        ],
+        'double' => [
+            ConstructibleFromFloat::class,
+            'fromFloat'
         ],
         'array' => [
             ConstructibleFromArray::class,
