@@ -7,8 +7,12 @@
     "keywords": ["typo3", "typo3-extension", "fluid", "typo3-fluid", "components", "html", "template"],
     "authors": [
         {
+            "name": "Ulrich Mathes",
+            "email": "mathes@sitegeist.de"
+        },
+        {
             "name": "Simon Praetorius",
-            "email": "praetorius@sitegeist.de"
+            "email": "moin@praetorius.me"
         }
     ],
     "support": {
