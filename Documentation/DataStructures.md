@@ -337,7 +337,7 @@ You can also create a navigation manually in your template and simply omit the a
 
 ## DateTime
 
-`SMS\FluidComponents\Domain\Model\DateTime` (alias: `DateTime`)
+`SMS\FluidComponents\Domain\Model\DateTime`
 
 This is a more comfortable implementation, compared to the DateTime class.
 
@@ -359,7 +359,7 @@ Fluid Component `Molecule/Event/Event.html`:
 
 ```xml
 <fc:component>
-    <fc:param name="date" type="DateTime" />
+    <fc:param name="date" type="SMS\FluidComponents\Domain\Model\DateTime" />
     <fc:renderer>
         {date -> f:format.date(format: "%e. %B %Y")}
     </fc:renderer>
