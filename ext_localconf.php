@@ -11,7 +11,6 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'] = array_merge(
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'] ?? [],
         [
-            'DateTime' => \SMS\FluidComponents\Domain\Model\DateTime::class,
             'File' => \SMS\FluidComponents\Domain\Model\File::class,
             'Image' => \SMS\FluidComponents\Domain\Model\Image::class,
             'Labels' => \SMS\FluidComponents\Domain\Model\Labels::class,
