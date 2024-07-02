@@ -551,7 +551,7 @@ class ComponentRenderer extends AbstractViewHelper
     protected function extractContentViewHelpers(NodeInterface $node, RenderingContext $renderingContext): array
     {
         return array_reduce(
-            $this->extractViewHelpers($node, ContentViewHelper::class),
+            $this->extractViewHelpers($node, ContentViewHelper::class, false),
             function (array $nodes, ViewHelperNode $node) use ($renderingContext) {
                 $slotArgument = $node->getArguments()['slot'] ?? null;
                 $slotName = ($slotArgument) ? $slotArgument->evaluate($renderingContext) : self::DEFAULT_SLOT;
@@ -569,7 +569,7 @@ class ComponentRenderer extends AbstractViewHelper
      * @param string $viewHelperClassName
      * @return array
      */
-    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName): array
+    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName, bool $recursive = true): array
     {
         $viewHelperNodes = [];
 
@@ -579,7 +579,7 @@ class ComponentRenderer extends AbstractViewHelper
 
         if ($node instanceof ViewHelperNode && $node->getViewHelperClassName() === $viewHelperClassName) {
             $viewHelperNodes[] = $node;
-        } else {
+        } elseif ($recursive) {
             foreach ($node->getChildNodes() as $childNode) {
                 $viewHelperNodes = array_merge(
                     $viewHelperNodes,
