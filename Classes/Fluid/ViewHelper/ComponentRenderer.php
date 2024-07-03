@@ -579,11 +579,14 @@ class ComponentRenderer extends AbstractViewHelper
 
         if ($node instanceof ViewHelperNode && $node->getViewHelperClassName() === $viewHelperClassName) {
             $viewHelperNodes[] = $node;
-        } elseif ($recursive) {
+        } else {
             foreach ($node->getChildNodes() as $childNode) {
+                if ($recursive === false && $childNode instanceof ViewHelperNode && $childNode->getViewHelperClassName() === ComponentViewHelper::class) {
+                    continue;
+                }
                 $viewHelperNodes = array_merge(
                     $viewHelperNodes,
-                    $this->extractViewHelpers($childNode, $viewHelperClassName)
+                    $this->extractViewHelpers($childNode, $viewHelperClassName, $recursive)
                 );
             }
         }
