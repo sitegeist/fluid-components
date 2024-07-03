@@ -7,8 +7,12 @@
     "keywords": ["typo3", "typo3-extension", "fluid", "typo3-fluid", "components", "html", "template"],
     "authors": [
         {
+            "name": "Ulrich Mathes",
+            "email": "mathes@sitegeist.de"
+        },
+        {
             "name": "Simon Praetorius",
-            "email": "praetorius@sitegeist.de"
+            "email": "moin@praetorius.me"
         }
     ],
     "support": {
@@ -19,7 +23,7 @@
         "typo3fluid/fluid": "^2"
     },
     "require-dev": {
-        "typo3/testing-framework": "^6.0",
+        "typo3/testing-framework": "^6.0 || ^7.0",
         "squizlabs/php_codesniffer": "^3.0",
         "editorconfig-checker/editorconfig-checker": "^10.0",
         "phpspec/prophecy-phpunit": "^2.0"
@@ -36,7 +40,11 @@
     },
     "config": {
         "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
+        "bin-dir": ".Build/bin",
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
     },
     "extra": {
         "typo3/cms": {
@@ -54,6 +62,7 @@
             "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
         ],
         "prepare-release": [
+            "sed -i'' -e \"s/'version' => ''/'version' => '$(echo ${GITHUB_REF#refs/tags/} | sed 's/v//')'/\" ext_emconf.php",
             "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"
         ]
     }

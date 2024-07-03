@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Utility;
 
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Interfaces\ConstructibleFromClosure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
 use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
@@ -10,9 +11,9 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
-use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\FileReference;
-use TYPO3\CMS\Core\Resource\ProcessedFile;
+use TYPO3\CMS\Core\Resource\AbstractFile;
+use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 {
@@ -40,6 +41,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             ConstructibleFromNull::class,
             'fromNull'
         ],
+        \Closure::class => [
+            ConstructibleFromClosure::class,
+            'fromClosure'
+        ],
         'DateTime' => [
             ConstructibleFromDateTime::class,
             'fromDateTime'
@@ -48,25 +53,17 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
             ConstructibleFromDateTimeImmutable::class,
             'fromDateTimeImmutable'
         ],
+        FileInterface::class => [
+            ConstructibleFromFileInterface::class,
+            'fromFileInterface'
+        ],
         FileReference::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        File::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        ProcessedFile::class => [
-            ConstructibleFromFileInterface::class,
-            'fromFileInterface'
-        ],
-        \TYPO3\CMS\Extbase\Domain\Model\FileReference::class => [
             ConstructibleFromExtbaseFile::class,
             'fromExtbaseFile'
         ],
-        \GeorgRinger\News\Domain\Model\FileReference::class => [
-            ConstructibleFromExtbaseFile::class,
-            'fromExtbaseFile'
+        AbstractFile::class => [
+            ConstructibleFromFileInterface::class,
+            'fromFileInterface'
         ],
     ];
 
@@ -169,13 +166,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      *
      * @param string $givenType
      * @param string $toType
-     * @return boolean
+     * @return array             information about conversion or empty array
      */
-    public function canTypeBeConvertedToType(string $givenType, string $toType): bool
+    public function canTypeBeConvertedToType(string $givenType, string $toType): array
     {
         // No need to convert equal types
         if ($givenType === $toType) {
-            return false;
+            return [];
         }
 
         // Has this check already been computed?
@@ -184,23 +181,33 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Check if a constructor interface exists for the given type
-        // Check if the target type is a PHP class
-        $canBeConverted = false;
-        if (isset($this->conversionInterfaces[$givenType]) && class_exists($toType)) {
-            // Check if the target type implements the constructor interface
-            // required for conversion
-            $canBeConverted = is_subclass_of(
-                $toType,
-                $this->conversionInterfaces[$givenType][0]
-            );
+        // Check if the target type implements the constructor interface
+        // required for conversion
+        $conversionInfo = [];
+        if (isset($this->conversionInterfaces[$givenType][0]) &&
+            is_subclass_of($toType, $this->conversionInterfaces[$givenType][0])
+        ) {
+            $conversionInfo = $this->conversionInterfaces[$givenType];
         } elseif ($this->isCollectionType($toType) && $this->isAccessibleArray($givenType)) {
-            $canBeConverted = true;
+            $conversionInfo = $this->conversionInterfaces['array'] ?? [];
+        }
+
+        if (!$conversionInfo && class_exists($givenType)) {
+            $parentClasses = array_merge(class_parents($givenType), class_implements($givenType));
+            if (is_array($parentClasses)) {
+                foreach ($parentClasses as $className) {
+                    if ($this->canTypeBeConvertedToType($className, $toType)) {
+                        $conversionInfo = $this->conversionInterfaces[$className];
+                        break;
+                    }
+                }
+            }
         }
 
         // Add to runtime cache
-        $this->conversionCache[$givenType . '|' . $toType] = $canBeConverted;
+        $this->conversionCache[$givenType . '|' . $toType] = $conversionInfo;
 
-        return $canBeConverted;
+        return $conversionInfo;
     }
 
     /**
@@ -216,7 +223,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         $givenType = is_object($value) ? get_class($value) : gettype($value);
 
         // Skip if the type can't be converted
-        if (!$this->canTypeBeConvertedToType($givenType, $toType)) {
+        $conversionInfo = $this->canTypeBeConvertedToType($givenType, $toType);
+        if (!$conversionInfo) {
             return $value;
         }
 
@@ -230,7 +238,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         }
 
         // Call alternative constructor provided by interface
-        $constructor = $this->conversionInterfaces[$givenType][1];
+        $constructor = $conversionInfo[1];
         return $toType::$constructor($value);
     }
 

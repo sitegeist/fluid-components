@@ -2,13 +2,14 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use SMS\FluidComponents\Interfaces\ConstructibleFromClosure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
 
 /**
  * Data Structure to encapsulate html markup provided to a component
  */
-class Slot implements EscapedParameter, ConstructibleFromString, \Countable
+class Slot implements EscapedParameter, ConstructibleFromString, ConstructibleFromClosure, \Countable
 {
     protected $html;
 
@@ -20,6 +21,11 @@ class Slot implements EscapedParameter, ConstructibleFromString, \Countable
     public static function fromString(string $html): Slot
     {
         return new Slot($html);
+    }
+
+    public static function fromClosure(\Closure $closure): Slot
+    {
+        return new Slot($closure());
     }
 
     public function count(): int

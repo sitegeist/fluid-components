@@ -136,6 +136,31 @@ default value can alternatively be defined in the `fc:slot` tag content.
 </fc:component>
 ```
 
+### Content ViewHelper ("named slots")
+
+The `fc:content` ViewHelper improves the way you can pass HTML content to several component slots. When calling a
+component, you can use one or more `fc:content` calls inside the component tag to specify the values of slots. In
+popular frontend frameworks as well as the web components standard, this is referred to as *named slots*.
+
+#### Arguments
+
+* `slot` (default: `content`): Name of the slot parameter that should be set
+
+#### Examples
+
+```xml
+<my:molecule.teaser link="https://typo3.org">
+    <!-- accessible by {fc:slot()} in the component -->
+    <fc:content>
+        The <b>professional, flexible</b> Content Management System
+    </fc:content>
+    <!-- accessible by {fc:slot(name: 'buttons')} in the component -->
+    <fc:content slot="buttons">
+        <button>read more</button>
+    </fc:content>
+</my:molecule.teaser>
+```
+
 
 ## Translations
 

@@ -8,6 +8,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Data structure for a local image resource to be passed to a component
+ * @deprecated, use FalImage instead
  */
 class LocalImage extends Image
 {

@@ -82,7 +82,7 @@ class XsdGenerator
         $tagName = '';
         if (strpos($componentName, $nameSpace) === 0) {
             $tagNameWithoutNameSpace = substr($componentName, strlen($nameSpace) + 1);
-            $tagName = strtolower(str_replace('\\', '.', $tagNameWithoutNameSpace));
+            $tagName = lcfirst(str_replace('\\', '.', $tagNameWithoutNameSpace));
         }
         return $tagName;
     }

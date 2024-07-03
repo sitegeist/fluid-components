@@ -140,7 +140,7 @@ class CheckContentEscapingCommand extends Command
             $childNode = $this->resolveEscapingNode($childNode);
 
             // Check all parent elements of content variable
-            if ($childNode instanceof ObjectAccessorNode && $childNode->getObjectPath() === 'content') {
+            if ($childNode instanceof ObjectAccessorNode && $childNode->getObjectPath() === ComponentRenderer::DEFAULT_SLOT) {
                 for ($i = $lastParent; $i >= 0; $i--) {
                     // Skip all non-viewhelpers
                     if (!($parents[$i] instanceof ViewHelperNode)) {
@@ -187,7 +187,7 @@ class CheckContentEscapingCommand extends Command
                     isset($this->affectedComponents[$viewHelper->getComponentNamespace()])
                 ) {
                     // Check if variables were used inside of content parameter
-                    $contentNode = $childNode->getArguments()['content'] ?? $childNode;
+                    $contentNode = $childNode->getArguments()[ComponentRenderer::DEFAULT_SLOT] ?? $childNode;
                     $variableNames = $this->checkForVariablesWithoutRaw($contentNode);
                     if (!empty($variableNames)) {
                         $results[] = [

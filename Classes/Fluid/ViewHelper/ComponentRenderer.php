@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
+use SMS\FluidComponents\Domain\Model\RequiredSlotPlaceholder;
 use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
@@ -13,6 +14,7 @@ use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
+use SMS\FluidComponents\ViewHelpers\ContentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -31,10 +33,12 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ComponentRenderer extends AbstractViewHelper
 {
+    const DEFAULT_SLOT = 'content';
+
     protected $reservedArguments = [
         'class',
         'component',
-        'content',
+        self::DEFAULT_SLOT,
         'settings',
     ];
 
@@ -175,6 +179,11 @@ class ComponentRenderer extends AbstractViewHelper
         $renderingContext = $this->getRenderingContext();
         if ((new Typo3Version())->getMajorVersion() < 12 && $this->renderingContext->getControllerContext()) {
             $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
+        } else {
+            // set the original request to preserve the request attributes
+            // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
+            // e.g. f:uri.action, f:page.action
+            $renderingContext->setRequest($this->renderingContext->getRequest());
         }
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
@@ -192,14 +201,15 @@ class ComponentRenderer extends AbstractViewHelper
         ]);
         $variableContainer->add('settings', $this->componentSettings);
 
-        // Provide component content to renderer
-        if (!isset($this->arguments['content'])) {
-            $this->arguments['content'] = (string)$this->renderChildren();
-        }
-
         // Provide supplied arguments from component call to renderer
-        foreach ($this->arguments as $name => $argument) {
-            $argumentType = $this->argumentDefinitions[$name]->getType();
+        foreach ($this->argumentDefinitions as $name => $definition) {
+            $argumentType = $definition->getType();
+
+            if (is_a($argumentType, Slot::class, true)) {
+                $argument = $this->renderSlot($name);
+            } else {
+                $argument = $this->arguments[$name] ?? null;
+            }
 
             $argument = $this->componentArgumentConverter->convertValueToType($argument, $argumentType);
 
@@ -232,6 +242,42 @@ class ComponentRenderer extends AbstractViewHelper
         return $this->parsedTemplate->render($renderingContext);
     }
 
+    protected function renderSlot(string $name)
+    {
+        $slot = $this->arguments[$name] ?? null;
+
+        // Shortcut if template is rendered from cache
+        // or parameter was provided directly to the component
+        if (isset($slot) && !$slot instanceof RequiredSlotPlaceholder) {
+            return $slot;
+        }
+
+        // Use content specified by <fc:content /> ViewHelpers
+        // This is only executed for uncached templates
+        if (isset($this->viewHelperNode)) {
+            $contentViewHelpers = $this->extractContentViewHelpers($this->viewHelperNode, $this->renderingContext);
+            if (isset($contentViewHelpers[$name])) {
+                return (string) $contentViewHelpers[$name]->evaluateChildNodes($this->renderingContext);
+            }
+        }
+
+        // Use tag content for default slot
+        if ($name === self::DEFAULT_SLOT) {
+            return (string) $this->renderChildren();
+        }
+
+        // Required Slot parameters are checked here for existence at last
+        if ($slot instanceof RequiredSlotPlaceholder) {
+            throw new \InvalidArgumentException(sprintf(
+                'Slot "%s" is required by component "%s", but no value was given.',
+                $name,
+                $this->componentNamespace
+            ), 1681728555);
+        }
+
+        return $slot;
+    }
+
     /**
      * Overwrites original compilation to store component namespace in compiled templates
      *
@@ -249,6 +295,27 @@ class ComponentRenderer extends AbstractViewHelper
         ViewHelperNode $node,
         TemplateCompiler $compiler
     ) {
+        $allowedSlots = [];
+        foreach ($node->getArgumentDefinitions() as $definition) {
+            if (is_a($definition->getType(), Slot::class, true)) {
+                $allowedSlots[$definition->getName()] = true;
+            }
+        }
+
+        $contentViewHelpers = $this->extractContentViewHelpers($node, $compiler->getRenderingContext());
+        foreach ($contentViewHelpers as $slotName => $viewHelperNode) {
+            if (!isset($allowedSlots[$slotName])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Slot "%s" does not exist in component "%s", but was used as named slot.',
+                    $slotName,
+                    $this->componentNamespace
+                ), 1681832624);
+            }
+
+            $childNodesAsClosure = $compiler->wrapChildNodesInClosure($viewHelperNode);
+            $initializationPhpCode .= sprintf('%s[\'%s\'] = %s;', $argumentsName, $slotName, $childNodesAsClosure) . chr(10);
+        }
+
         return sprintf(
             '%s::renderComponent(%s, %s, $renderingContext, %s)',
             get_class($this),
@@ -299,7 +366,7 @@ class ComponentRenderer extends AbstractViewHelper
             'Additional CSS classes for the component'
         );
         $this->registerArgument(
-            'content',
+            self::DEFAULT_SLOT,
             Slot::class,
             'Main content of the component; falls back to ViewHelper tag content',
             false,
@@ -460,9 +527,39 @@ class ComponentRenderer extends AbstractViewHelper
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
                 $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
+
+                // Special handling for required Slot parameters
+                // This is necessary to be able to use <fc:content /> instead of a component parameter because
+                // the Fluid parser checks for existing arguments early in the parsing process
+                if (is_a($param['type'], Slot::class, true) && !$optional) {
+                    $optional = true;
+                    $param['default'] = new RequiredSlotPlaceholder;
+                }
+
                 $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default'], $escape);
             }
         }
+    }
+
+    /**
+     * Extracts all <fc:content /> ViewHelpers from Fluid template node
+     *
+     * @param NodeInterface $node
+     * @param RenderingContext $renderingContext
+     * @return array
+     */
+    protected function extractContentViewHelpers(NodeInterface $node, RenderingContext $renderingContext): array
+    {
+        return array_reduce(
+            $this->extractViewHelpers($node, ContentViewHelper::class),
+            function (array $nodes, ViewHelperNode $node) use ($renderingContext) {
+                $slotArgument = $node->getArguments()['slot'] ?? null;
+                $slotName = ($slotArgument) ? $slotArgument->evaluate($renderingContext) : self::DEFAULT_SLOT;
+                $nodes[$slotName] = $node;
+                return $nodes;
+            },
+            []
+        );
     }
 
     /**
@@ -472,7 +569,7 @@ class ComponentRenderer extends AbstractViewHelper
      * @param string $viewHelperClassName
      * @return array
      */
-    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName)
+    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName): array
     {
         $viewHelperNodes = [];
 

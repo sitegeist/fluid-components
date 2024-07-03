@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SMS\FluidComponents\Tests\Functional;
 
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInvoker;
 
@@ -17,11 +21,10 @@ class ComponentRendererTest extends FunctionalTestCase
     protected $testNamespace = 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components';
     protected $resetSingletonInstances = true;
 
-    protected $initializeDatabase = false;
-    protected $testExtensionsToLoad = [
+    protected bool $initializeDatabase = false;
+    protected array $testExtensionsToLoad = [
         'typo3conf/ext/fluid_components'
     ];
-
 
     public function setUp(): void
     {
@@ -76,14 +79,16 @@ class ComponentRendererTest extends FunctionalTestCase
         /** @var ViewHelperInvoker $invoker */
         $invoker = GeneralUtility::makeInstance(ViewHelperInvoker::class);
 
-        if ($container->has(RenderingContext::class)) {
-            /** @var RenderingContext $renderingContext */
-            $renderingContext = $container->get(RenderingContext::class);
-            $renderingContext->setRequest(GeneralUtility::makeInstance(Request::class));
-        } else {
-            /** @var RenderingContext $renderingContext */
-            $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
-        }
+        $renderingContext = $container->get(RenderingContextFactory::class)->create();
+
+        $renderingContext->setRequest(
+            new Request(
+                (new ServerRequest)->withAttribute(
+                    'extbase',
+                    new ExtbaseRequestParameters
+                )
+            )
+        );
 
         $output = $invoker->invoke(
             $renderer,

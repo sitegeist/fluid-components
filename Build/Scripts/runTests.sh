@@ -61,15 +61,17 @@ Options:
             - postgres: use postgres
             - sqlite: use sqlite
 
-    -p <7.4|8.0>
+    -p <7.4|8.0|8.1|8.2>
         Specifies the PHP minor version to be used
             - 7.4 (default): use PHP 7.4
             - 8.0: use PHP 8.0
+            - 8.1: use PHP 8.1
+            - 8.2: use PHP 8.2
 
-    -t <10|11>
+    -t <11|12>
         Specifies the TYPO3 version to be used
-            - 10 (default): use TYPO3 10
-            - 11: use TYPO3 11
+            - 11 (default): use TYPO3 11
+            - 12: use TYPO3 12
 
     -e "<phpunit options>"
         Only with -s functional|unit
@@ -132,7 +134,7 @@ fi
 TEST_SUITE="unit"
 DBMS="mariadb"
 PHP_VERSION="7.4"
-TYPO3_VERSION="10"
+TYPO3_VERSION="11"
 PHP_XDEBUG_ON=0
 PHP_XDEBUG_PORT=9003
 EXTRA_TEST_OPTIONS=""

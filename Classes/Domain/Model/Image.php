@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace SMS\FluidComponents\Domain\Model;
 
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Exception\InvalidFileArrayException;
 use SMS\FluidComponents\Exception\InvalidRemoteImageException;
@@ -52,7 +54,8 @@ abstract class Image extends File
         try {
             return new RemoteImage($value);
         } catch (InvalidRemoteImageException $e) {
-            return new LocalImage($value);
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->retrieveFileOrFolderObject($value);
+            return ($file) ? new FalImage($file) : null;
         }
     }
 

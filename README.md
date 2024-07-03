@@ -49,7 +49,7 @@ The following component implements a simple teaser card element:
         <a href="{link}" class="{component.class} {component.class}-{theme}">
             <h3 class="{component.prefix}title">{title}</h3>
             <f:if condition="{content}">
-                <p class="{component.prefix}description">{fc:slot()}</p>
+                <p class="{component.prefix}description"><fc:slot /></p>
             </f:if>
 
             <f:if condition="{icon}">
@@ -148,7 +148,8 @@ How-To's
 
 ## Authors & Sponsors
 
-* Simon Praetorius - praetorius@sitegeist.de
+* Ulrich Mathes - mathes@sitegeist.de
+* Simon Praetorius - moin@praetorius.me
 * [All contributors](https://github.com/sitegeist/fluid-components/graphs/contributors)
 
 *The development and the public-releases of this package is generously sponsored

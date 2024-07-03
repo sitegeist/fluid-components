@@ -9,7 +9,9 @@ use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DependencyInjection\FailsafeContainer;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
@@ -57,9 +59,18 @@ class ComponentResolver extends ViewHelperResolver
             return $viewHelperInstance;
         }
 
-        if ($this->container->has($viewHelperClassName)) {
-            /** @var ViewHelperInterface $viewHelperInstance */
-            $viewHelperInstance = $this->container->get($viewHelperClassName);
+        if (class_exists($viewHelperClassName)) {
+            if ($this->container->has($viewHelperClassName)) {
+                /** @var ViewHelperInterface $viewHelperInstance */
+                $viewHelperInstance = $this->container->get($viewHelperClassName);
+            } elseif ((new Typo3Version())->getMajorVersion() < 12) {
+                $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+                /** @var ViewHelperInterface $viewHelperInstance */
+                $viewHelperInstance = $objectManager->get($viewHelperClassName);
+            } else {
+                /** @var ViewHelperInterface $viewHelperInstance */
+                $viewHelperInstance = new $viewHelperClassName;
+            }
             return $viewHelperInstance;
         } else {
             // Redirect all components to special ViewHelper ComponentRenderer
