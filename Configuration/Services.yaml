@@ -8,6 +8,16 @@ services:
         resource: '../Classes/*'
         exclude: '../Classes/Domain/Model/*'
 
+    SMS\FluidComponents\Service\DataProvider\ComponentPrefixer:
+        tags: ['fluidcomponents.dataprovider']
+
+    SMS\FluidComponents\Service\DataProvider\LegacyComponentPrefixer:
+        tags: ['fluidcomponents.dataprovider']
+
+    SMS\FluidComponents\Service\ComponentDataLoader:
+        arguments:
+            - !tagged_iterator 'fluidcomponents.dataprovider'
+
     SMS\FluidComponents\Command\GenerateXsdCommand:
         tags:
             -   name: 'console.command'

@@ -4,14 +4,14 @@ namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Domain\Model\RequiredSlotPlaceholder;
+use SMS\FluidComponents\Domain\Model\Component;
 use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
+use SMS\FluidComponents\Service\ComponentDataLoader;
 use SMS\FluidComponents\Utility\ComponentLoader;
-use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
-use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ContentViewHelper;
@@ -50,6 +50,13 @@ class ComponentRenderer extends AbstractViewHelper
     protected $componentNamespace;
 
     /**
+     * Object containing information about the current component
+     *
+     * @var Component
+     */
+    protected Component $component;
+
+    /**
      * Cache for component template instance used for rendering
      *
      * @var \TYPO3Fluid\Fluid\Core\Parser\ParsedTemplateInterface
@@ -65,13 +72,6 @@ class ComponentRenderer extends AbstractViewHelper
      * @var array
      */
     protected static $componentArgumentDefinitionCache = [];
-
-    /**
-     * Cache of component prefixer objects
-     *
-     * @var array
-     */
-    protected static $componentPrefixerCache = [];
 
     /**
      * Components are HTML markup which should not be escaped
@@ -98,6 +98,11 @@ class ComponentRenderer extends AbstractViewHelper
     protected ComponentSettings $componentSettings;
 
     /**
+     * @var ComponentDataLoader
+     */
+    protected ComponentDataLoader $componentDataLoader;
+
+    /**
      * @var ComponentArgumentConverter
      */
     protected ComponentArgumentConverter $componentArgumentConverter;
@@ -116,11 +121,13 @@ class ComponentRenderer extends AbstractViewHelper
     public function __construct(
         ComponentLoader $componentLoader,
         ComponentSettings $componentSettings,
+        ComponentDataLoader $componentDataLoader,
         ComponentArgumentConverter $componentArgumentConverter,
         ContainerInterface $container
     ) {
         $this->componentLoader = $componentLoader;
         $this->componentSettings = $componentSettings;
+        $this->componentDataLoader = $componentDataLoader;
         $this->componentArgumentConverter = $componentArgumentConverter;
         $this->container = $container;
     }
@@ -134,37 +141,18 @@ class ComponentRenderer extends AbstractViewHelper
     public function setComponentNamespace($componentNamespace)
     {
         $this->componentNamespace = $componentNamespace;
+        $this->component = $this->componentLoader->findComponent($this->componentNamespace);
         return $this;
     }
 
     /**
      * Returns the namespace of the component the viewhelper renders
      *
-     * @return void
+     * @return string
      */
     public function getComponentNamespace()
     {
         return $this->componentNamespace;
-    }
-
-    /**
-     * Returns the component prefix
-     *
-     * @return string
-     */
-    public function getComponentClass()
-    {
-        return $this->getComponentPrefixer()->prefix($this->componentNamespace);
-    }
-
-    /**
-     * Returns the component prefix
-     *
-     * @return string
-     */
-    public function getComponentPrefix()
-    {
-        return $this->getComponentClass() . $this->getComponentPrefixer()->getSeparator();
     }
 
     /**
@@ -193,12 +181,11 @@ class ComponentRenderer extends AbstractViewHelper
         }
         $variableContainer = $renderingContext->getVariableProvider();
 
+        // Load additional data for component
+        $this->componentDataLoader->loadData($this->component);
+
         // Provide information about component to renderer
-        $variableContainer->add('component', [
-            'namespace' => $this->componentNamespace,
-            'class' => $this->getComponentClass(),
-            'prefix' => $this->getComponentPrefix(),
-        ]);
+        $variableContainer->add('component', $this->component);
         $variableContainer->add('settings', $this->componentSettings);
 
         // Provide supplied arguments from component call to renderer
@@ -228,12 +215,10 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Initialize component rendering template
         if (!isset($this->parsedTemplate)) {
-            $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
-
             $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
-                $this->getTemplateIdentifier($componentFile),
-                function () use ($componentFile) {
-                    return file_get_contents($componentFile);
+                $this->getTemplateIdentifier($this->component->getFile()),
+                function () {
+                    return file_get_contents($this->component->getFile());
                 }
             );
         }
@@ -459,12 +444,10 @@ class ComponentRenderer extends AbstractViewHelper
     {
         $renderingContext = $this->getRenderingContext();
 
-        $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
-
         // Parse component template without using the cache
         $parsedTemplate = $renderingContext->getTemplateParser()->parse(
-            file_get_contents($componentFile),
-            $this->getTemplateIdentifier($componentFile)
+            file_get_contents($this->component->getFile()),
+            $this->getTemplateIdentifier($this->component->getFile())
         );
 
         // Extract all component viewhelpers
@@ -476,7 +459,7 @@ class ComponentRenderer extends AbstractViewHelper
         if (count($componentNodes) > 1) {
             throw new Exception(sprintf(
                 'Only one component per file allowed in: %s',
-                $componentFile
+                $this->component->getFile()
             ), 1527779393);
         }
 
@@ -605,50 +588,6 @@ class ComponentRenderer extends AbstractViewHelper
             substr(strrchr($this->componentNamespace, "\\"), 1),
             sha1($pathAndFilename . '|' . $templateModifiedTimestamp)
         );
-    }
-
-    /**
-     * Returns the prefixer object responsible for the current component namespaces
-     *
-     * @return ComponentPrefixerInterface
-     */
-    protected function getComponentPrefixer()
-    {
-        if (!isset(self::$componentPrefixerCache[$this->componentNamespace])) {
-            if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']) &&
-                is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'])
-            ) {
-                arsort($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']);
-                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'] as $namespace => $prefixer) {
-                    $namespace = ltrim($namespace, '\\');
-                    if (strpos($this->componentNamespace, $namespace) === 0) {
-                        $componentPrefixerClass = $prefixer;
-                        break;
-                    }
-                }
-            }
-
-            if (empty($componentPrefixerClass)) {
-                $componentPrefixerClass = GenericComponentPrefixer::class;
-            }
-
-            if ($this->container->has($componentPrefixerClass)) {
-                $componentPrefixer = $this->container->get($componentPrefixerClass);
-            } else {
-                $componentPrefixer = GeneralUtility::makeInstance($componentPrefixerClass);
-            }
-
-            if (!($componentPrefixer instanceof ComponentPrefixerInterface)) {
-                throw new Exception(sprintf(
-                    'Invalid component prefixer: %s',
-                    $componentPrefixerClass
-                ), 1530608357);
-            }
-
-            self::$componentPrefixerCache[$this->componentNamespace] = $componentPrefixer;
-        }
-
-        return self::$componentPrefixerCache[$this->componentNamespace];
     }
 
     /**
