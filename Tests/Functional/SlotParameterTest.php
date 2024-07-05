@@ -64,6 +64,14 @@ class SlotParameterTest extends FunctionalTestCase
             '<test:contentSlot><fc:content><b>some html</b></fc:content></test:contentSlot><test:contentSlot><b>other html</b></test:contentSlot>',
             "<b>some html</b>\n<b>other html</b>\n"
         ];
+        yield 'two nested component calls with named slots' => [
+            '<test:contentSlot><b>some html</b><test:contentSlot><fc:content><b>other html</b></fc:content></test:contentSlot></test:contentSlot>',
+            "<b>some html</b><b>other html</b>\n"
+        ];
+        yield 'two different nested component calls with named slots' => [
+            '<test:contentSlot><fc:content><b>some html</b><test:twoSlotsAndContent><fc:content slot="slot1"><b>slot 1 html</b></fc:content><fc:content slot="slot2"><b>slot 2 html</b></fc:content>slot content</test:twoSlotsAndContent></fc:content></test:contentSlot>',
+            "<b>some html</b><b>slot 1 html</b>|<b>slot 2 html</b>|slot content\n"
+        ];
 
         // Check if slot object behaves correct for if statements
         yield 'unspecified slot parameter' => [

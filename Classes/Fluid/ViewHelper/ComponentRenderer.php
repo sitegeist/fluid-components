@@ -581,7 +581,7 @@ class ComponentRenderer extends AbstractViewHelper
             $viewHelperNodes[] = $node;
         } else {
             foreach ($node->getChildNodes() as $childNode) {
-                if ($recursive === false && $childNode instanceof ViewHelperNode && $childNode->getViewHelperClassName() === ComponentViewHelper::class) {
+                if ($recursive === false && $childNode instanceof ViewHelperNode && ($childNode->getViewHelperClassName() === ComponentViewHelper::class || $childNode->getUninitializedViewHelper() instanceof ComponentRenderer)) {
                     continue;
                 }
                 $viewHelperNodes = array_merge(
