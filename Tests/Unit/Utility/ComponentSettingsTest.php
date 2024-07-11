@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
@@ -9,6 +10,7 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
 {
     protected $componentSettings;
     protected $tsfe;
+    protected ComponentSettings $settings;
 
     protected function setUp(): void
     {
@@ -25,10 +27,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $this->settings = new ComponentSettings(new TypoScriptService());
     }
 
-    /**
-     * @test
-     */
-    public function settingsProvidedByPhpArray()
+    #[Test]
+    public function settingsProvidedByPhpArray(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
@@ -45,10 +45,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $this->assertEquals('myValue', $this->settings['nested']['mySetting']);
     }
 
-    /**
-     * @test
-     */
-    public function settingsProvidedByPhpTypoScript()
+    #[Test]
+    public function settingsProvidedByPhpTypoScript(): void
     {
         $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] = [
             'nested.' => ['mySetting' => 'myValue'],
@@ -67,10 +65,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         unset($GLOBALS['TSFE']);
     }
 
-    /**
-     * @test
-     */
-    public function settingsMergedFromPhpArrayAndTypoScript()
+    #[Test]
+    public function settingsMergedFromPhpArrayAndTypoScript(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
@@ -95,10 +91,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         unset($GLOBALS['TSFE']);
     }
 
-    /**
-     * @test
-     */
-    public function settingsProvidedByApi()
+    #[Test]
+    public function settingsProvidedByApi(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
@@ -121,10 +115,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $this->assertEquals('apiValue', $this->settings['nested']['mySetting']);
     }
 
-    /**
-     * @test
-     */
-    public function unsetSettingByApi()
+    #[Test]
+    public function unsetSettingByApi(): void
     {
         $this->settings->set('mySetting', 'myValue');
         $this->assertEquals('myValue', $this->settings->get('mySetting'));

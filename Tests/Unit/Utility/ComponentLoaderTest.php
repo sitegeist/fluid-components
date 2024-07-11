@@ -2,10 +2,15 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
 class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
+    protected ComponentLoader $loader;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -13,12 +18,12 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         $this->loader = new ComponentLoader();
     }
 
-    protected function getFixturePath($fixtureName)
+    protected static function getFixturePath($fixtureName)
     {
-        return realpath(dirname(__FILE__) . '/../../Fixtures/Unit/' . $fixtureName);
+        return realpath(__DIR__ . '/../../Fixtures/Unit/' . $fixtureName);
     }
 
-    public function addNamespaceProvider()
+    public static function addNamespaceProvider()
     {
         return [
             'namespaceWithLeadingTrailingBackslash' => [
@@ -38,11 +43,9 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider addNamespaceProvider
-     */
-    public function addNamespace(string $namespace, string $path, array $namespaces)
+    #[Test]
+    #[DataProvider('addNamespaceProvider')]
+    public function addNamespace(string $namespace, string $path, array $namespaces): void
     {
         $this->loader->addNamespace($namespace, $path);
         $this->assertEquals(
@@ -51,11 +54,9 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         );
     }
 
-    /**
-     * @test
-     * @depends addNamespace
-     */
-    public function removeNamespace()
+    #[Depends('addNamespace')]
+    #[Test]
+    public function removeNamespace(): void
     {
         $namespace = 'Vendor\\Extension\\Category';
         $this->loader
@@ -68,7 +69,7 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         );
     }
 
-    public function setNamespacesProvider()
+    public static function setNamespacesProvider()
     {
         return [
             'case1' => [
@@ -94,38 +95,36 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider setNamespacesProvider
-     */
-    public function setNamespaces(array $namespaces, array $sortedNamespaces)
+    #[Test]
+    #[DataProvider('setNamespacesProvider')]
+    public function setNamespaces(array $namespaces, array $sortedNamespaces): void
     {
         $this->loader->setNamespaces($namespaces);
         $this->assertEquals($sortedNamespaces, $this->loader->getNamespaces());
     }
 
-    public function findComponentProvider()
+    public static function findComponentProvider()
     {
         return [
             'existingComponent' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button',
                 '.html',
-                $this->getFixturePath('ComponentLoader/Atom/Button/Button.html')
+                self::getFixturePath('ComponentLoader/Atom/Button/Button.html')
             ],
             'existingComponentFileExtension' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button',
                 '.test',
-                $this->getFixturePath('ComponentLoader/Atom/Button/Button.test')
+                self::getFixturePath('ComponentLoader/Atom/Button/Button.test')
             ],
             'existingComponentFirstLevel' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Example',
                 '.html',
-                $this->getFixturePath('ComponentLoader/Example/Example.html')
+                self::getFixturePath('ComponentLoader/Example/Example.html')
             ],
             'existingComponentThirdLevel' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline',
                 '.html',
-                $this->getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
+                self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
             ],
             'nonexistingComponent' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Label',
@@ -145,16 +144,14 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         ];
     }
 
-    /**
-     * @test
-     * @depends addNamespace
-     * @dataProvider findComponentProvider
-     */
-    public function findComponent(string $componentIdentifier, string $fileExtension, $result)
+    #[Depends('addNamespace')]
+    #[Test]
+    #[DataProvider('findComponentProvider')]
+    public function findComponent(string $componentIdentifier, string $fileExtension, $result): void
     {
         $this->loader->addNamespace(
             'Sitegeist\\Fixtures\\ComponentLoader',
-            $this->getFixturePath('ComponentLoader')
+            self::getFixturePath('ComponentLoader')
         );
 
         // Test uncached version
@@ -170,41 +167,39 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         );
     }
 
-    public function findComponentsInNamespaceProvider()
+    public static function findComponentsInNamespaceProvider()
     {
         return [
             'html' => [
                 '.html',
                 [
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => $this->getFixturePath('ComponentLoader/Atom/Button/Button.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\ComponentLoaderSymlink' => $this->getFixturePath('ComponentLoader/Atom/ComponentLoaderSymlink/ComponentLoaderSymlink.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => $this->getFixturePath('ComponentLoader/Atom/Link/Link.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Example' => $this->getFixturePath('ComponentLoader/Example/Example.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser' => $this->getFixturePath('ComponentLoader/Molecule/Teaser/Teaser.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline' => $this->getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => self::getFixturePath('ComponentLoader/Atom/Button/Button.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\ComponentLoaderSymlink' => self::getFixturePath('ComponentLoader/Atom/ComponentLoaderSymlink/ComponentLoaderSymlink.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => self::getFixturePath('ComponentLoader/Atom/Link/Link.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Example' => self::getFixturePath('ComponentLoader/Example/Example.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser' => self::getFixturePath('ComponentLoader/Molecule/Teaser/Teaser.html'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline' => self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
                 ]
             ],
             'test' => [
                 '.test',
                 [
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => $this->getFixturePath('ComponentLoader/Atom/Button/Button.test'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => $this->getFixturePath('ComponentLoader/Atom/Link/Link.test')
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => self::getFixturePath('ComponentLoader/Atom/Button/Button.test'),
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => self::getFixturePath('ComponentLoader/Atom/Link/Link.test')
                 ]
             ]
         ];
     }
 
-    /**
-     * @test
-     * @depends addNamespace
-     * @dataProvider findComponentsInNamespaceProvider
-     */
-    public function findComponentsInNamespace(string $fileExtension, array $result)
+    #[Depends('addNamespace')]
+    #[Test]
+    #[DataProvider('findComponentsInNamespaceProvider')]
+    public function findComponentsInNamespace(string $fileExtension, array $result): void
     {
         $namespace = 'Sitegeist\\Fixtures\\ComponentLoader';
         $this->loader->addNamespace(
             $namespace,
-            $this->getFixturePath('ComponentLoader')
+            self::getFixturePath('ComponentLoader')
         );
 
         $this->assertEquals(
@@ -213,11 +208,9 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         );
     }
 
-    /**
-     * @depends addNamespace
-     * @test
-     */
-    public function findComponentsInNonexistingNamespace()
+    #[Depends('addNamespace')]
+    #[Test]
+    public function findComponentsInNonexistingNamespace(): void
     {
         $this->assertEquals(
             [],
@@ -225,16 +218,14 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         );
     }
 
-    /**
-     * @depends addNamespace
-     * @test
-     */
-    public function findComponentsInNonexistingNamespacePath()
+    #[Depends('addNamespace')]
+    #[Test]
+    public function findComponentsInNonexistingNamespacePath(): void
     {
         $namespace = 'Sitegeist\\Fixtures\\NonExistingPath';
         $this->loader->addNamespace(
             $namespace,
-            $this->getFixturePath('ComponentLoader') . '/NonExisting/'
+            self::getFixturePath('ComponentLoader') . '/NonExisting/'
         );
         $this->assertEquals(
             [],
