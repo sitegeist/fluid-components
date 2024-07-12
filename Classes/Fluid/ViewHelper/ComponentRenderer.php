@@ -177,14 +177,12 @@ class ComponentRenderer extends AbstractViewHelper
     {
         // Create a new rendering context for the component file
         $renderingContext = $this->getRenderingContext();
-        if ((new Typo3Version())->getMajorVersion() < 12 && $this->renderingContext->getControllerContext()) {
-            $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
-        } else {
-            // set the original request to preserve the request attributes
-            // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
-            // e.g. f:uri.action, f:page.action
-            $renderingContext->setRequest($this->renderingContext->getRequest());
-        }
+
+        // set the original request to preserve the request attributes
+        // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
+        // e.g. f:uri.action, f:page.action
+        $renderingContext->setRequest($this->renderingContext->getRequest());
+
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
             $renderingContext->getTemplatePaths()->setPartialRootPaths(

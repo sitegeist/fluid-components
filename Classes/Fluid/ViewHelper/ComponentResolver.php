@@ -63,10 +63,6 @@ class ComponentResolver extends ViewHelperResolver
             if ($this->container->has($viewHelperClassName)) {
                 /** @var ViewHelperInterface $viewHelperInstance */
                 $viewHelperInstance = $this->container->get($viewHelperClassName);
-            } elseif ((new Typo3Version())->getMajorVersion() < 12) {
-                $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-                /** @var ViewHelperInterface $viewHelperInstance */
-                $viewHelperInstance = $objectManager->get($viewHelperClassName);
             } else {
                 /** @var ViewHelperInterface $viewHelperInstance */
                 $viewHelperInstance = new $viewHelperClassName;

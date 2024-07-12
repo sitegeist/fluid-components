@@ -9,7 +9,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Service\TypoLinkCodecService;
+use TYPO3\CMS\Core\LinkHandling\TypoLinkCodecService;
 
 /**
  * Data Structure to provide information extracted from a Typolink string

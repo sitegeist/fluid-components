@@ -36,7 +36,7 @@ class LabelsViewHelper extends AbstractViewHelper
         $keys = $arguments['keys'];
         $extensionName = $arguments['extensionName'];
 
-        $request = $renderingContext->getControllerContext()->getRequest();
+        $request = $renderingContext->getRequest();
         $extensionName = $extensionName ?? $request->getControllerExtensionName();
 
         $labels = [];

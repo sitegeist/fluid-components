@@ -1,6 +1,7 @@
 <?php
 namespace SMS\FluidComponents\ViewHelpers\Form;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Error\Message;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3\CMS\Form\Domain\Model\Renderable\RootRenderableInterface;
@@ -71,9 +72,8 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         RenderingContextInterface $renderingContext
     ) {
         $templateVariableContainer = $renderingContext->getVariableProvider();
-        $controllerContext = $renderingContext->getControllerContext();
 
-        $extensionName = $arguments['extensionName'] ?? $controllerContext->getRequest()->getControllerExtensionName();
+        $extensionName = $arguments['extensionName'] ?? $renderingContext->getRequest()->getControllerExtensionName();
         $for = rtrim($arguments['for'], '.');
         $element = $arguments['element'];
 
@@ -100,7 +100,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         }
 
         // Fetch validation results from API
-        $validationResults = $controllerContext->getRequest()->getOriginalRequestMappingResults();
+        $validationResults = $renderingContext->getRequest()->getOriginalRequestMappingResults();
         if ($validationResults !== null && $for !== '') {
             $validationResults = $validationResults->forProperty($for);
         }
@@ -287,7 +287,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
             ->getViewHelperVariableContainer()
             ->get(RenderRenderableViewHelper::class, 'formRuntime');
 
-        return TranslationService::getInstance()->translateFormElementError(
+        return GeneralUtility::makeInstance(TranslationService::class)->translateFormElementError(
             $element,
             $code,
             $arguments,
