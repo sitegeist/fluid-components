@@ -301,7 +301,7 @@ services:
                 php -v | grep '^PHP';
                 echo -n 'ec version: ';
                 .Build/bin/ec -version;
-                .Build/bin/ec -exclude .phpunit.result.cache .
+                .Build/bin/ec -exclude .phpunit.*  .
             "
 
     unit:
