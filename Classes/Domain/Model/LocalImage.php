@@ -14,22 +14,17 @@ class LocalImage extends Image
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'LocalImage';
+    protected string $type = 'LocalImage';
 
     /**
      * Absolute path to the local file
-     *
-     * @var string
      */
-    protected $filePath = '';
+    protected string $filePath = '';
 
     /**
      * Creates an image object for a local image resource
      *
-     * @param string $filePath
      * @throws InvalidFilePathException
      */
     public function __construct(string $filePath)

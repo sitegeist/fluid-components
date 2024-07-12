@@ -12,72 +12,52 @@ class Link implements ConstructibleFromString
 {
     /**
      * Target URI of the link
-     *
-     * @var string
      */
-    protected $uri = '';
+    protected string $uri = '';
 
     /**
      * URI scheme, e. g. https://
-     *
-     * @var string|null
      */
-    protected $scheme;
+    protected ?string $scheme;
 
     /**
      * Host name, e. g. domain.tld
-     *
-     * @var string|null
      */
-    protected $host;
+    protected ?string $host;
 
     /**
      * Port number, e. g. 8080
-     *
-     * @var int|null
      */
-    protected $port;
+    protected ?int $port;
 
     /**
      * HTTP Basic Auth User
-     *
-     * @var string|null
      */
-    protected $user;
+    protected ?string $user;
 
     /**
      * HTTP Basic Auth Password
-     *
-     * @var string|null
      */
-    protected $pass;
+    protected ?string $pass;
 
     /**
      * Path part of the URI, e. g. /my/path/file.html
-     *
-     * @var string|null
      */
-    protected $path;
+    protected ?string $path;
 
     /**
      * Query string of the URI (without the leading ?),
      * e. g. myParam=myValue&anotherParam=anotherValue
-     *
-     * @var string|null
      */
-    protected $query;
+    protected ?string $query;
 
     /**
      * Fragment/Anchor of the URI (without the leading #)
-     *
-     * @var string|null
      */
-    protected $fragment;
+    protected ?string $fragment;
 
     /**
      * Creates a link data structure from an URI
-     *
-     * @param string $uri
      */
     public function __construct(string $uri)
     {

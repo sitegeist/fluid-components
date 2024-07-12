@@ -11,22 +11,17 @@ class RemoteFile extends File
 {
     /**
      * Type of file to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'RemoteFile';
+    protected string $type = 'RemoteFile';
 
     /**
      * URI to the remote file
-     *
-     * @var string
      */
-    protected $uri = '';
+    protected string $uri = '';
 
     /**
      * Creates a file object for a remote resource
      *
-     * @param string $uri
      * @throws InvalidRemoteFileException
      */
     public function __construct(string $uri)
@@ -48,9 +43,6 @@ class RemoteFile extends File
 
     /**
      * Checks if the provided uri is a valid remote uri
-     *
-     * @param string $uri
-     * @return boolean
      */
     protected static function isRemoteUri(string $uri): bool
     {

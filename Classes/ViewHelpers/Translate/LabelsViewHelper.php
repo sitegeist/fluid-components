@@ -13,11 +13,9 @@ class LabelsViewHelper extends AbstractViewHelper
     use CompileWithRenderStatic;
 
     /**
-     * Initialize arguments.
-     *
      * @throws \TYPO3Fluid\Fluid\Core\ViewHelper\Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('keys', 'array', 'Array of translation keys; Can also contain subarrays, then "key" is key, "arguments" is an array of sprintf arguments, and "default" is a default value', true);
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
@@ -25,19 +23,16 @@ class LabelsViewHelper extends AbstractViewHelper
         $this->registerArgument('alternativeLanguageKeys', 'array', 'Alternative language keys if no translation does exist');
     }
 
-    /*
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     * @return string
-     */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
-    {
+    public static function renderStatic(
+        array $arguments,
+        \Closure $renderChildrenClosure,
+        RenderingContextInterface $renderingContext
+    ): string {
         $keys = $arguments['keys'];
         $extensionName = $arguments['extensionName'];
 
         $request = $renderingContext->getRequest();
-        $extensionName = $extensionName ?? $request->getControllerExtensionName();
+        $extensionName ??= $request->getControllerExtensionName();
 
         $labels = [];
         foreach ($keys as $name => $translation) {
@@ -52,7 +47,7 @@ class LabelsViewHelper extends AbstractViewHelper
 
             try {
                 $value = static::translate($translation, $extensionName, $translateArguments, $arguments['languageKey'], $arguments['alternativeLanguageKeys']);
-            } catch (\InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException) {
                 $value = null;
             }
             if ($value === null) {

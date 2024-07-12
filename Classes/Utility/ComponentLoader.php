@@ -6,21 +6,14 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
      * Registered component namespaces
-     *
-     * @var array
      */
-    protected $namespaces = [];
+    protected array $namespaces = [];
 
     /**
      * Cache for class name => component file associations
-     *
-     * @var array
      */
-    protected $componentsCache = [];
+    protected array $componentsCache = [];
 
-    /**
-     * Initialize the component loader
-     */
     public function __construct()
     {
         $this->setNamespaces(
@@ -30,10 +23,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Adds a new component namespace
-     *
-     * @param string $namespace
-     * @param string $path
-     * @return self
      */
     public function addNamespace(string $namespace, string $path): self
     {
@@ -47,9 +36,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Removes a registered component namespace
-     *
-     * @param string $namespace
-     * @return self
      */
     public function removeNamespace(string $namespace): self
     {
@@ -59,9 +45,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Sets the component namespaces
-     *
-     * @param array $namespaces
-     * @return self
      */
     public function setNamespaces(array $namespaces): self
     {
@@ -79,8 +62,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Returns all registered component namespaces
-     *
-     * @return array
      */
     public function getNamespaces(): array
     {
@@ -89,12 +70,8 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Finds a component file based on its class namespace
-     *
-     * @param string $class
-     * @param string $ext
-     * @return string|null
      */
-    public function findComponent(string $class, string $ext = '.html')
+    public function findComponent(string $class, string $ext = '.html'): string|null
     {
         // Try cache first
         $cacheIdentifier = $class . '|' . $ext;
@@ -106,7 +83,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
         $class = ltrim($class, '\\');
         foreach ($this->namespaces as $namespace => $path) {
             // No match, skip to next
-            if (strpos($class, $namespace . '\\') !== 0) {
+            if (!str_starts_with($class, $namespace . '\\')) {
                 continue;
             }
 
@@ -128,8 +105,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Provides a list of all components that are available in the specified component namespace
      *
-     * @param string $namespace
-     * @param string $ext
      * @return array  Array of components where the keys contain the component identifier (FQCN)
      *                and the values contain the path to the component
      */
@@ -150,10 +125,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Searches for component files in a directory and maps them to their namespace
-     *
-     * @param string $path
-     * @param string $ext
-     * @param string $namespace
      * @param array $scannedPaths  Collection of paths that have already been scanned for components;
      *                             this prevents infinite loops caused by circular symlinks
      * @return array
@@ -196,9 +167,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Sanitizes a PHP namespace for use in the component loader
-     *
-     * @param string $namespace
-     * @return string
      */
     protected function sanitizeNamespace(string $namespace): string
     {
@@ -207,9 +175,6 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Sanitizes a path for use in the component loader
-     *
-     * @param string $path
-     * @return string
      */
     protected function sanitizePath(string $path): string
     {

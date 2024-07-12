@@ -11,9 +11,6 @@ interface ConstructibleFromDateTimeImmutable
 {
     /**
      * Creates an instance of the class based on the provided DateTimeImmutable
-     *
-     * @param \DateTimeImmutable $value
-     * @return object
      */
-    public static function fromDateTimeImmutable(\DateTimeImmutable $value);
+    public static function fromDateTimeImmutable(\DateTimeImmutable $value): object;
 }

@@ -37,14 +37,9 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
 
     /**
      * Stores message objects that have already been translated
-     *
-     * @var array
      */
-    protected static $translatedMessagesCache = [];
+    protected static array $translatedMessagesCache = [];
 
-    /**
-     * @var bool
-     */
     protected $escapeOutput = false;
 
     public function initializeArguments(): void
@@ -60,21 +55,16 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
 
     /**
      * Provides and translates validation results for the specified form field
-     *
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     * @return mixed
      */
     public static function renderStatic(
         array $arguments,
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): mixed {
         $templateVariableContainer = $renderingContext->getVariableProvider();
 
         $extensionName = $arguments['extensionName'] ?? $renderingContext->getRequest()->getControllerExtensionName();
-        $for = rtrim($arguments['for'], '.');
+        $for = rtrim((string) $arguments['for'], '.');
         $element = $arguments['element'];
 
         $translatedResults = [
@@ -95,7 +85,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
             $translatePrefix = '';
         } else {
             // Generate static language prefix for validation translations outsite of EXT:form
-            $translatePrefix = ($arguments['translatePrefix']) ? rtrim($arguments['translatePrefix'], '.') . '.' : '';
+            $translatePrefix = ($arguments['translatePrefix']) ? rtrim((string) $arguments['translatePrefix'], '.') . '.' : '';
             $translatePrefix .= ($for) ? $for . '.' : '';
         }
 
@@ -165,15 +155,6 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
     /**
      * Translates a validation message, either by using EXT:form's translation chain
      * or by the custom implementation of fluid_components for validation translations
-     *
-     * @param RenderingContextInterface $renderingContext
-     * @param Message $message
-     * @param string $translatePrefix
-     * @param RootRenderableInterface $element
-     * @param string $extensionName
-     * @param string $languageKey
-     * @param array $alternativeLanguageKeys
-     * @return void
      */
     protected static function translateMessage(
         RenderingContextInterface $renderingContext,
@@ -213,7 +194,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         }
 
         // Create new message object from the translated message
-        $messageClass = get_class($message);
+        $messageClass = $message::class;
         $newMessage = new $messageClass(
             $translatedMessage,
             $message->getCode(),
@@ -267,12 +248,6 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
     /**
      * Translates the provided validation message by using the translation chain by EXT:form
      *
-     * @param RenderingContextInterface $renderingContext
-     * @param RootRenderableInterface $element
-     * @param int $code
-     * @param string $defaultValue
-     * @param array $arguments
-     * @return string
      * @throws \InvalidArgumentException
      */
     public static function translateFormElementError(

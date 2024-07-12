@@ -14,9 +14,6 @@ interface ConstructibleFromFileInterface
     /**
      * Creates an instance of the class based on the provided implementation
      * of FileInterface
-     *
-     * @param FileInterface $value
-     * @return object
      */
-    public static function fromFileInterface(FileInterface $value);
+    public static function fromFileInterface(FileInterface $value): object;
 }

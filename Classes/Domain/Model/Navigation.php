@@ -17,12 +17,10 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
      *
      * @var NavigationItem[]
      */
-    protected $items = [];
+    protected array $items = [];
 
     /**
      * Initializes a navigation object from a TYPO3 navigation array
-     *
-     * @param array $items
      */
     public function __construct(array $items)
     {
@@ -31,8 +29,6 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
 
     /**
      * Initializes a navigation object from a TYPO3 navigation array
-     *
-     * @param array $items
      */
     public static function fromArray(array $items): self
     {
@@ -85,11 +81,8 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
 
     /**
      * Makes sure that the provided item is a valid data structure
-     *
-     * @param mixed $item
-     * @return NavigationItem|null
      */
-    protected function sanitizeNavigationItem($item): ?NavigationItem
+    protected function sanitizeNavigationItem(mixed $item): ?NavigationItem
     {
         if ($item instanceof NavigationItem) {
             return $item;

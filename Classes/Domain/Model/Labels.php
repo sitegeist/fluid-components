@@ -14,42 +14,29 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
 {
-    const OVERRIDE_LANGUAGE_KEY = 'languageKey';
-    const OVERRIDE_LANGUAGE_ALTERNATIVES = 'alternativeLanguageKeys';
+    public const OVERRIDE_LANGUAGE_KEY = 'languageKey';
+    public const OVERRIDE_LANGUAGE_ALTERNATIVES = 'alternativeLanguageKeys';
 
     /**
      * Namespace of the current component
-     *
-     * @var string
      */
-    protected $componentNamespace;
+    protected string $componentNamespace;
 
     /**
      * Fluid rendering context
-     *
-     * @var RenderingContextInterface
      */
-    protected $renderingContext;
+    protected RenderingContextInterface $renderingContext;
 
     /**
      * Static label values that should override those defined in language files
-     *
-     * @var array
      */
-    protected $overrideLabels = [];
+    protected array $overrideLabels = [];
 
     /**
      * Cache for component labels file
-     *
-     * @var string
      */
-    protected $labelsFile;
+    protected string $labelsFile;
 
-    /**
-     * Constructor
-     *
-     * @param array $overrideLabels
-     */
     public function __construct(array $overrideLabels = [])
     {
         $this->overrideLabels = $overrideLabels;
@@ -57,9 +44,6 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Generate object based on an array passed to the component
-     *
-     * @param array $overrideLabels
-     * @return self
      */
     public static function fromArray(array $overrideLabels): self
     {
@@ -68,8 +52,6 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Generate object, even if component parameter is optional and omitted
-     *
-     * @return self
      */
     public static function fromNull(): self
     {
@@ -78,9 +60,6 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Receive component context to determine language file path
-     *
-     * @param string $componentNamespace
-     * @return void
      */
     public function setComponentNamespace(string $componentNamespace): void
     {
@@ -89,9 +68,6 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Receive current fluid rendering context
-     *
-     * @param RenderingContextInterface $renderingContext
-     * @return void
      */
     public function setRenderingContext(RenderingContextInterface $renderingContext): void
     {
@@ -100,22 +76,16 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Check if language label is defined
-     *
-     * @param mixed $identifier
-     * @return boolean
      */
-    public function offsetExists($identifier): bool
+    public function offsetExists(mixed $identifier): bool
     {
         return $this->offsetGet($identifier) !== null;
     }
 
     /**
      * Return value of language label
-     *
-     * @param mixed $identifier
-     * @return string|null
      */
-    public function offsetGet($identifier): ?string
+    public function offsetGet(mixed $identifier): ?string
     {
         if (isset($this->overrideLabels[$identifier])) {
             return $this->overrideLabels[$identifier];
@@ -141,31 +111,20 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
 
     /**
      * Set an override language label
-     *
-     * @param mixed $identifier
-     * @param mixed $value
-     * @return void
      */
-    public function offsetSet($identifier, $value): void
+    public function offsetSet(mixed $identifier, mixed $value): void
     {
         $this->overrideLabels[$identifier] = $value;
     }
 
     /**
      * Remove an override language label
-     *
-     * @param mixed $identifier
-     * @return void
      */
-    public function offsetUnset($identifier): void
+    public function offsetUnset(mixed $identifier): void
     {
         unset($this->overrideLabels[$identifier]);
     }
 
-    /**
-     * @param string $identifier
-     * @return string
-     */
     protected function generateLabelIdentifier(string $identifier): string
     {
         if (!$this->labelsFile) {
@@ -174,15 +133,12 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
         return sprintf('LLL:%s:%s', $this->labelsFile, $identifier);
     }
 
-    /**
-     * @return string
-     */
     protected function generateLabelFilePath(): string
     {
         $componentLoader = GeneralUtility::makeInstance(ComponentLoader::class);
         $componentFile = $componentLoader->findComponent($this->componentNamespace);
-        $componentName = basename($componentFile, '.html');
-        $componentPath = dirname($componentFile);
+        $componentName = basename((string) $componentFile, '.html');
+        $componentPath = dirname((string) $componentFile);
         return $componentPath . DIRECTORY_SEPARATOR . $componentName . '.labels.xlf';
     }
 }

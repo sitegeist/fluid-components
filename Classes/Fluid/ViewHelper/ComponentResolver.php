@@ -9,9 +9,7 @@ use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DependencyInjection\FailsafeContainer;
 use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
@@ -44,9 +42,6 @@ class ComponentResolver extends ViewHelperResolver
     /**
      * Uses Symfony dependency injection to inject ComponentRenderer into
      * Fluid viewhelper processing
-     *
-     * @param string $viewHelperClassName
-     * @return \TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface
      */
     public function createViewHelperInstanceFromClassName($viewHelperClassName): ViewHelperInterface
     {
@@ -127,7 +122,7 @@ class ComponentResolver extends ViewHelperResolver
      * @param string $methodIdentifier Method identifier, might be hierarchical like "link.url"
      * @return string The fully qualified class name of the viewhelper
      */
-    protected function resolveComponentName($namespaceIdentifier, $methodIdentifier)
+    protected function resolveComponentName(string $namespaceIdentifier, string $methodIdentifier): string
     {
         $explodedViewHelperName = explode('.', $methodIdentifier);
         if (count($explodedViewHelperName) > 1) {
@@ -140,7 +135,7 @@ class ComponentResolver extends ViewHelperResolver
         $namespaces = (array) $this->namespaces[$namespaceIdentifier];
 
         do {
-            $name = rtrim(array_pop($namespaces), '\\') . '\\' . $className;
+            $name = rtrim((string) array_pop($namespaces), '\\') . '\\' . $className;
         } while (!$componentLoader->findComponent($name) && count($namespaces));
 
         return $name;
@@ -148,11 +143,8 @@ class ComponentResolver extends ViewHelperResolver
 
     /**
      * Generates a valid PHP class name from the resolved viewhelper class
-     *
-     * @param string $resolvedViewHelperClassName
-     * @return void
      */
-    protected function generateViewHelperClassName($resolvedViewHelperClassName)
+    protected function generateViewHelperClassName(string $resolvedViewHelperClassName): string
     {
         return implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
     }

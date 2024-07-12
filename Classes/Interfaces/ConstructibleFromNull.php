@@ -10,8 +10,6 @@ interface ConstructibleFromNull
 {
     /**
      * Creates an instance of the class
-     *
-     * @return object
      */
-    public static function fromNull();
+    public static function fromNull(): object;
 }

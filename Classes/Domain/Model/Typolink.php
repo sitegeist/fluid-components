@@ -20,32 +20,25 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
     /**
      * Data interpretation of the provided TYPO3 uri
      *
-     * @var array
      * @see LinkService::resolve()
      */
-    protected $originalLink = [];
+    protected array $originalLink = [];
 
     /**
      * Link target window of the Typolink
      * e. g. _blank
-     *
-     * @var string
      */
-    protected $target = '';
+    protected string $target = '';
 
     /**
      * Additional CSS classes for the html element
-     *
-     * @var string
      */
-    protected $class = '';
+    protected string $class = '';
 
     /**
      * Title attribute for the html element
-     *
-     * @var string
      */
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * Creates a Typolink data structure from a Typolink string
@@ -80,9 +73,6 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
 
     /**
      * Creates a Typolink data structure from a page uid
-     *
-     * @param integer $pageUid
-     * @return self
      */
     public static function fromInteger(int $pageUid): self
     {
@@ -98,8 +88,6 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
      * - class
      * - title
      *
-     * @param array $typolinkData
-     * @return self
      * @throws InvalidArgumentException
      */
     public static function fromArray(array $typolinkData): self

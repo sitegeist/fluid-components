@@ -11,7 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateXsdCommand extends Command
 {
-    private XsdGenerator $xsdGenerator;
+    public function __construct(private XsdGenerator $xsdGenerator)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -45,7 +48,7 @@ EOH
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
-        if (substr($path, 0, 1) !== DIRECTORY_SEPARATOR) {
+        if (substr((string) $path, 0, 1) !== DIRECTORY_SEPARATOR) {
             $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $path);
         }
         if ($output->isVerbose()) {
@@ -74,10 +77,5 @@ EOH
             }
             return 0;
         }
-    }
-
-    public function injectXsdGenerator(XsdGenerator $xsdGenerator): void
-    {
-        $this->xsdGenerator = $xsdGenerator;
     }
 }

@@ -11,52 +11,38 @@ class LanguageNavigationItem extends NavigationItem
 {
     /**
      * Availability of translation for the specific page
-     *
-     * @var boolean
      */
-    protected $available = false;
+    protected bool $available = false;
 
     /**
      * UID of the sys_language record
-     *
-     * @var int
      */
-    protected $languageId;
+    protected int $languageId;
 
     /**
      * Locale definition for language
-     *
-     * @var string
      */
-    protected $locale;
+    protected string $locale;
 
     /**
      * ISO code for language
-     *
-     * @var string
      */
-    protected $twoLetterIsoCode;
+    protected string $twoLetterIsoCode;
 
     /**
      * Hreflang identifier for language
-     *
-     * @var string
      */
-    protected $hreflang;
+    protected string $hreflang;
 
     /**
      * Directionality of text in the language (ltr or rtl)
-     *
-     * @var string
      */
-    protected $direction;
+    protected string $direction;
 
     /**
      * Flag name for language
-     *
-     * @var string
      */
-    protected $flag;
+    protected string $flag;
 
     /**
      * Creates a navigation item object
@@ -115,7 +101,6 @@ class LanguageNavigationItem extends NavigationItem
      * @param array $navigationItem  respected properties that will become part of the data structure:
      *                               title, link, target, current, active, available, languageId, locale,
      *                               twoLetterIsoCode, hreflang, direction, flag, data
-     * @return self
      */
     public static function fromArray(array $navigationItem): self
     {
