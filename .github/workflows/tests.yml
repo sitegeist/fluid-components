@@ -40,14 +40,8 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.2', '8.1', '8.0']
-                typo3-versions: [12, 11]
-                exclude:
-                    - php-versions: '8.0'
-                      typo3-versions: 12
-                include:
-                    - php-versions: '7.4'
-                      typo3-versions: 11
+                php-versions: ['8.3', '8.2']
+                typo3-versions: [13, 12]
 
         name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
@@ -80,14 +74,8 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.2', '8.1', '8.0']
-                typo3-versions: [12, 11]
-                exclude:
-                    - php-versions: '8.0'
-                      typo3-versions: 12
-                include:
-                    - php-versions: '7.4'
-                      typo3-versions: 11
+                php-versions: ['8.3', '8.2']
+                typo3-versions: [13, 12]
 
         name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:

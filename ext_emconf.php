@@ -7,13 +7,11 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'mathes@sitegeist.de, moin@praetorius.me',
     'author_company' => 'sitegeist media solutions GmbH',
     'state' => 'stable',
-    'uploadfolder' => false,
-    'clearCacheOnLoad' => false,
     'version' => '',
     'constraints' => [
         'depends' => [
-            'typo3' => '11.5.0-12.9.99',
-            'php' => '7.4.0-8.9.99'
+            'typo3' => '12.4.0-13.4.99',
+            'php' => '8.2.0-8.2.99'
         ],
         'conflicts' => [
         ],
