@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -27,11 +29,11 @@ class SlotParameterTest extends FunctionalTestCase
         $componentLoader = GeneralUtility::makeInstance(ComponentLoader::class);
         $componentLoader->addNamespace(
             'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components',
-            realpath(dirname(__FILE__) . '/../Fixtures/Functional/Components/')
+            realpath(__DIR__ . '/../Fixtures/Functional/Components/')
         );
     }
 
-    public function renderDataProvider(): \Generator
+    public static function renderDataProvider(): \Generator
     {
         // Check override order of slot content
         yield 'parameter, named slot and tag content provided' => [
@@ -112,10 +114,8 @@ class SlotParameterTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider renderDataProvider
-     */
+    #[Test]
+    #[DataProvider('renderDataProvider')]
     public function render(string $template, string $expected): void
     {
         $view = new TemplateView();
@@ -138,9 +138,7 @@ class SlotParameterTest extends FunctionalTestCase
         self::assertSame($expected, $view->render());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function unspecifiedRequiredSlot(): void
     {
         $template = '<test:slotParameter />';
@@ -169,9 +167,7 @@ class SlotParameterTest extends FunctionalTestCase
         $view->render();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function undefinedSlot(): void
     {
         $template = '<test:slotParameter><fc:content slot="slot">content</fc:content><fc:content slot="invalidSlot">more content</fc:content></test:slotParameter>';

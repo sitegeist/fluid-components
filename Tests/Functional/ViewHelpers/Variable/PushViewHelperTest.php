@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional\ViewHelpers\Variable;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
@@ -14,7 +16,7 @@ class PushViewHelperTest extends FunctionalTestCase
         'typo3conf/ext/fluid_components'
     ];
 
-    public function renderDataProvider(): \Generator
+    public static function renderDataProvider(): \Generator
     {
         $simpleArray = ['a', 'b', 'c', 'd'];
         $arrayWithKeys = ['keyA' => 'a', 'keyB' => 'b', 'keyC' => 'c', 'keyD' => 'd'];
@@ -45,10 +47,8 @@ class PushViewHelperTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider renderDataProvider
-     */
+    #[Test]
+    #[DataProvider('renderDataProvider')]
     public function render(array $input, string $template, array $expected): void
     {
         $view = new TemplateView();
