@@ -230,13 +230,17 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         string $languageKey = null,
         array $alternativeLanguageKeys = null
     ): ?string {
+        if ($languageKey) {
+            $localeFactory = GeneralUtility::makeInstance(Locales::class);
+            $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);
+        }
+
         foreach ($translationChain as $translatePrefix) {
             $translatedMessage = LocalizationUtility::translate(
                 $translatePrefix . $code,
                 $extensionName,
                 $arguments,
-                $languageKey,
-                $alternativeLanguageKeys
+                $locale ?? null,
             );
             if ($translatedMessage) {
                 return $translatedMessage;

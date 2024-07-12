@@ -3,7 +3,6 @@
 namespace SMS\FluidComponents\ViewHelpers\Translate;
 
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3\CMS\Fluid\Core\ViewHelper\Exception\InvalidVariableException;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
@@ -27,7 +26,7 @@ class LabelsViewHelper extends AbstractViewHelper
         array $arguments,
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ): string {
+    ): array {
         $keys = $arguments['keys'];
         $extensionName = $arguments['extensionName'];
 
@@ -76,6 +75,11 @@ class LabelsViewHelper extends AbstractViewHelper
      */
     protected static function translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys)
     {
-        return LocalizationUtility::translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+        if ($languageKey) {
+            $localeFactory = GeneralUtility::makeInstance(Locales::class);
+            $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);
+        }
+
+        return LocalizationUtility::translate($id, $extensionName, $arguments, $locale ?? null);
     }
 }

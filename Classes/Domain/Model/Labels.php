@@ -8,6 +8,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentLoader;
+use TYPO3\CMS\Core\Localization\Locales;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
@@ -35,7 +36,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     /**
      * Cache for component labels file
      */
-    protected string $labelsFile;
+    protected string $labelsFile = '';
 
     public function __construct(array $overrideLabels = [])
     {
@@ -96,16 +97,16 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
         if ($viewHelperVariableContainer->exists(ComponentRenderer::class, self::OVERRIDE_LANGUAGE_KEY)) {
             $languageKey = $viewHelperVariableContainer->get(ComponentRenderer::class, self::OVERRIDE_LANGUAGE_KEY);
             $alternativeLanguageKeys = $viewHelperVariableContainer->get(ComponentRenderer::class, self::OVERRIDE_LANGUAGE_ALTERNATIVES);
-        } else {
-            $languageKey = $alternativeLanguageKeys = null;
+
+            $localeFactory = GeneralUtility::makeInstance(Locales::class);
+            $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);
         }
 
         return LocalizationUtility::translate(
             $this->generateLabelIdentifier($identifier),
             null,
             null,
-            $languageKey,
-            $alternativeLanguageKeys
+            $locale ?? null
         );
     }
 
