@@ -25,19 +25,19 @@ class NavigationItem implements ConstructibleFromArray
      * Indicates whether the navigation item is part of the current rootline
      * (parent page of the current page OR current page)
      */
-    protected boolean $active = false;
+    protected bool $active = false;
 
     /**
      * Indicates whether the navigation item represents the current page
      * (note that active will be true as well)
      */
-    protected boolean $current = false;
+    protected bool $current = false;
 
     /**
      * Indicates whether the navigation item is a spacer item without real
      * functionality
      */
-    protected boolean $spacer = false;
+    protected bool $spacer = false;
 
     /**
      * Submenu of the navigation item
@@ -54,9 +54,9 @@ class NavigationItem implements ConstructibleFromArray
      *
      * @param string $title         title of the item
      * @param Typolink $link        link of the item
-     * @param boolean $current      true if item represents the current page
-     * @param boolean $active       true if item is part of current rootline
-     * @param boolean $spacer       true if item is a spacer item
+     * @param bool $current      true if item represents the current page
+     * @param bool $active       true if item is part of current rootline
+     * @param bool $spacer       true if item is a spacer item
      * @param Navigation $children  sub navigation
      * @param array $data           raw item data
      */

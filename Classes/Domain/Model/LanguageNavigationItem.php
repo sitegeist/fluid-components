@@ -49,9 +49,9 @@ class LanguageNavigationItem extends NavigationItem
      *
      * @param string $title             title of the item
      * @param Typolink $link            link of the item
-     * @param boolean $current          true if item represents the current page
-     * @param boolean $active           true if item is part of current rootline
-     * @param boolean $available        true if current page is translated to language
+     * @param bool $current          true if item represents the current page
+     * @param bool $active           true if item is part of current rootline
+     * @param bool $available        true if current page is translated to language
      * @param int $languageId           UID of the sys_language record
      * @param string $locale            Locale definition for language
      * @param string $twoLetterIsoCode  ISO code for language

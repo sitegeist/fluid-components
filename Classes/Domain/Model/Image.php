@@ -26,12 +26,12 @@ abstract class Image extends File
     /**
      * Alternative text for the image
      */
-    protected ?string $alternative;
+    protected ?string $alternative = null;
 
     /**
      * Copyright of the image
      */
-    protected ?string $copyright;
+    protected ?string $copyright = null;
 
     /**
      * Creates an image object based on a static file (local or remote)
@@ -112,7 +112,7 @@ abstract class Image extends File
      *
      * @throws InvalidArgumentException|FileReferenceNotFoundException
      */
-    public static function fromArray(array $value): self
+    public static function fromArray(array $value): ?self
     {
         try {
             /** @var Image */

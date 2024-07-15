@@ -38,17 +38,17 @@ abstract class File implements
     /**
      * Title of the file
      */
-    protected ?string $title;
+    protected ?string $title = null;
 
     /**
      * Description of the file
      */
-    protected ?string $description;
+    protected ?string $description = null;
 
     /**
      * Properties of the file
      */
-    protected ?array $properties;
+    protected ?array $properties = null;
 
     /**
      * Should return the public URL of the file to be used in an img tag
@@ -130,7 +130,7 @@ abstract class File implements
      *
      * @throws InvalidArgumentException|FileReferenceNotFoundException
      */
-    public static function fromArray(array $value): self
+    public static function fromArray(array $value): ?self
     {
         // Create an imafe from an existing FAL object
         if (isset($value['fileObject'])) {
@@ -287,7 +287,7 @@ abstract class File implements
      *
      * @see \TYPO3\CMS\Fluid\ViewHelpers\Uri\ResourceViewHelper
      */
-    public static function fromExtensionResource(string $extensionKey, string $path): self
+    public static function fromExtensionResource(string $extensionKey, string $path): ?self
     {
         return static::fromString('EXT:' . $extensionKey . '/Resources/Public/' . $path);
     }

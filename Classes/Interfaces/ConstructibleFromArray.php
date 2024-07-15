@@ -12,5 +12,5 @@ interface ConstructibleFromArray
     /**
      * Creates an instance of the class based on the provided array
      */
-    public static function fromArray(array $value): object;
+    public static function fromArray(array $value): ?object;
 }
