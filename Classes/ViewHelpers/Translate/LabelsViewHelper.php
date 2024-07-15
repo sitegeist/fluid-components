@@ -19,6 +19,7 @@ class LabelsViewHelper extends AbstractViewHelper
         $this->registerArgument('keys', 'array', 'Array of translation keys; Can also contain subarrays, then "key" is key, "arguments" is an array of sprintf arguments, and "default" is a default value', true);
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
         $this->registerArgument('languageKey', 'string', 'Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language');
+        // @deprecated will be removed in 4.0
         $this->registerArgument('alternativeLanguageKeys', 'array', 'Alternative language keys if no translation does exist');
     }
 
@@ -75,6 +76,9 @@ class LabelsViewHelper extends AbstractViewHelper
      */
     protected static function translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys)
     {
+        if ($alternativeLanguageKeys) {
+            trigger_error('Calling labels with the argument $alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
+        }
         if ($languageKey) {
             $localeFactory = GeneralUtility::makeInstance(Locales::class);
             $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);

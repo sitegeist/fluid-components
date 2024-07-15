@@ -50,6 +50,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         $this->registerArgument('element', RootRenderableInterface::class, 'Form Element to translate');
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
         $this->registerArgument('languageKey', 'string', 'Language key ("dk" for example) or "default" to use for this translation. If this argument is empty, we use the current language');
+        // @deprecated will be removed in 4.0
         $this->registerArgument('alternativeLanguageKeys', 'array', 'Alternative language keys if no translation does exist');
     }
 
@@ -218,7 +219,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
      * @param string $defaultValue Default validation message used as a fallback
      * @param string|null $extensionName The name of the extension
      * @param string $languageKey The language key or null for using the current language from the system
-     * @param string[] $alternativeLanguageKeys The alternative language keys if no translation was found. If null and we are in the frontend, then the language_alt from TypoScript setup will be used
+     * @param string[] $alternativeLanguageKeys The alternative language keys if no translation was found. If null and we are in the frontend, then the language_alt from TypoScript setup will be used. @deprecated will be removed in 4.0
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
      */
     public static function translateValidationError(
@@ -230,6 +231,9 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         string $languageKey = null,
         array $alternativeLanguageKeys = null
     ): ?string {
+        if ($alternativeLanguageKeys) {
+            trigger_error('Calling translatedValidationResults with the argument $alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
+        }
         if ($languageKey) {
             $localeFactory = GeneralUtility::makeInstance(Locales::class);
             $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);
