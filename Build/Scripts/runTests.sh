@@ -108,9 +108,9 @@ Examples:
     ./Build/Scripts/runTests.sh -p 8.3 -t 13
 EOF
 
-# Test if docker-compose exists, else exit out with error
-if ! type "docker-compose" > /dev/null; then
-    echo "This script relies on docker and docker-compose. Please install" >&2
+# Test if docker exists, else exit out with error
+if ! type "docker" > /dev/null; then
+    echo "This script relies on docker and docker. Please install" >&2
     exit 1
 fi
 
@@ -214,41 +214,41 @@ fi
 case ${TEST_SUITE} in
     composerInstall)
         setUpDockerComposeDotEnv
-        docker-compose run composer_install
+        docker compose run composer_install
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     composerInstallMax)
         setUpDockerComposeDotEnv
-        docker-compose run composer_install_max
+        docker compose run composer_install_max
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     composerInstallMin)
         setUpDockerComposeDotEnv
-        docker-compose run composer_install_min
+        docker compose run composer_install_min
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     composerValidate)
         setUpDockerComposeDotEnv
-        docker-compose run composer_validate
+        docker compose run composer_validate
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     functional)
         setUpDockerComposeDotEnv
         case ${DBMS} in
             mariadb)
-                docker-compose run functional_mariadb10
+                docker compose run functional_mariadb10
                 SUITE_EXIT_CODE=$?
                 ;;
             mssql)
-                docker-compose run functional_mssql2019latest
+                docker compose run functional_mssql2019latest
                 SUITE_EXIT_CODE=$?
                 ;;
             postgres)
-                docker-compose run functional_postgres10
+                docker compose run functional_postgres10
                 SUITE_EXIT_CODE=$?
                 ;;
             sqlite)
@@ -257,7 +257,7 @@ case ${TEST_SUITE} in
                 # root if docker creates it. Thank you, docker. We create the path beforehand
                 # to avoid permission issues.
                 mkdir -p ${ROOT_DIR}/.Build/Web/typo3temp/var/tests/functional-sqlite-dbs/
-                docker-compose run functional_sqlite
+                docker compose run functional_sqlite
                 SUITE_EXIT_CODE=$?
                 ;;
             *)
@@ -266,25 +266,25 @@ case ${TEST_SUITE} in
                 echo "${HELP}" >&2
                 exit 1
         esac
-        docker-compose down
+        docker compose down
         ;;
     lintPhp)
         setUpDockerComposeDotEnv
-        docker-compose run lint_php
+        docker compose run lint_php
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     lintEditorconfig)
             setUpDockerComposeDotEnv
-            docker-compose run lint_editorconfig
+            docker compose run lint_editorconfig
             SUITE_EXIT_CODE=$?
-            docker-compose down
+            docker compose down
             ;;
     unit)
         setUpDockerComposeDotEnv
-        docker-compose run unit
+        docker compose run unit
         SUITE_EXIT_CODE=$?
-        docker-compose down
+        docker compose down
         ;;
     update)
         # pull typo3/core-testing-*:latest versions of those ones that exist locally
