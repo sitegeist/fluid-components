@@ -8,13 +8,10 @@ use Psr\Container\ContainerInterface;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentResolver;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolverFactoryInterface;
 
-final class ViewHelperResolverFactory implements ViewHelperResolverFactoryInterface
+final readonly class ViewHelperResolverFactory implements ViewHelperResolverFactoryInterface
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     public function create(): ComponentResolver

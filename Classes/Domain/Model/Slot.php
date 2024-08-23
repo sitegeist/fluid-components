@@ -30,7 +30,7 @@ class Slot implements EscapedParameter, ConstructibleFromString, ConstructibleFr
 
     public function count(): int
     {
-        return strlen($this->html);
+        return strlen((string) $this->html);
     }
 
     public function __toString(): string

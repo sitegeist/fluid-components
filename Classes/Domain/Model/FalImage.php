@@ -13,10 +13,8 @@ class FalImage extends Image
 
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'FalImage';
+    protected string $type = 'FalImage';
 
 
     public function getAlternative(): ?string

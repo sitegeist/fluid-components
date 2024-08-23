@@ -28,17 +28,9 @@ class MapViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
-    /**
-     * @var bool
-     */
     protected $escapeOutput = false;
 
-    /**
-     * Initialize arguments
-     *
-     * @api
-     */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('fieldMapping', 'array', 'Map of fields keys.');
@@ -47,9 +39,6 @@ class MapViewHelper extends AbstractViewHelper
     }
 
     /**
-     * @param mixed $subject
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
      * @return array remapped array
      */
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
@@ -58,7 +47,7 @@ class MapViewHelper extends AbstractViewHelper
         $mapKeyArray = $arguments['fieldMapping'] ?? [];
         $keepFields = $arguments['keepFields'] ?? [];
         if (!is_array($keepFields)) {
-            $keepFields = array_map('trim', explode(',', $keepFields));
+            $keepFields = array_map('trim', explode(',', (string) $keepFields));
         }
 
         $newArray = [];

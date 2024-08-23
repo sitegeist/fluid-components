@@ -2,13 +2,14 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
-use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObject;
+use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObjectConversionInterface;
+use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyConversionInterface;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyValue;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\SpecificObject;
-use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyConversionInterface;
-use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObjectConversionInterface;
+use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
 class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
@@ -21,10 +22,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         $this->converter = new ComponentArgumentConverter();
     }
 
-    /**
-     * @test
-     */
-    public function addTypeAlias()
+    #[Test]
+    public function addTypeAlias(): void
     {
         $this->converter->addTypeAlias('Alias', '\Vendor\Original');
 
@@ -34,10 +33,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function removeTypeAlias()
+    #[Test]
+    public function removeTypeAlias(): void
     {
         $this->converter->addTypeAlias('Alias', '\Vendor\Original');
         $this->converter->removeTypeAlias('Alias');
@@ -48,10 +45,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function resolveTypeAliasCollection()
+    #[Test]
+    public function resolveTypeAliasCollection(): void
     {
         $this->converter->addTypeAlias('Alias', '\Vendor\Original');
 
@@ -61,10 +56,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function addRemoveConversionInterface()
+    #[Test]
+    public function addRemoveConversionInterface(): void
     {
         $this->assertEquals(
             [],
@@ -93,10 +86,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function canTypeBeConvertedToType()
+    #[Test]
+    public function canTypeBeConvertedToType(): void
     {
         $this->converter->addConversionInterface(
             'string',
@@ -157,10 +148,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function canTypeBeConvertedToTypeCached()
+    #[Test]
+    public function canTypeBeConvertedToTypeCached(): void
     {
         $this->converter->addConversionInterface(
             'string',
@@ -181,10 +170,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertValueToSameType()
+    #[Test]
+    public function convertValueToSameType(): void
     {
         $this->assertEquals(
             'My string',
@@ -192,10 +179,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertValueToUnregisteredType()
+    #[Test]
+    public function convertValueToUnregisteredType(): void
     {
         $this->assertEquals(
             'My string',
@@ -203,10 +188,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertValueToType()
+    #[Test]
+    public function convertValueToType(): void
     {
         $this->converter->addConversionInterface(
             'string',
@@ -220,10 +203,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertChildClassToType()
+    #[Test]
+    public function convertChildClassToType(): void
     {
         $this->converter->addConversionInterface(
             BaseObject::class,
@@ -241,10 +222,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
     }
 
-    /**
-     * @test
-     */
-    public function convertArrayToType()
+    #[Test]
+    public function convertArrayToType(): void
     {
         $this->converter->addConversionInterface(
             'string',
@@ -262,10 +241,8 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         $this->assertEquals('second', $converted[1]->value);
     }
 
-    /**
-     * @test
-     */
-    public function convertIteratorToType()
+    #[Test]
+    public function convertIteratorToType(): void
     {
         $this->converter->addConversionInterface(
             'string',

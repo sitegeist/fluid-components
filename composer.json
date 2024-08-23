@@ -19,11 +19,12 @@
         "issues": "https://github.com/sitegeist/fluid-components/issues"
     },
     "require": {
-        "typo3/cms-core": "^12.2 || ^11.5",
-        "typo3fluid/fluid": "^2"
+        "php": "^8.2",
+        "typo3/cms-core": "13.2.* || ^12.4",
+        "typo3fluid/fluid": "<=2.14.1"
     },
     "require-dev": {
-        "typo3/testing-framework": "^6.0 || ^7.0",
+        "typo3/testing-framework": "^8.2",
         "squizlabs/php_codesniffer": "^3.0",
         "editorconfig-checker/editorconfig-checker": "^10.0",
         "phpspec/prophecy-phpunit": "^2.0"
@@ -58,9 +59,6 @@
         }
     },
     "scripts": {
-        "post-autoload-dump": [
-            "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
-        ],
         "prepare-release": [
             "sed -i'' -e \"s/'version' => ''/'version' => '$(echo ${GITHUB_REF#refs/tags/} | sed 's/v//')'/\" ext_emconf.php",
             "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"

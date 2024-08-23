@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Command;
 
-use IteratorAggregate;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\ViewHelpers\SlotViewHelper;
@@ -31,7 +30,7 @@ class CheckContentEscapingCommand extends Command
      * List of ViewHelpers that are usually used to un-escape variables
      * that are passed as content to a component
      */
-    const RAW_VIEWHELPERS = [
+    public const RAW_VIEWHELPERS = [
         RawViewHelper::class,
         HtmlViewHelper::class
     ];
@@ -40,17 +39,20 @@ class CheckContentEscapingCommand extends Command
      * Variables that don't contain any HTML and thus don't need to be
      * checked
      */
-    const IGNORED_VARIABLES = [
+    public const IGNORED_VARIABLES = [
         'component.prefix',
         'component.class'
     ];
 
-    protected ?PackageManager $packageManager;
-    protected ?ComponentLoader $componentLoader;
-
     protected array $templates = [];
     protected array $results = [];
     protected array $affectedComponents = [];
+    public function __construct(
+        protected PackageManager $packageManager,
+        protected ComponentLoader $componentLoader
+    ) {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -99,9 +101,7 @@ class CheckContentEscapingCommand extends Command
                 $this->addResult($file, sprintf(
                     'Component "%s" expects raw html content, but was called with potentially escaped variables: %s',
                     $this->cleanupPathForOutput($result[0]),
-                    implode(', ', array_map(function ($variableName) {
-                        return '{' . $variableName . '}';
-                    }, $result[1]))
+                    implode(', ', array_map(fn($variableName) => '{' . $variableName . '}', $result[1]))
                 ));
             }
             $progress->advance();
@@ -229,7 +229,7 @@ class CheckContentEscapingCommand extends Command
 
                     // Check for f:format.raw etc.
                     $viewHelper = $parents[$i]->getUninitializedViewHelper();
-                    if (in_array(get_class($viewHelper), static::RAW_VIEWHELPERS)) {
+                    if (in_array($viewHelper::class, static::RAW_VIEWHELPERS)) {
                         continue 2;
                     }
                 }
@@ -251,15 +251,11 @@ class CheckContentEscapingCommand extends Command
     protected function discoverTemplateFiles(): array
     {
         // All extensions in local extension directory
-        $activeExtensions = array_filter($this->packageManager->getActivePackages(), function ($package) {
-            return strpos($package->getPackagePath(), Environment::getExtensionsPath()) === 0
-                || $package->getPackageMetaData()->getPackageType() === 'typo3-cms-extension';
-        });
+        $activeExtensions = array_filter($this->packageManager->getActivePackages(), fn($package) => str_starts_with((string) $package->getPackagePath(), Environment::getExtensionsPath())
+            || $package->getPackageMetaData()->getPackageType() === 'typo3-cms-extension');
 
         // All template paths (Resources/Private/)
-        $possibleTemplatePaths = array_map(function ($package) {
-            return ExtensionManagementUtility::extPath($package->getPackageKey(), 'Resources/Private/');
-        }, $activeExtensions);
+        $possibleTemplatePaths = array_map(fn($package) => ExtensionManagementUtility::extPath($package->getPackageKey(), 'Resources/Private/'), $activeExtensions);
         $possibleTemplatePaths = array_filter($possibleTemplatePaths, 'file_exists');
 
         if (empty($possibleTemplatePaths)) {
@@ -303,15 +299,5 @@ class CheckContentEscapingCommand extends Command
     protected function getTemplateParser(): TemplateParser
     {
         return (new StandaloneView())->getRenderingContext()->getTemplateParser();
-    }
-
-    public function injectPackageManager(PackageManager $packageManager): void
-    {
-        $this->packageManager = $packageManager;
-    }
-
-    public function injectComponentLoader(ComponentLoader $componentLoader): void
-    {
-        $this->componentLoader = $componentLoader;
     }
 }

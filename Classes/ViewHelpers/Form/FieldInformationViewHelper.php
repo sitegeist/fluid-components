@@ -46,9 +46,6 @@ use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
  */
 class FieldInformationViewHelper extends AbstractFormFieldViewHelper
 {
-    /**
-     * @var bool
-     */
     protected $escapeOutput = false;
 
     public function initializeArguments(): void
@@ -65,10 +62,8 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
 
     /**
      * Provides information about the form field to the child elements of this ViewHelper
-     *
-     * @return string
      */
-    public function render()
+    public function render(): string
     {
         // Get form context if available
         $formRuntime = $this->renderingContext
@@ -94,11 +89,9 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
     }
 
     /**
-     * returns prefix / namespace
-     *
      * @return string prefix/namespace
      */
-    protected function getPrefix()
+    protected function getPrefix(): string
     {
         if (!$this->viewHelperVariableContainer->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix')) {
             return '';

@@ -9,12 +9,9 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 class SlotViewHelper extends AbstractViewHelper
 {
-    /**
-     * @var boolean
-     */
     protected $escapeOutput = false;
 
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('name', 'string', 'Name of the slot that should be rendered', false, 'content');
         $this->registerArgument(
@@ -27,12 +24,6 @@ class SlotViewHelper extends AbstractViewHelper
         );
     }
 
-    /*
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     * @return string
-     */
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
         $slotContent = $renderingContext->getVariableProvider()->get($arguments['name']);

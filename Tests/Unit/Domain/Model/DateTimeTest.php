@@ -2,11 +2,15 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
-use SMS\FluidComponents\Utility\ComponentArgumentConverter;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Domain\Model\DateTime;
+use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
 class DateTimeTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
+    protected ComponentArgumentConverter $converter;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -14,7 +18,7 @@ class DateTimeTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         $this->converter = new ComponentArgumentConverter();
     }
 
-    public function convertToDateTimeProvider()
+    public static function convertToDateTimeProvider()
     {
         return [
             [new \DateTime('tomorrow'), new DateTime('tomorrow')],
@@ -24,11 +28,9 @@ class DateTimeTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider convertToDateTimeProvider
-     */
-    public function convertToDateTime($value, $expected)
+    #[Test]
+    #[DataProvider('convertToDateTimeProvider')]
+    public function convertToDateTime($value, $expected): void
     {
         $result = $this->converter->convertValueToType($value, DateTime::class);
         $this->assertEquals($expected, $result);

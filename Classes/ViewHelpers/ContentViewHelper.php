@@ -12,7 +12,7 @@ class ContentViewHelper extends AbstractViewHelper
 
     protected $escapeChildren = true;
 
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument('slot', 'string', 'Slot name', false, ComponentRenderer::DEFAULT_SLOT);
     }

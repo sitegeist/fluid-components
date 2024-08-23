@@ -8,31 +8,18 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
 {
     /**
      * Storage of the component settings
-     *
-     * @var array
      */
-    protected $settings = [];
+    protected array $settings = [];
 
-    /**
-     * @var TypoScriptService
-     */
-    protected TypoScriptService $typoScriptService;
-
-    /**
-     * @param TypoScriptService $typoScriptService
-     */
-    public function __construct(TypoScriptService $typoScriptService)
+    public function __construct(protected TypoScriptService $typoScriptService)
     {
-        $this->typoScriptService = $typoScriptService;
         $this->reset();
     }
 
     /**
      * Resets the settings to the default state (settings from ext_localconf.php and TypoScript)
-     *
-     * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->settings = array_merge(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? [],
@@ -44,20 +31,14 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
 
     /**
      * Checks if the specified settings path exists
-     *
-     * @param string $path
-     * @return bool
      */
-    public function exists(string $path)
+    public function exists(string $path): bool
     {
         return $this->get($path) !== null;
     }
 
     /**
      * Returns the value of the specified settings path
-     *
-     * @param string $path
-     * @return mixed
      */
     public function get(string $path)
     {
@@ -74,12 +55,8 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
 
     /**
      * Sets the value of the specified settings path
-     *
-     * @param string $path
-     * @param mixed $value
-     * @return self
      */
-    public function set(string $path, $value)
+    public function set(string $path, mixed $value): self
     {
         $path = explode('.', $path);
         $variable =& $this->settings;
@@ -95,11 +72,8 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
 
     /**
      * Unsets the specified settings path
-     *
-     * @param string $path
-     * @return self
      */
-    public function unset(string $path)
+    public function unset(string $path): self
     {
         $this->set($path, null);
         return $this;
@@ -107,49 +81,36 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
 
     /**
      * Checks if a subsetting exists; Part of the ArrayAccess implementation
-     *
-     * @param string $offset
-     * @return bool
      */
     #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->settings[$offset]);
     }
 
     /**
      * Returns the value of a subsetting; Part of the ArrayAccess implementation
-     *
-     * @param string $offset
-     * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->settings[$offset];
     }
 
     /**
      * Sets the value of a subsetting; Part of the ArrayAccess implementation
-     *
-     * @param string $offset
-     * @param mixed $value
-     * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->settings[$offset] = $value;
     }
 
     /**
      * Unsets a subsetting; Part of the ArrayAccess implementation
-     *
-     * @param string $offset
-     * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->settings[$offset]);
     }

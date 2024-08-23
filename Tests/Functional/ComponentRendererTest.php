@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -37,7 +39,7 @@ class ComponentRendererTest extends FunctionalTestCase
         // Register test components
         $this->componentNamespaces = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] ?? null;
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] = [
-            $this->testNamespace => realpath(dirname(__FILE__) . '/../Fixtures/Functional/Components/')
+            $this->testNamespace => realpath(__DIR__ . '/../Fixtures/Functional/Components/')
         ];
 
         // Register and then disable fluid cache
@@ -47,7 +49,7 @@ class ComponentRendererTest extends FunctionalTestCase
         $cacheManager->registerCache(new $cacheClass('fluid_template', new NullBackend(null)));
     }
 
-    public function renderComponentProvider()
+    public static function renderComponentProvider()
     {
         return [
             ['WithoutParameters', [], '', 'Just a renderer.'],
@@ -63,11 +65,9 @@ class ComponentRendererTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider renderComponentProvider
-     */
-    public function renderComponent($component, $arguments, $content, $expected)
+    #[Test]
+    #[DataProvider('renderComponentProvider')]
+    public function renderComponent($component, $arguments, $content, $expected): void
     {
         $container = $this->getContainer();
 
@@ -94,13 +94,11 @@ class ComponentRendererTest extends FunctionalTestCase
             $renderer,
             $arguments,
             $renderingContext,
-            function () use ($content) {
-                return $content;
-            }
+            fn() => $content
         );
 
         // Ignore whitespace output from components
-        $output = trim($output);
+        $output = trim((string) $output);
 
         $this->assertEquals($expected, $output);
     }
