@@ -2,6 +2,10 @@
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Imaging\GifBuilder;
+
 /**
  * Data structure for a placeholder image to be passed to a component
  */
@@ -43,6 +47,31 @@ class PlaceholderImage extends Image
 
     public function getPublicUrl(): string
     {
-        return 'https://via.placeholder.com/' . $this->width . 'x' . $this->height;
+        $gifBuilder = GeneralUtility::makeInstance(GifBuilder::class);
+        $gifBuilder->start(
+            [
+                'XY' => implode(',', [$this->width, $this->height]),
+                'backColor' => '#C0C0C0',
+                'format' => 'jpg',
+                '10' => 'TEXT',
+                '10.' => [
+                    'text' => implode('x', [$this->width, $this->height]),
+                    'fontColor' => '#000000',
+                    'fontSize' => 26,
+                    'antiAlias' => false,
+                    'align' => 'center',
+                    'offset' => implode(',', [0,$this->height / 2]),
+                ],
+            ],
+            []
+        );
+
+        $prefix = '/';
+
+        if(($GLOBALS['TSFE'] ?? null) instanceof TypoScriptFrontendController && $GLOBALS['TSFE']->absRefPrefix !== '') {
+            $prefix = $GLOBALS['TSFE']->absRefPrefix;
+        }
+
+        return $prefix . $gifBuilder->gifBuild();
     }
 }
