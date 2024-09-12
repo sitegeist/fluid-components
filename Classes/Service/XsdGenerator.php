@@ -9,22 +9,16 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
 
 class XsdGenerator
 {
-    /**
-     * @var object|\SMS\FluidComponents\Utility\ComponentLoader
-     */
-    private $componentLoader;
-
-    public function __construct(ComponentLoader $componentLoader)
+    public function __construct(private readonly ComponentLoader $componentLoader)
     {
-        $this->componentLoader = $componentLoader;
     }
 
     /**
-     * @param $componentName Name of component without namespace, f.e. 'atom.button'
+     * @param string $componentName Name of component without namespace, f.e. 'atom.button'
      * @param ArgumentDefinition[] $arguments
      * @return string
      */
-    protected function generateXsdForComponent($componentName, $arguments)
+    protected function generateXsdForComponent(string $componentName, array $arguments): string
     {
         $xsd = '<xsd:element name="' . $componentName . '">
         <xsd:annotation>
@@ -38,7 +32,7 @@ class XsdGenerator
             $requiredTag = $argumentDefinition->isRequired() ? ' use="required"' : '';
             try {
                 $defaultTag = (string)$argumentDefinition->getDefaultValue() !== '' ? ' default="' . $argumentDefinition->getDefaultValue() . '"' : '';
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $defaultTag = '';
             }
             $xsd .= "\n" . '            <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() . '"' . $requiredTag . $defaultTag . '>
@@ -80,25 +74,22 @@ class XsdGenerator
     private function getTagName($nameSpace, $componentName)
     {
         $tagName = '';
-        if (strpos($componentName, $nameSpace) === 0) {
-            $tagNameWithoutNameSpace = substr($componentName, strlen($nameSpace) + 1);
-            $tagName = strtolower(str_replace('\\', '.', $tagNameWithoutNameSpace));
+        if (str_starts_with((string) $componentName, (string) $nameSpace)) {
+            $tagNameWithoutNameSpace = substr((string) $componentName, strlen((string) $nameSpace) + 1);
+            $tagName = lcfirst(str_replace('\\', '.', $tagNameWithoutNameSpace));
         }
         return $tagName;
     }
 
     /**
      * returns only the upper chars of a given string
-     *
-     * @param $string
-     * @return string
      */
-    private function strUpperChars($string)
+    private function strUpperChars(string $string): string
     {
         $output = '';
-        $strLength = strlen($string);
+        $strLength = strlen((string) $string);
         for ($i = 0; $i < $strLength; $i++) {
-            if (ctype_upper($string[$i])) {
+            if (ctype_upper((string) $string[$i])) {
                 $output .= $string[$i];
             }
         }
@@ -108,11 +99,8 @@ class XsdGenerator
     /**
      * returns default prefix for a namespace if defined
      * otherwise it builds a prefix from the extension name part of the namespace
-     *
-     * @param $namespace
-     * @return int|string
      */
-    protected function getDefaultPrefixForNamespace($namespace)
+    protected function getDefaultPrefixForNamespace(string $namespace): int|string
     {
         $defaultNamespaceDefinitions = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'];
         foreach ($defaultNamespaceDefinitions as $prefix => $registeredNameSpaces) {
@@ -124,7 +112,7 @@ class XsdGenerator
         }
         // no registered default prefix found, so build one from extension name part of the namespace
         // f.e. Vendor\MyExtension\Components => me (converting only the upper chars from 'MyExtension' to lower case
-        $nameSpaceParts = explode('\\', $namespace);
+        $nameSpaceParts = explode('\\', (string) $namespace);
         $lastFragment = $nameSpaceParts[1];
         return strtolower($this->strUpperChars($lastFragment));
     }
@@ -132,18 +120,16 @@ class XsdGenerator
     /**
      * generate xsd file for each component namespace
      *
-     * @param $path
-     * @param null $namespace
      * @return array Array of generated XML target namespaces
      */
-    public function generateXsd($path, $namespace = null)
+    public function generateXsd(string $path, string $namespace = null): array
     {
         $generatedNameSpaces = [];
         $namespaces = $this->componentLoader->getNamespaces();
         foreach ($namespaces as $registeredNamespace => $registeredNamepacePath) {
             if ($namespace === null || $registeredNamespace === $namespace) {
                 $components = $this->componentLoader->findComponentsInNamespace($registeredNamespace);
-                $filePath = rtrim($path, DIRECTORY_SEPARATOR) .
+                $filePath = rtrim((string) $path, DIRECTORY_SEPARATOR) .
                     DIRECTORY_SEPARATOR .
                     $this->getFileNameForNamespace($registeredNamespace);
                 file_put_contents($filePath, $this->generateXsdForNamespace($registeredNamespace, $components));
@@ -155,11 +141,8 @@ class XsdGenerator
 
     /**
      * returns a default filename for a given namespace
-     *
-     * @param $namespace
-     * @return string
      */
-    protected function getFileNameForNamespace($namespace)
+    protected function getFileNameForNamespace(string $namespace): string
     {
         return str_replace('\\', '_', $namespace) . '.xsd';
     }

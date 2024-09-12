@@ -2,11 +2,15 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
-use SMS\FluidComponents\Utility\ComponentArgumentConverter;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Domain\Model\Link;
+use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
 class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 {
+    protected ComponentArgumentConverter $converter;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -14,25 +18,21 @@ class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         $this->converter = new ComponentArgumentConverter();
     }
 
-    /**
-     * @test
-     */
-    public function convertStringToLink()
+    #[Test]
+    public function convertStringToLink(): void
     {
         $result = $this->converter->convertValueToType('https://example.com', Link::class);
         $this->assertEquals(new Link('https://example.com'), $result);
     }
 
-    /**
-     * @test
-     */
-    public function convertEmptyStringToLink()
+    #[Test]
+    public function convertEmptyStringToLink(): void
     {
         $result = $this->converter->convertValueToType('', Link::class);
         $this->assertEquals(null, $result);
     }
 
-    public function linkPropertiesProvider()
+    public static function linkPropertiesProvider()
     {
         return [
             [
@@ -60,11 +60,9 @@ class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider linkPropertiesProvider
-     */
-    public function linkProperties($uri, $scheme, $user, $password, $host, $port, $path, $query, $fragment)
+    #[Test]
+    #[DataProvider('linkPropertiesProvider')]
+    public function linkProperties($uri, $scheme, $user, $password, $host, $port, $path, $query, $fragment): void
     {
         $result = $this->converter->convertValueToType($uri, Link::class);
         $this->assertEquals($uri, $result->getUri());

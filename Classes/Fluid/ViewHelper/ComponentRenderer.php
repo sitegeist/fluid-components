@@ -3,7 +3,10 @@
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
+use SMS\FluidComponents\Domain\Model\RequiredSlotPlaceholder;
+use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
+use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 use SMS\FluidComponents\Utility\ComponentLoader;
@@ -11,13 +14,14 @@ use SMS\FluidComponents\Utility\ComponentPrefixer\ComponentPrefixerInterface;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 use SMS\FluidComponents\Utility\ComponentSettings;
 use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
+use SMS\FluidComponents\ViewHelpers\ContentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
+use TYPO3Fluid\Fluid\Core\Parser\ParsedTemplateInterface;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\BooleanNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\EscapingNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\NodeInterface;
@@ -29,26 +33,24 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class ComponentRenderer extends AbstractViewHelper
 {
+    public const DEFAULT_SLOT = 'content';
+
     protected $reservedArguments = [
         'class',
         'component',
-        'content',
+        self::DEFAULT_SLOT,
         'settings',
     ];
 
     /**
      * Namespace of the component the viewhelper should render
-     *
-     * @var string
      */
-    protected $componentNamespace;
+    protected string $componentNamespace;
 
     /**
      * Cache for component template instance used for rendering
-     *
-     * @var \TYPO3Fluid\Fluid\Core\Parser\ParsedTemplateInterface
      */
-    protected $parsedTemplate;
+    protected ParsedTemplateInterface $parsedTemplate;
 
     /**
      * Cache of component argument definitions; the key is the component namespace, and the
@@ -56,76 +58,36 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * In our benchmarks, this cache leads to a 40% improvement when using a certain
      * ViewHelper class many times throughout the rendering process.
-     * @var array
      */
-    protected static $componentArgumentDefinitionCache = [];
+    protected static array $componentArgumentDefinitionCache = [];
 
     /**
      * Cache of component prefixer objects
-     *
-     * @var array
      */
-    protected static $componentPrefixerCache = [];
+    protected static array $componentPrefixerCache = [];
 
     /**
-     * Components are HTML markup which should not be escaped
-     *
-     * @var boolean
-     */
+    * Components are HTML markup which should not be escaped
+    */
     protected $escapeOutput = false;
 
     /**
      * Children should be treated just like an argument
-     *
-     * @var boolean
      */
-    protected $escapeChildren = false;
+    protected $escapeChildren = true;
 
-    /**
-     * @var ComponentLoader
-     */
-    protected ComponentLoader $componentLoader;
-
-    /**
-     * @var ComponentSettings
-     */
-    protected ComponentSettings $componentSettings;
-
-    /**
-     * @var ComponentArgumentConverter
-     */
-    protected ComponentArgumentConverter $componentArgumentConverter;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected ContainerInterface $container;
-
-    /**
-     * @param ComponentLoader $componentLoader
-     * @param ComponentSettings $componentSettings
-     * @param ComponentArgumentConverter $componentArgumentConverter
-     * @param ContainerInterface $container
-     */
     public function __construct(
-        ComponentLoader $componentLoader,
-        ComponentSettings $componentSettings,
-        ComponentArgumentConverter $componentArgumentConverter,
-        ContainerInterface $container
+        protected ComponentLoader $componentLoader,
+        protected ComponentSettings $componentSettings,
+        protected ComponentArgumentConverter $componentArgumentConverter,
+        protected ContainerInterface $container
     ) {
-        $this->componentLoader = $componentLoader;
-        $this->componentSettings = $componentSettings;
-        $this->componentArgumentConverter = $componentArgumentConverter;
-        $this->container = $container;
     }
 
     /**
      * Sets the namespace of the component the viewhelper should render
-     *
-     * @param string $componentNamespace
-     * @return self
      */
-    public function setComponentNamespace($componentNamespace)
+    public function setComponentNamespace(string $componentNamespace): self
     {
         $this->componentNamespace = $componentNamespace;
         return $this;
@@ -133,47 +95,37 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Returns the namespace of the component the viewhelper renders
-     *
-     * @return void
      */
-    public function getComponentNamespace()
+    public function getComponentNamespace(): string
     {
         return $this->componentNamespace;
     }
 
-    /**
-     * Returns the component prefix
-     *
-     * @return string
-     */
-    public function getComponentClass()
+    public function getComponentClass(): string
     {
         return $this->getComponentPrefixer()->prefix($this->componentNamespace);
     }
 
-    /**
-     * Returns the component prefix
-     *
-     * @return string
-     */
-    public function getComponentPrefix()
+    public function getComponentPrefix(): string
     {
         return $this->getComponentClass() . $this->getComponentPrefixer()->getSeparator();
     }
 
     /**
      * Renders the component the viewhelper is responsible for
-     * TODO this can probably be improved by using renderComponent() directly
+     * TODO: this can probably be improved by using renderComponent() directly
      *
-     * @return string
      */
-    public function render()
+    public function render(): string
     {
         // Create a new rendering context for the component file
         $renderingContext = $this->getRenderingContext();
-        if ($this->renderingContext->getControllerContext()) {
-            $renderingContext->setControllerContext($this->renderingContext->getControllerContext());
-        }
+
+        // set the original request to preserve the request attributes
+        // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
+        // e.g. f:uri.action, f:page.action
+        $renderingContext->setRequest($this->renderingContext->getRequest());
+
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
             $renderingContext->getTemplatePaths()->setPartialRootPaths(
@@ -191,8 +143,14 @@ class ComponentRenderer extends AbstractViewHelper
         $variableContainer->add('settings', $this->componentSettings);
 
         // Provide supplied arguments from component call to renderer
-        foreach ($this->arguments as $name => $argument) {
-            $argumentType = $this->argumentDefinitions[$name]->getType();
+        foreach ($this->argumentDefinitions as $name => $definition) {
+            $argumentType = $definition->getType();
+
+            if (is_a($argumentType, Slot::class, true)) {
+                $argument = $this->renderSlot($name);
+            } else {
+                $argument = $this->arguments[$name] ?? null;
+            }
 
             $argument = $this->componentArgumentConverter->convertValueToType($argument, $argumentType);
 
@@ -209,25 +167,54 @@ class ComponentRenderer extends AbstractViewHelper
             $variableContainer->add($name, $argument);
         }
 
-        // Provide component content to renderer
-        if (!isset($this->arguments['content'])) {
-            $variableContainer->add('content', $this->renderChildren());
-        }
-
         // Initialize component rendering template
         if (!isset($this->parsedTemplate)) {
             $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
 
             $this->parsedTemplate = $renderingContext->getTemplateParser()->getOrParseAndStoreTemplate(
                 $this->getTemplateIdentifier($componentFile),
-                function () use ($componentFile) {
-                    return file_get_contents($componentFile);
-                }
+                fn() => file_get_contents($componentFile)
             );
         }
 
         // Render component
         return $this->parsedTemplate->render($renderingContext);
+    }
+
+    protected function renderSlot(string $name)
+    {
+        $slot = $this->arguments[$name] ?? null;
+
+        // Shortcut if template is rendered from cache
+        // or parameter was provided directly to the component
+        if (isset($slot) && !$slot instanceof RequiredSlotPlaceholder) {
+            return $slot;
+        }
+
+        // Use content specified by <fc:content /> ViewHelpers
+        // This is only executed for uncached templates
+        if (isset($this->viewHelperNode)) {
+            $contentViewHelpers = $this->extractContentViewHelpers($this->viewHelperNode, $this->renderingContext);
+            if (isset($contentViewHelpers[$name])) {
+                return (string) $contentViewHelpers[$name]->evaluateChildNodes($this->renderingContext);
+            }
+        }
+
+        // Use tag content for default slot
+        if ($name === self::DEFAULT_SLOT) {
+            return (string) $this->renderChildren();
+        }
+
+        // Required Slot parameters are checked here for existence at last
+        if ($slot instanceof RequiredSlotPlaceholder) {
+            throw new \InvalidArgumentException(sprintf(
+                'Slot "%s" is required by component "%s", but no value was given.',
+                $name,
+                $this->componentNamespace
+            ), 1681728555);
+        }
+
+        return $slot;
     }
 
     /**
@@ -246,10 +233,31 @@ class ComponentRenderer extends AbstractViewHelper
         &$initializationPhpCode,
         ViewHelperNode $node,
         TemplateCompiler $compiler
-    ) {
+    ): string {
+        $allowedSlots = [];
+        foreach ($node->getArgumentDefinitions() as $definition) {
+            if (is_a($definition->getType(), Slot::class, true)) {
+                $allowedSlots[$definition->getName()] = true;
+            }
+        }
+
+        $contentViewHelpers = $this->extractContentViewHelpers($node, $compiler->getRenderingContext());
+        foreach ($contentViewHelpers as $slotName => $viewHelperNode) {
+            if (!isset($allowedSlots[$slotName])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Slot "%s" does not exist in component "%s", but was used as named slot.',
+                    $slotName,
+                    $this->componentNamespace
+                ), 1681832624);
+            }
+
+            $childNodesAsClosure = $compiler->wrapChildNodesInClosure($viewHelperNode);
+            $initializationPhpCode .= sprintf('%s[\'%s\'] = %s;', $argumentsName, $slotName, $childNodesAsClosure) . chr(10);
+        }
+
         return sprintf(
             '%s::renderComponent(%s, %s, $renderingContext, %s)',
-            get_class($this),
+            static::class,
             $argumentsName,
             $closureName,
             var_export($this->componentNamespace, true)
@@ -258,23 +266,15 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Replacement for renderStatic() to provide component namespace to ViewHelper
-     *
-     * @param array $arguments
-     * @param \Closure $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     * @param string $componentNamespace
-     * @return mixed
      */
     public static function renderComponent(
         array $arguments,
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext,
-        $componentNamespace
-    ) {
-        $viewHelperClassName = get_called_class();
-
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $componentRenderer = $objectManager->get($viewHelperClassName);
+        string $componentNamespace
+    ): mixed {
+        $container = GeneralUtility::makeInstance(ContainerInterface::class);
+        $componentRenderer = $container->get(static::class);
         $componentRenderer->setComponentNamespace($componentNamespace);
 
         return $renderingContext->getViewHelperInvoker()->invoke(
@@ -288,10 +288,9 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Initializes the component arguments based on the component definition
      *
-     * @return void
      * @throws Exception
      */
-    public function initializeArguments()
+    public function initializeArguments(): void
     {
         $this->registerArgument(
             'class',
@@ -299,9 +298,12 @@ class ComponentRenderer extends AbstractViewHelper
             'Additional CSS classes for the component'
         );
         $this->registerArgument(
-            'content',
-            'string',
-            'Main content of the component; falls back to ViewHelper tag content'
+            self::DEFAULT_SLOT,
+            Slot::class,
+            'Main content of the component; falls back to ViewHelper tag content',
+            false,
+            null,
+            true
         );
 
         $this->initializeComponentParams();
@@ -332,10 +334,8 @@ class ComponentRenderer extends AbstractViewHelper
      * method must not be called, obviously.
      *
      * @throws Exception
-     * @param array $arguments
-     * @return void
      */
-    public function validateAdditionalArguments(array $arguments)
+    public function validateAdditionalArguments(array $arguments): void
     {
         if (!empty($arguments)) {
             throw new Exception(
@@ -353,10 +353,9 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Validate arguments, and throw exception if arguments do not validate.
      *
-     * @return void
      * @throws \InvalidArgumentException
      */
-    public function validateArguments()
+    public function validateArguments(): void
     {
         $argumentDefinitions = $this->prepareArguments();
         foreach ($argumentDefinitions as $argumentName => $registeredArgument) {
@@ -365,7 +364,7 @@ class ComponentRenderer extends AbstractViewHelper
                 $defaultValue = $registeredArgument->getDefaultValue();
                 $type = $registeredArgument->getType();
                 if ($value !== $defaultValue && $type !== 'mixed') {
-                    $givenType = is_object($value) ? get_class($value) : gettype($value);
+                    $givenType = is_object($value) ? $value::class : gettype($value);
                     if (!$this->isValidType($type, $value)
                         && !$this->componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
                     ) {
@@ -382,10 +381,8 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Creates ViewHelper arguments based on the params defined in the component definition
-     *
-     * @return void
      */
-    protected function initializeComponentParams()
+    protected function initializeComponentParams(): void
     {
         $renderingContext = $this->getRenderingContext();
 
@@ -426,9 +423,7 @@ class ComponentRenderer extends AbstractViewHelper
 
                 // Use tag content as default value instead of attribute
                 if (!isset($param['default'])) {
-                    $param['default'] = implode('', array_map(function ($node) use ($renderingContext) {
-                        return $node->evaluate($renderingContext);
-                    }, $paramNode->getChildNodes()));
+                    $param['default'] = implode('', array_map(fn($node) => $node->evaluate($renderingContext), $paramNode->getChildNodes()));
                     $param['default'] = $param['default'] === '' ? null : $param['default'];
                 }
 
@@ -456,19 +451,42 @@ class ComponentRenderer extends AbstractViewHelper
 
                 $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
-                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default']);
+                $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
+
+                // Special handling for required Slot parameters
+                // This is necessary to be able to use <fc:content /> instead of a component parameter because
+                // the Fluid parser checks for existing arguments early in the parsing process
+                if (is_a($param['type'], Slot::class, true) && !$optional) {
+                    $optional = true;
+                    $param['default'] = new RequiredSlotPlaceholder;
+                }
+
+                $this->registerArgument($param['name'], $param['type'], $description, !$optional, $param['default'], $escape);
             }
         }
     }
 
     /**
-     * Extract all ViewHelpers of a certain type from a Fluid template node
-     *
-     * @param NodeInterface $node
-     * @param string $viewHelperClassName
-     * @return void
+     * Extracts all <fc:content /> ViewHelpers from Fluid template node
      */
-    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName)
+    protected function extractContentViewHelpers(NodeInterface $node, RenderingContext $renderingContext): array
+    {
+        return array_reduce(
+            $this->extractViewHelpers($node, ContentViewHelper::class),
+            function (array $nodes, ViewHelperNode $node) use ($renderingContext) {
+                $slotArgument = $node->getArguments()['slot'] ?? null;
+                $slotName = ($slotArgument) ? $slotArgument->evaluate($renderingContext) : self::DEFAULT_SLOT;
+                $nodes[$slotName] = $node;
+                return $nodes;
+            },
+            []
+        );
+    }
+
+    /**
+     * Extract all ViewHelpers of a certain type from a Fluid template node
+     */
+    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName): array
     {
         $viewHelperNodes = [];
 
@@ -492,10 +510,8 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Returns an identifier by which fluid templates will be stored in the cache
-     *
-     * @return string
      */
-    protected function getTemplateIdentifier(string $pathAndFilename, string $prefix = 'fluidcomponent')
+    protected function getTemplateIdentifier(string $pathAndFilename, string $prefix = 'fluidcomponent'): string
     {
         $templateModifiedTimestamp = $pathAndFilename !== 'php://stdin' && file_exists($pathAndFilename) ? filemtime($pathAndFilename) : 0;
         return sprintf(
@@ -508,10 +524,8 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Returns the prefixer object responsible for the current component namespaces
-     *
-     * @return ComponentPrefixerInterface
      */
-    protected function getComponentPrefixer()
+    protected function getComponentPrefixer(): ComponentPrefixerInterface
     {
         if (!isset(self::$componentPrefixerCache[$this->componentNamespace])) {
             if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']) &&
@@ -520,7 +534,7 @@ class ComponentRenderer extends AbstractViewHelper
                 arsort($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer']);
                 foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['prefixer'] as $namespace => $prefixer) {
                     $namespace = ltrim($namespace, '\\');
-                    if (strpos($this->componentNamespace, $namespace) === 0) {
+                    if (str_starts_with($this->componentNamespace, $namespace)) {
                         $componentPrefixerClass = $prefixer;
                         break;
                     }
@@ -550,9 +564,6 @@ class ComponentRenderer extends AbstractViewHelper
         return self::$componentPrefixerCache[$this->componentNamespace];
     }
 
-    /**
-     * @return RenderingContext
-     */
     protected function getRenderingContext(): RenderingContext
     {
         if ($this->container->has(RenderingContextFactory::class)) {
@@ -562,9 +573,6 @@ class ComponentRenderer extends AbstractViewHelper
         }
     }
 
-    /**
-     * @return bool
-     */
     protected static function shouldUseTemplatePaths(): bool
     {
         static $assertion = null;

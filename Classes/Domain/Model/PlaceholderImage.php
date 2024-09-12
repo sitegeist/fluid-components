@@ -13,24 +13,18 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'PlaceholderImage';
+    protected string $type = 'PlaceholderImage';
 
     /**
      * Width of the placeholder image
-     *
-     * @var integer
      */
-    protected $width = 0;
+    protected int $width = 0;
 
     /**
      * Height of the placeholder image
-     *
-     * @var integer
      */
-    protected $height = 0;
+    protected int $height = 0;
 
     /**
      * Image format of the image
@@ -41,10 +35,6 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
 
     /**
      * Creates an image object for a placeholder image
-     *
-     * @param integer $width
-     * @param integer $height
-     * @param string $format
      */
     public function __construct(int $width, int $height, string $format = 'gif')
     {

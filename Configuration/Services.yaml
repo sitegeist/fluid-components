@@ -15,3 +15,11 @@ services:
                 description: 'Generates the XSD files for autocompletion in the IDE.'
                 schedulable: true
                 hidden: false
+
+    SMS\FluidComponents\Command\CheckContentEscapingCommand:
+        tags:
+            -   name: 'console.command'
+                command: 'fluidcomponents:checkContentEscaping'
+                description: 'Checks for possible escaping issues with content parameter due to changed children escaping behavior'
+                schedulable: false
+                hidden: false

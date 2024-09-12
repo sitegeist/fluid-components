@@ -11,23 +11,18 @@ class RemoteImage extends Image
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'RemoteImage';
+    protected string $type = 'RemoteImage';
 
     /**
      * URI to the remote image
-     *
-     * @var string
      */
-    protected $uri = '';
+    protected string $uri = '';
 
     /**
      * Creates an image object for a remote image resource
      *
-     * @param string $uri
-     * @throws InvalidFilePathException
+     * @throws InvalidRemoteImageException
      */
     public function __construct(string $uri)
     {
@@ -48,9 +43,6 @@ class RemoteImage extends Image
 
     /**
      * Checks if the provided uri is a valid remote uri
-     *
-     * @param string $uri
-     * @return boolean
      */
     protected static function isRemoteUri(string $uri): bool
     {

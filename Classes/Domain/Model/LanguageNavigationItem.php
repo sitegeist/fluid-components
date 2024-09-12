@@ -11,61 +11,47 @@ class LanguageNavigationItem extends NavigationItem
 {
     /**
      * Availability of translation for the specific page
-     *
-     * @var boolean
      */
-    protected $available = false;
+    protected bool $available = false;
 
     /**
      * UID of the sys_language record
-     *
-     * @var int
      */
-    protected $languageId;
+    protected int $languageId;
 
     /**
      * Locale definition for language
-     *
-     * @var string
      */
-    protected $locale;
+    protected string $locale;
 
     /**
      * ISO code for language
-     *
-     * @var string
      */
-    protected $twoLetterIsoCode;
+    protected string $twoLetterIsoCode;
 
     /**
      * Hreflang identifier for language
-     *
-     * @var string
      */
-    protected $hreflang;
+    protected string $hreflang;
 
     /**
      * Directionality of text in the language (ltr or rtl)
-     *
-     * @var string
      */
-    protected $direction;
+    protected string $direction;
 
     /**
      * Flag name for language
-     *
-     * @var string
      */
-    protected $flag;
+    protected string $flag;
 
     /**
      * Creates a navigation item object
      *
      * @param string $title             title of the item
      * @param Typolink $link            link of the item
-     * @param boolean $current          true if item represents the current page
-     * @param boolean $active           true if item is part of current rootline
-     * @param boolean $available        true if current page is translated to language
+     * @param bool $current          true if item represents the current page
+     * @param bool $active           true if item is part of current rootline
+     * @param bool $available        true if current page is translated to language
      * @param int $languageId           UID of the sys_language record
      * @param string $locale            Locale definition for language
      * @param string $twoLetterIsoCode  ISO code for language
@@ -115,7 +101,6 @@ class LanguageNavigationItem extends NavigationItem
      * @param array $navigationItem  respected properties that will become part of the data structure:
      *                               title, link, target, current, active, available, languageId, locale,
      *                               twoLetterIsoCode, hreflang, direction, flag, data
-     * @return self
      */
     public static function fromArray(array $navigationItem): self
     {

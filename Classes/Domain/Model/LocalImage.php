@@ -12,22 +12,19 @@ use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 
 /**
  * Data structure for a local image resource to be passed to a component
+ * @deprecated, use FalImage instead
  */
 class LocalImage extends Image implements ImageWithDimensions, ProcessableImage
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'LocalImage';
+    protected string $type = 'LocalImage';
 
     /**
      * Absolute path to the local file
-     *
-     * @var string
      */
-    protected $filePath = '';
+    protected string $filePath = '';
 
     /**
      * Image width, will be determined at first access
@@ -46,7 +43,6 @@ class LocalImage extends Image implements ImageWithDimensions, ProcessableImage
     /**
      * Creates an image object for a local image resource
      *
-     * @param string $filePath
      * @throws InvalidFilePathException
      */
     public function __construct(string $filePath)

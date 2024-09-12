@@ -10,11 +10,13 @@ class DummyValue implements DummyConversionInterface, BaseObjectConversionInterf
         $this->value = $value;
     }
 
+    #[\Override]
     public static function fromString(string $value)
     {
         return new static($value);
     }
 
+    #[\Override]
     public static function fromBaseObject(BaseObject $object)
     {
         return new static($object->value);

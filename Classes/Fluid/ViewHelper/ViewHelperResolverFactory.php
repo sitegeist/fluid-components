@@ -5,24 +5,18 @@ declare(strict_types=1);
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
 use Psr\Container\ContainerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
+use SMS\FluidComponents\Fluid\ViewHelper\ComponentResolver;
+use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolverFactoryInterface;
 
-final class ViewHelperResolverFactory implements \TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolverFactoryInterface
+final readonly class ViewHelperResolverFactory implements ViewHelperResolverFactoryInterface
 {
-    private ContainerInterface $container;
-    private ObjectManagerInterface $objectManager;
-
-    public function __construct(
-        ContainerInterface $container,
-        ObjectManagerInterface $objectManager
-    ) {
-        $this->container = $container;
-        $this->objectManager = $objectManager;
+    public function __construct(private ContainerInterface $container)
+    {
     }
 
     public function create(): ComponentResolver
     {
         $namespaces = $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces'] ?? [];
-        return new ComponentResolver($this->container, $this->objectManager, $namespaces);
+        return new ComponentResolver($this->container, $namespaces);
     }
 }

@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional\ViewHelpers\Variable;
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class MapViewHelperTest extends FunctionalTestCase
 {
-    public function renderDataProvider(): \Generator
+    protected bool $initializeDatabase = false;
+    protected array $testExtensionsToLoad = [
+        'typo3conf/ext/fluid_components'
+    ];
+
+    public static function renderDataProvider(): \Generator
     {
         $input = [
             0 => [
@@ -119,20 +125,14 @@ class MapViewHelperTest extends FunctionalTestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider renderDataProvider
-     */
+    #[Test]
+    #[DataProvider('renderDataProvider')]
     public function render(array $input, string $template, array $expected): void
     {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view = new TemplateView();
+        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
         $view->assign('dataSource',$input);
-        $view->setTemplateSource('<html
-            xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-            xmlns:fc="SMS\FluidComponents\ViewHelpers"
-            data-namespace-typo3-fluid="true"
-            >' . $template);
-
+        $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
         $view->render();
         self::assertSame($expected, $view->getRenderingContext()->getVariableProvider()->get('dataTarget'));
     }

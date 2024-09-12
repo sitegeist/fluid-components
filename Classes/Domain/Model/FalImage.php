@@ -20,10 +20,8 @@ class FalImage extends Image implements ImageWithDimensions, ImageWithCropVarian
 
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'FalImage';
+    protected string $type = 'FalImage';
 
 
     public function getAlternative(): ?string

@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Service;
 
+use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Service\XsdGenerator;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
@@ -35,7 +36,7 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
      */
     public function invokeMethod(&$object, $methodName, array $parameters = [])
     {
-        $reflection = new \ReflectionClass(get_class($object));
+        $reflection = new \ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
@@ -44,10 +45,10 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
 
     /**
-     * @test
      * @throws \ReflectionException
      */
-    public function getFileNameForNamespace() {
+    #[Test]
+    public function getFileNameForNamespace(): void {
 
         $this->assertEquals(
             'SMS_FluidComponents_Components.xsd',
@@ -56,10 +57,10 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
     }
 
     /**
-     * @test
      * @throws \ReflectionException
      */
-    public function getDefaultPrefixForNamespace() {
+    #[Test]
+    public function getDefaultPrefixForNamespace(): void {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'][] = 'SMS\FluidComponents\ViewHelpers';
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['ab'][] = 'SMS\OtherComponents\Components';
         $this->assertEquals(

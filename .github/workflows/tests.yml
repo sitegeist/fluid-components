@@ -8,7 +8,17 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -
-                uses: actions/checkout@v2
+                uses: actions/checkout@v4
+
+            -
+                name: Set up Docker Compose
+                run: |
+                    docker-compose --version || {
+                    echo "Docker Compose not found, installing..."
+                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                    sudo chmod +x /usr/local/bin/docker-compose
+                    docker-compose --version
+                    }
 
             -
                 name: Validate composer.json
@@ -16,7 +26,7 @@ jobs:
 
             -
                 name: Cache composer dependencies
-                uses: actions/cache@v1
+                uses: actions/cache@v4
                 with:
                     path: ~/.composer/cache
                     key: composer
@@ -40,17 +50,23 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: [7.4, '8.0']
-                typo3-versions: [10, 11]
-                exclude:
-                    -
-                        php-versions: '8.0'
-                        typo3-versions: 10
+                php-versions: ['8.3', '8.2']
+                typo3-versions: [13, 12]
 
         name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
         steps:
             -
-                uses: actions/checkout@v2
+                uses: actions/checkout@v4
+
+            -
+                name: Set up Docker Compose
+                run: |
+                    docker-compose --version || {
+                    echo "Docker Compose not found, installing..."
+                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                    sudo chmod +x /usr/local/bin/docker-compose
+                    docker-compose --version
+                    }
 
             -
                 name: Validate composer.json
@@ -58,7 +74,7 @@ jobs:
 
             -
                 name: Cache composer dependencies
-                uses: actions/cache@v1
+                uses: actions/cache@v4
                 with:
                     path: ~/.composer/cache
                     key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
@@ -73,38 +89,44 @@ jobs:
 
 
     functionaltest:
-         runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-         strategy:
-             max-parallel: 2
-             matrix:
-                 php-versions: [7.4, '8.0']
-                 typo3-versions: [10, 11]
-                 exclude:
-                     -
-                         php-versions: '8.0'
-                         typo3-versions: 10
+        strategy:
+            max-parallel: 2
+            matrix:
+                php-versions: ['8.3', '8.2']
+                typo3-versions: [13, 12]
 
-         name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
-         steps:
-             -
-                 uses: actions/checkout@v2
+        name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+        steps:
+            -
+                uses: actions/checkout@v4
 
-             -
-                 name: Validate composer.json
-                 run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerValidate
+            -
+                name: Set up Docker Compose
+                run: |
+                    docker-compose --version || {
+                    echo "Docker Compose not found, installing..."
+                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                    sudo chmod +x /usr/local/bin/docker-compose
+                    docker-compose --version
+                    }
 
-             -
-                 name: Cache composer dependencies
-                 uses: actions/cache@v1
-                 with:
-                     path: ~/.composer/cache
-                     key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+            -
+                name: Validate composer.json
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerValidate
 
-             -
-                 name: Install composer dependencies
-                 run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerInstall
+            -
+                name: Cache composer dependencies
+                uses: actions/cache@v4
+                with:
+                    path: ~/.composer/cache
+                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
 
-             -
-                 name: Automated Functional Testing
-                 run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s functional
+            -
+                name: Install composer dependencies
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerInstall
+
+            -
+                name: Automated Functional Testing
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s functional

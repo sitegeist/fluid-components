@@ -13,11 +13,9 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     /**
      * Convert string input to datetime object
      *
-     * @param string $value
-     * @return DateTime|false
      * @throws Exception
      */
-    public static function fromString(string $value)
+    public static function fromString(string $value): object
     {
         return new static($value);
     }
@@ -25,8 +23,6 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     /**
      * Convert UNIX timestamp to datetime object
      *
-     * @param int $value
-     * @return self
      * @throws Exception
      */
     public static function fromInteger(int $value): self
@@ -37,8 +33,6 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     /**
      * Passes datetime object
      *
-     * @param \DateTime $value
-     * @return static
      * @throws Exception
      */
     public static function fromDateTime(\DateTime $value): self
@@ -49,8 +43,6 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     /**
      * Passes immutable datetime object
      *
-     * @param \DateTimeImmutable $value
-     * @return static
      * @throws Exception
      */
     public static function fromDateTimeImmutable(\DateTimeImmutable $value): self

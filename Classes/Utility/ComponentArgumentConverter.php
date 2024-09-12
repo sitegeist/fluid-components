@@ -3,6 +3,7 @@
 namespace SMS\FluidComponents\Utility;
 
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Interfaces\ConstructibleFromClosure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
 use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
@@ -19,10 +20,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      * List of interfaces that provide conversion methods between scalar/compound
      * variable types and complex data structures,
      * e. g. transparently create a link model from a url string
-     *
-     * @var array
      */
-    protected $conversionInterfaces = [
+    protected array $conversionInterfaces = [
         'string' => [
             ConstructibleFromString::class,
             'fromString'
@@ -38,6 +37,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         'NULL' => [
             ConstructibleFromNull::class,
             'fromNull'
+        ],
+        \Closure::class => [
+            ConstructibleFromClosure::class,
+            'fromClosure'
         ],
         'DateTime' => [
             ConstructibleFromDateTime::class,
@@ -60,17 +63,13 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Registered argument type aliases
      * [alias => full php class name]
-     *
-     * @var array
      */
-    protected $typeAliases = [];
+    protected array $typeAliases = [];
 
     /**
      * Runtime cache to speed up conversion checks
-     *
-     * @var array
      */
-    protected $conversionCache = [];
+    protected array $conversionCache = [];
 
     public function __construct()
     {
@@ -83,11 +82,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Adds an interface to specify argument type conversion to list
-     *
-     * @param string $fromType
-     * @param string $interface
-     * @param string $constructor
-     * @return self
      */
     public function addConversionInterface(string $fromType, string $interface, string $constructor): self
     {
@@ -98,9 +92,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Removes an interface that specifies argument type conversion from list
-     *
-     * @param string $fromType
-     * @return self
      */
     public function removeConversionInterface(string $fromType): self
     {
@@ -111,10 +102,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Adds an alias for an argument type
-     *
-     * @param string $alias
-     * @param string $type
-     * @return self
      */
     public function addTypeAlias(string $alias, string $type): self
     {
@@ -124,9 +111,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Removes an alias for an argument type
-     *
-     * @param string $alias
-     * @return self
      */
     public function removeTypeAlias(string $alias): self
     {
@@ -154,8 +138,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
      * Checks if a given variable type can be converted to another
      * data type by using alternative constructors in $this->conversionInterfaces
      *
-     * @param string $givenType
-     * @param string $toType
      * @return array             information about conversion or empty array
      */
     public function canTypeBeConvertedToType(string $givenType, string $toType): array
@@ -203,14 +185,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Tries to convert the specified value to the specified data type
      * by using alternative constructors in $this->conversionInterfaces
-     *
-     * @param mixed $value
-     * @param string $toType
-     * @return mixed
      */
-    public function convertValueToType($value, string $toType)
+    public function convertValueToType(mixed $value, string $toType): mixed
     {
-        $givenType = is_object($value) ? get_class($value) : gettype($value);
+        $givenType = is_object($value) ? $value::class : gettype($value);
 
         // Skip if the type can't be converted
         $conversionInfo = $this->canTypeBeConvertedToType($givenType, $toType);
@@ -234,13 +212,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Checks if the provided type describes a collection of values
-     *
-     * @param string $type
-     * @return boolean
      */
     protected function isCollectionType(string $type): bool
     {
-        return substr($type, -2) === '[]';
+        return str_ends_with($type, '[]');
     }
 
     /**
@@ -256,9 +231,6 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Checks if the given type is behaving like an array
-     *
-     * @param string $typeOrClassName
-     * @return boolean
      */
     protected function isAccessibleArray(string $typeOrClassName): bool
     {

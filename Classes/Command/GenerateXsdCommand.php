@@ -2,19 +2,19 @@
 
 namespace SMS\FluidComponents\Command;
 
+use SMS\FluidComponents\Service\XsdGenerator;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Command\Command;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GenerateXsdCommand extends Command
 {
-    /**
-     * @var \SMS\FluidComponents\Service\XsdGenerator
-     */
-    private $xsdGenerator;
+    public function __construct(private XsdGenerator $xsdGenerator)
+    {
+        parent::__construct();
+    }
 
     protected function configure()
     {
@@ -43,14 +43,12 @@ EOH
             'Namespace to generate xsd for',
             null
         );
-        $componentLoader = GeneralUtility::makeInstance(\SMS\FluidComponents\Utility\ComponentLoader::class);
-        $this->xsdGenerator = GeneralUtility::makeInstance(\SMS\FluidComponents\Service\XsdGenerator::class, $componentLoader);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $path = $input->getArgument('path');
-        if (substr($path, 0, 1) !== DIRECTORY_SEPARATOR) {
+        if (substr((string) $path, 0, 1) !== DIRECTORY_SEPARATOR) {
             $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $path);
         }
         if ($output->isVerbose()) {

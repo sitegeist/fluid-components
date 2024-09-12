@@ -11,9 +11,6 @@ interface ConstructibleFromInteger
 {
     /**
      * Creates an instance of the class based on the provided integer
-     *
-     * @param integer $value
-     * @return object
      */
-    public static function fromInteger(int $value);
+    public static function fromInteger(int $value): object;
 }

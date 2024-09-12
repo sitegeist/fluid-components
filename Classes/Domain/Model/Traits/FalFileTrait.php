@@ -11,27 +11,14 @@ use TYPO3\CMS\Core\Resource\FileInterface;
 trait FalFileTrait
 {
     /**
-     * FAL object
-     *
-     * @var FileInterface
-     */
-    protected $file;
-
-    /**
      * Creates an file object as a wrapper around a FAL object
-     *
-     * @param FileInterface $file
      */
-    public function __construct(FileInterface $file)
+    public function __construct(protected FileInterface $file)
     {
-        $this->file = $file;
     }
 
     /**
      * Creates a file object based on a FAL file uid
-     *
-     * @param integer $value
-     * @return File
      */
     public static function fromInteger(int $value): File
     {
@@ -60,6 +47,6 @@ trait FalFileTrait
 
     public function getPublicUrl(): string
     {
-        return $this->file->getPublicUrl();
+        return $this->file->getPublicUrl() ?? '';
     }
 }

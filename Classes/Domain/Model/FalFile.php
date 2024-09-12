@@ -13,8 +13,6 @@ class FalFile extends File
 
     /**
      * Type of file to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'FalFile';
+    protected string $type = 'FalFile';
 }

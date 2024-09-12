@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace SMS\FluidComponents\Domain\Model;
 
 use TYPO3\CMS\Core\Resource\FileInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Exception\InvalidFileArrayException;
 use SMS\FluidComponents\Exception\InvalidRemoteImageException;
@@ -18,30 +20,21 @@ abstract class Image extends File
 {
     /**
      * Type of image to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'Image';
+    protected string $type = 'Image';
 
     /**
      * Alternative text for the image
-     *
-     * @var string|null
      */
-    protected $alternative;
+    protected ?string $alternative = null;
 
     /**
      * Copyright of the image
-     *
-     * @var string|null
      */
-    protected $copyright;
+    protected ?string $copyright = null;
 
     /**
      * Creates an image object based on a static file (local or remote)
-     *
-     * @param string $value
-     * @return self
      */
     public static function fromString(string $value): ?self
     {
@@ -51,8 +44,9 @@ abstract class Image extends File
 
         try {
             return new RemoteImage($value);
-        } catch (InvalidRemoteImageException $e) {
-            return new LocalImage($value);
+        } catch (InvalidRemoteImageException) {
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->retrieveFileOrFolderObject($value);
+            return ($file) ? new FalImage($file) : null;
         }
     }
 
@@ -116,11 +110,9 @@ abstract class Image extends File
      *         "alternative" => "My Alternative Text"
      *     ]
      *
-     * @param array $value
-     * @return self
      * @throws InvalidArgumentException|FileReferenceNotFoundException
      */
-    public static function fromArray(array $value): self
+    public static function fromArray(array $value): ?self
     {
         try {
             /** @var Image */
@@ -162,9 +154,6 @@ abstract class Image extends File
 
     /**
      * Creates a file object as a wrapper around an existing FAL object
-     *
-     * @param FileInterface $value
-     * @return self
      */
     public static function fromFileInterface(FileInterface $value): self
     {
@@ -173,10 +162,6 @@ abstract class Image extends File
 
     /**
      * Creates a placeholder image based on the provided image dimensions
-     *
-     * @param integer $width
-     * @param integer $height
-     * @return self
      */
     public static function fromDimensions(int $width, int $height): self
     {

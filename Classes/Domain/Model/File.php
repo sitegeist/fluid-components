@@ -6,6 +6,7 @@ namespace SMS\FluidComponents\Domain\Model;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\FileRepository;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
@@ -31,44 +32,31 @@ abstract class File implements
 {
     /**
      * Type of file to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'File';
+    protected string $type = 'File';
 
     /**
      * Title of the file
-     *
-     * @var string|null
      */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * Description of the file
-     *
-     * @var string|null
      */
-    protected $description;
+    protected ?string $description = null;
 
     /**
      * Properties of the file
-     *
-     * @var array|null
      */
-    protected $properties;
+    protected ?array $properties = null;
 
     /**
      * Should return the public URL of the file to be used in an img tag
-     *
-     * @return string
      */
     abstract public function getPublicUrl(): string;
 
     /**
      * Creates a file object based on a static file (local or remote)
-     *
-     * @param string $value
-     * @return self
      */
     public static function fromString(string $value): ?self
     {
@@ -78,16 +66,14 @@ abstract class File implements
 
         try {
             return new RemoteFile($value);
-        } catch (InvalidRemoteFileException $e) {
-            return new LocalFile($value);
+        } catch (InvalidRemoteFileException) {
+            $file = GeneralUtility::makeInstance(ResourceFactory::class)->retrieveFileOrFolderObject($value);
+            return ($file) ? new FalFile($file) : null;
         }
     }
 
     /**
      * Creates a file object based on a FAL file uid
-     *
-     * @param integer $value
-     * @return self
      */
     public static function fromInteger(int $value): self
     {
@@ -142,12 +128,9 @@ abstract class File implements
      *
      *     [ "file" => "https://example.com/MyFile.txt" ]
      *
-     *
-     * @param array $value
-     * @return self
      * @throws InvalidArgumentException|FileReferenceNotFoundException
      */
-    public static function fromArray(array $value): self
+    public static function fromArray(array $value): ?self
     {
         // Create an imafe from an existing FAL object
         if (isset($value['fileObject'])) {
@@ -230,9 +213,6 @@ abstract class File implements
 
     /**
      * Creates a file object as a wrapper around an existing FAL object
-     *
-     * @param FileInterface $value
-     * @return self
      */
     public static function fromFileInterface(FileInterface $value): self
     {
@@ -246,9 +226,6 @@ abstract class File implements
 
     /**
      * Creates a file object based on a FAL file uid
-     *
-     * @param integer $fileUid
-     * @return self
      */
     public static function fromFileUid(int $fileUid): self
     {
@@ -259,9 +236,6 @@ abstract class File implements
 
     /**
      * Creates a file object based on a FAL file reference uid
-     *
-     * @param integer $fileReferenceUid
-     * @return self
      */
     public static function fromFileReferenceUid(int $fileReferenceUid): self
     {
@@ -275,8 +249,8 @@ abstract class File implements
      *
      * @param string $tableName  database table where the file is referenced
      * @param string $fieldName  database field name in which the file is referenced
-     * @param integer $uid       uid of the database record in which the file is referenced
-     * @param integer $counter   zero-based index of the file reference to use
+     * @param int $uid       uid of the database record in which the file is referenced
+     * @param int $counter   zero-based index of the file reference to use
      *                           (in case there are multiple)
      * @return self
      * @throws FileReferenceNotFoundException
@@ -311,12 +285,9 @@ abstract class File implements
      * Creates a file object based on a static resource in an extension
      * (Resources/Public/...)
      *
-     * @param string $extensionKey
-     * @param string $path
-     * @return self
      * @see \TYPO3\CMS\Fluid\ViewHelpers\Uri\ResourceViewHelper
      */
-    public static function fromExtensionResource(string $extensionKey, string $path): self
+    public static function fromExtensionResource(string $extensionKey, string $path): ?self
     {
         return static::fromString('EXT:' . $extensionKey . '/Resources/Public/' . $path);
     }
@@ -361,8 +332,6 @@ abstract class File implements
 
     /**
      * Use public url of file as string representation of file objects
-     *
-     * @return string
      */
     public function __toString(): string
     {

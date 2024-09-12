@@ -8,27 +8,23 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Data structure for a local file resource to be passed to a component
+ * @deprecated, use FalFile instead
  */
 class LocalFile extends File
 {
     /**
      * Type of file to differentiate implementations in Fluid templates
-     *
-     * @var string
      */
-    protected $type = 'LocalFile';
+    protected string $type = 'LocalFile';
 
     /**
      * Absolute path to the local file
-     *
-     * @var string
      */
-    protected $filePath = '';
+    protected string $filePath = '';
 
     /**
      * Creates an file object for a local file resource
      *
-     * @param string $filePath
      * @throws InvalidFilePathException
      */
     public function __construct(string $filePath)

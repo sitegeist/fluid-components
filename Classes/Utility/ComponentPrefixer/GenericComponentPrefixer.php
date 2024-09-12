@@ -12,9 +12,6 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
      * example:
      *   namespace: \VENDOR\MyExtension\Components\Atom\MyComponent
      *   resulting prefix: vendorAtomMycomponent
-     *
-     * @param string $namespace
-     * @return string
      */
     public function prefix(string $namespace): string
     {
@@ -27,8 +24,6 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
 
     /**
      * Returns the separator to be used between prefix and the following string
-     *
-     * @return string
      */
     public function getSeparator(): string
     {

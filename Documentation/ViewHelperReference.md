@@ -26,7 +26,7 @@ input the component needs to be able to render correctly.
 There are two predefined parameters that can be used in all components:
 
 * `class`: Additional CSS classes the component should use
-* `content`: falls back to the component's tag content
+* `content`: falls back to the component's tag content; make sure to output content with the [Slot ViewHelper](#slot-viewhelper)
 
     ```xml
     <my:myComponent>This goes into the content parameter</my:myComponent>
@@ -42,7 +42,7 @@ arguments:
     * `integer`
     * `float`
     * `array` or something like `float[]`
-    * PHP class names like `DateTime` or `SMS\FluidComponents\Domain\Model\Image`
+    * PHP class names like `Slot`, `DateTime` or `SMS\FluidComponents\Domain\Model\Image`
 * `description` (optional): A description of the parameter for documentation purposes
 * `optional` (default: `false`): Declares if the parameter can be omitted when using the component
 * `default` (optional): A default value that will be used in case an optional parameter was omitted. The
@@ -61,6 +61,8 @@ default value can alternatively be defined in the `fc:param` tag content.
 <fc:param name="theme" type="string" optional="1" default="dark" />
 <!-- alternative notation -->
 <fc:param name="theme" type="string" optional="1">dark</fc:param>
+<!-- slot parameter -->
+<fc:param name="buttons" type="Slot" optional="1" />
 ```
 
 ### Renderer ViewHelper
@@ -99,6 +101,66 @@ none
     <a href="{link}">{content}</a>
 </fc:renderer>
 ```
+
+### Slot ViewHelper
+
+The `fc:slot` ViewHelper provides a safe way to render HTML passed to a component as a slot. It makes
+sure that only properly escaped HTML content will be rendered.
+
+#### Arguments
+
+* `name` (default: `content`): Name of the slot parameter that should be rendered
+* `default` (optional): Fallback content in case the slot is not defined (e. g. because it's marked as optional). The
+default value can alternatively be defined in the `fc:slot` tag content.
+
+#### Examples
+
+```xml
+<fc:component>
+    <fc:param name="description" type="Slot" />
+    <fc:param name="buttons" type="Slot" optional="1" />
+
+    <fc:renderer>
+        <div class="description">
+            <fc:slot name="description" />
+        </div>
+
+        <div class="buttons">
+            <fc:slot name="buttons" default="<button>Default button</button>" />
+        </div>
+
+        <div class="content">
+            <fc:slot>Fallback content</fc:slot>
+        </div>
+    </fc:renderer>
+</fc:component>
+```
+
+### Content ViewHelper ("named slots")
+
+The `fc:content` ViewHelper improves the way you can pass HTML content to several component slots. When calling a
+component, you can use one or more `fc:content` calls inside the component tag to specify the values of slots. In
+popular frontend frameworks as well as the web components standard, this is referred to as *named slots*.
+
+#### Arguments
+
+* `slot` (default: `content`): Name of the slot parameter that should be set
+
+#### Examples
+
+```xml
+<my:molecule.teaser link="https://typo3.org">
+    <!-- accessible by {fc:slot()} in the component -->
+    <fc:content>
+        The <b>professional, flexible</b> Content Management System
+    </fc:content>
+    <!-- accessible by {fc:slot(name: 'buttons')} in the component -->
+    <fc:content slot="buttons">
+        <button>read more</button>
+    </fc:content>
+</my:molecule.teaser>
+```
+
 
 ## Translations
 
