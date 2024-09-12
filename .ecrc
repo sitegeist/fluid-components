@@ -6,6 +6,7 @@
     "NoColor": false,
     "Exclude": [
         ".Build",
+        ".cache",
         ".git",
         ".DS_Store",
         ".xsd",

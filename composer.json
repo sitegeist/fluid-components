@@ -59,6 +59,18 @@
         }
     },
     "scripts": {
+        "lint": [
+            "@lint:php",
+            "@lint:editorconfig"
+        ],
+        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,.cache,Tests,ext_emconf.php .",
+        "lint:editorconfig": "ec -exclude .Build .",
+        "test": [
+            "@test:unit",
+            "@test:functional"
+        ],
+        "test:unit": "Build/Scripts/runTests.sh",
+        "test:functional": "Build/Scripts/runTests.sh -s functional",
         "prepare-release": [
             "sed -i'' -e \"s/'version' => ''/'version' => '$(echo ${GITHUB_REF#refs/tags/} | sed 's/v//')'/\" ext_emconf.php",
             "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"
