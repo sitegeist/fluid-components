@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-call_user_func(function () {
+call_user_func(function (): void {
     // Make fc a global namespace
     if (!isset($GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['fc'] = [];
@@ -11,14 +11,14 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'] = array_merge(
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['typeAliases'] ?? [],
         [
-            'File' => \SMS\FluidComponents\Domain\Model\File::class,
-            'Image' => \SMS\FluidComponents\Domain\Model\Image::class,
-            'Labels' => \SMS\FluidComponents\Domain\Model\Labels::class,
-            'Link' => \SMS\FluidComponents\Domain\Model\Link::class,
-            'Navigation' => \SMS\FluidComponents\Domain\Model\Navigation::class,
-            'NavigationItem' => \SMS\FluidComponents\Domain\Model\NavigationItem::class,
-            'Slot' => \SMS\FluidComponents\Domain\Model\Slot::class,
-            'Typolink' => \SMS\FluidComponents\Domain\Model\Typolink::class,
+            'File' => SMS\FluidComponents\Domain\Model\File::class,
+            'Image' => SMS\FluidComponents\Domain\Model\Image::class,
+            'Labels' => SMS\FluidComponents\Domain\Model\Labels::class,
+            'Link' => SMS\FluidComponents\Domain\Model\Link::class,
+            'Navigation' => SMS\FluidComponents\Domain\Model\Navigation::class,
+            'NavigationItem' => SMS\FluidComponents\Domain\Model\NavigationItem::class,
+            'Slot' => SMS\FluidComponents\Domain\Model\Slot::class,
+            'Typolink' => SMS\FluidComponents\Domain\Model\Typolink::class,
         ]
     );
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Interfaces;
 
@@ -7,7 +7,7 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 /**
  * By implementing RenderingContextAware in a data structure, fluid
  * components will provide the current fluid rendering context to the
- * data structure when used in a component call
+ * data structure when used in a component call.
  */
 interface RenderingContextAware
 {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model\Traits;
 
@@ -6,19 +6,19 @@ use SMS\FluidComponents\Domain\Model\File;
 use TYPO3\CMS\Core\Resource\FileInterface;
 
 /**
- * Data structure as a wrapper around a FAL object to be passed to a component
+ * Data structure as a wrapper around a FAL object to be passed to a component.
  */
 trait FalFileTrait
 {
     /**
-     * Creates an file object as a wrapper around a FAL object
+     * Creates an file object as a wrapper around a FAL object.
      */
     public function __construct(protected FileInterface $file)
     {
     }
 
     /**
-     * Creates a file object based on a FAL file uid
+     * Creates a file object based on a FAL file uid.
      */
     public static function fromInteger(int $value): File
     {
@@ -42,7 +42,10 @@ trait FalFileTrait
 
     public function getProperties(): ?array
     {
-        return $this->file->getProperties();
+        if (method_exists($this->file, 'getProperties')) {
+            return $this->file->getProperties();
+        }
+        return null;
     }
 
     public function getPublicUrl(): string

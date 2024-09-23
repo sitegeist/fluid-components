@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -7,23 +7,24 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
- * Data structure for a local file resource to be passed to a component
+ * Data structure for a local file resource to be passed to a component.
+ *
  * @deprecated, use FalFile instead
  */
 class LocalFile extends File
 {
     /**
-     * Type of file to differentiate implementations in Fluid templates
+     * Type of file to differentiate implementations in Fluid templates.
      */
     protected string $type = 'LocalFile';
 
     /**
-     * Absolute path to the local file
+     * Absolute path to the local file.
      */
     protected string $filePath = '';
 
     /**
-     * Creates an file object for a local file resource
+     * Creates an file object for a local file resource.
      *
      * @throws InvalidFilePathException
      */

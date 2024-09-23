@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Service;
 
+use Exception;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -14,8 +15,9 @@ class XsdGenerator
     }
 
     /**
-     * @param string $componentName Name of component without namespace, f.e. 'atom.button'
+     * @param string               $componentName Name of component without namespace, f.e. 'atom.button'
      * @param ArgumentDefinition[] $arguments
+     *
      * @return string
      */
     protected function generateXsdForComponent(string $componentName, array $arguments): string
@@ -32,7 +34,7 @@ class XsdGenerator
             $requiredTag = $argumentDefinition->isRequired() ? ' use="required"' : '';
             try {
                 $defaultTag = (string)$argumentDefinition->getDefaultValue() !== '' ? ' default="' . $argumentDefinition->getDefaultValue() . '"' : '';
-            } catch (\Exception) {
+            } catch (Exception) {
                 $defaultTag = '';
             }
             $xsd .= "\n" . '            <xsd:attribute type="xsd:string" name="' . $argumentDefinition->getName() . '"' . $requiredTag . $defaultTag . '>
@@ -82,7 +84,7 @@ class XsdGenerator
     }
 
     /**
-     * returns only the upper chars of a given string
+     * returns only the upper chars of a given string.
      */
     private function strUpperChars(string $string): string
     {
@@ -98,7 +100,7 @@ class XsdGenerator
 
     /**
      * returns default prefix for a namespace if defined
-     * otherwise it builds a prefix from the extension name part of the namespace
+     * otherwise it builds a prefix from the extension name part of the namespace.
      */
     protected function getDefaultPrefixForNamespace(string $namespace): int|string
     {
@@ -118,7 +120,7 @@ class XsdGenerator
     }
 
     /**
-     * generate xsd file for each component namespace
+     * generate xsd file for each component namespace.
      *
      * @return array Array of generated XML target namespaces
      */
@@ -140,7 +142,7 @@ class XsdGenerator
     }
 
     /**
-     * returns a default filename for a given namespace
+     * returns a default filename for a given namespace.
      */
     protected function getFileNameForNamespace(string $namespace): string
     {

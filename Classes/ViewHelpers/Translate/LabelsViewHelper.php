@@ -1,18 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\ViewHelpers\Translate;
 
+use InvalidArgumentException;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
+use TYPO3\CMS\Core\Localization\Locales;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class LabelsViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     /**
-     * @throws \TYPO3Fluid\Fluid\Core\ViewHelper\Exception
+     * @throws Exception
      */
     public function initializeArguments(): void
     {
@@ -23,16 +26,10 @@ class LabelsViewHelper extends AbstractViewHelper
         $this->registerArgument('alternativeLanguageKeys', 'array', 'Alternative language keys if no translation does exist');
     }
 
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ): array {
-        $keys = $arguments['keys'];
-        $extensionName = $arguments['extensionName'];
-
-        $request = $renderingContext->getRequest();
-        $extensionName ??= $request->getControllerExtensionName();
+    public function render(): array
+    {
+        $keys = $this->arguments['keys'];
+        $extensionName = $this->arguments['extensionName'] ?? $this->getRequest()->getControllerExtensionName();
 
         $labels = [];
         foreach ($keys as $name => $translation) {
@@ -45,9 +42,17 @@ class LabelsViewHelper extends AbstractViewHelper
                 $default = '';
             }
 
+            if ($this->arguments['alternativeLanguageKeys']) {
+                trigger_error('Calling labels with the argument alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
+            }
+            if ($this->arguments['languageKey']) {
+                $localeFactory = GeneralUtility::makeInstance(Locales::class);
+                $locale = $localeFactory->createLocale($this->arguments['languageKey'], $this->arguments['alternativeLanguageKeys']);
+            }
+
             try {
-                $value = static::translate($translation, $extensionName, $translateArguments, $arguments['languageKey'], $arguments['alternativeLanguageKeys']);
-            } catch (\InvalidArgumentException) {
+                $value = LocalizationUtility::translate($translation, $extensionName, $translateArguments, $locale ?? null);
+            } catch (InvalidArgumentException) {
                 $value = null;
             }
             if ($value === null) {
@@ -63,27 +68,15 @@ class LabelsViewHelper extends AbstractViewHelper
         return $labels;
     }
 
-    /**
-     * Wrapper call to static LocalizationUtility
-     *
-     * @param string $id Translation Key compatible to TYPO3 Flow
-     * @param string $extensionName UpperCamelCased extension key (for example BlogExample)
-     * @param array $arguments Arguments to be replaced in the resulting string
-     * @param string $languageKey Language key to use for this translation
-     * @param string[] $alternativeLanguageKeys Alternative language keys if no translation does exist
-     *
-     * @return string|null
-     */
-    protected static function translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys)
+    private function getRequest(): RequestInterface
     {
-        if ($alternativeLanguageKeys) {
-            trigger_error('Calling labels with the argument $alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
+        if (method_exists($this->renderingContext, 'getAttribute') &&
+            method_exists($this->renderingContext, 'hasAttribute') &&
+            $this->renderingContext->hasAttribute(ServerRequestInterface::class)
+        ) {
+            return $this->renderingContext->getAttribute(ServerRequestInterface::class);
+        } else {
+            return $this->renderingContext->getRequest();
         }
-        if ($languageKey) {
-            $localeFactory = GeneralUtility::makeInstance(Locales::class);
-            $locale = $localeFactory->createLocale($languageKey, $alternativeLanguageKeys);
-        }
-
-        return LocalizationUtility::translate($id, $extensionName, $arguments, $locale ?? null);
     }
 }

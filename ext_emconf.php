@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Fluid Components',
     'description' => 'Encapsulated frontend components with Fluid\'s ViewHelper syntax',
@@ -11,7 +11,7 @@ $EM_CONF[$_EXTKEY] = [
     'constraints' => [
         'depends' => [
             'typo3' => '12.4.0-13.9.99',
-            'php' => '8.2.0-8.3.99'
+            'php' => '8.2.0-8.3.99',
         ],
         'conflicts' => [
         ],
@@ -20,7 +20,7 @@ $EM_CONF[$_EXTKEY] = [
     ],
     'autoload' => [
         'psr-4' => [
-            'SMS\\FluidComponents\\' => 'Classes'
-        ]
+            'SMS\\FluidComponents\\' => 'Classes',
+        ],
     ],
 ];

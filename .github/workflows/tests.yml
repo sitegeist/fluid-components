@@ -40,9 +40,13 @@ jobs:
             max-parallel: 2
             matrix:
                 php-versions: ['8.2', '8.3']
-                typo3-versions: ['13.2', '12.4']
+                typo3-versions: ['13.3', '12.4']
+                composer-requirements: ['Min', 'Max']
+                exclude:
+                    - typo3-versions: '13.3'
+                      composer-requirements: 'Max'
 
-        name: Unit Testing (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+        name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
         steps:
             -   name: "Checkout"
                 uses: actions/checkout@v4
@@ -58,7 +62,7 @@ jobs:
                     restore-keys: "php${{ matrix.php-version }}-composer-\n"
 
             -   name: Install composer dependencies
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdateMin
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdate${{ matrix.composer-requirements }}
 
             -   name: Automated Unit Testing
                 run: Build/Scripts/runTests.sh -s unit
@@ -70,9 +74,13 @@ jobs:
             max-parallel: 2
             matrix:
                 php-versions: ['8.2', '8.3']
-                typo3-versions: ['13.2', '12.4']
+                typo3-versions: ['13.3', '12.4']
+                composer-requirements: ['Min', 'Max']
+                exclude:
+                    - typo3-versions: '13.3'
+                      composer-requirements: 'Max'
 
-        name: Functional Testing (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+        name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
         steps:
             -   name: "Checkout"
                 uses: actions/checkout@v4
@@ -88,7 +96,7 @@ jobs:
                     restore-keys: "php${{ matrix.php-version }}-composer-\n"
 
             -   name: Install composer dependencies
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdateMin
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdate${{ matrix.composer-requirements }}
 
             -   name: Automated Unit Testing
                 run: Build/Scripts/runTests.sh -s functional

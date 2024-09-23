@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -7,23 +7,24 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
- * Data structure for a local image resource to be passed to a component
+ * Data structure for a local image resource to be passed to a component.
+ *
  * @deprecated, use FalImage instead
  */
 class LocalImage extends Image
 {
     /**
-     * Type of image to differentiate implementations in Fluid templates
+     * Type of image to differentiate implementations in Fluid templates.
      */
     protected string $type = 'LocalImage';
 
     /**
-     * Absolute path to the local file
+     * Absolute path to the local file.
      */
     protected string $filePath = '';
 
     /**
-     * Creates an image object for a local image resource
+     * Creates an image object for a local image resource.
      *
      * @throws InvalidFilePathException
      */
