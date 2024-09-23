@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Interfaces;
 
 /**
  * Marker interface to determine if a component parameter should
- * be escaped in a way that HTML in fluid variables isn't interpreted
+ * be escaped in a way that HTML in fluid variables isn't interpreted.
  *
  * In the following example, the script tag will be html-escaped if myParam
  * is an EscapedParameter:

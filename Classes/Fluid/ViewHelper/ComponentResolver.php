@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
@@ -17,7 +17,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
 class ComponentResolver extends ViewHelperResolver
 {
     /**
-     * ViewHelperResolver constructor
+     * ViewHelperResolver constructor.
      *
      * Loads namespaces defined in global TYPO3 configuration. Overlays `f:`
      * with `f:debug:` when Fluid debugging is enabled in the admin panel,
@@ -41,7 +41,7 @@ class ComponentResolver extends ViewHelperResolver
 
     /**
      * Uses Symfony dependency injection to inject ComponentRenderer into
-     * Fluid viewhelper processing
+     * Fluid viewhelper processing.
      */
     public function createViewHelperInstanceFromClassName($viewHelperClassName): ViewHelperInterface
     {
@@ -83,17 +83,14 @@ class ComponentResolver extends ViewHelperResolver
      * If no ViewHelper class can be detected in any of the added
      * PHP namespaces a Fluid Parser Exception is thrown.
      *
-     * @param string $namespaceIdentifier
-     * @param string $methodIdentifier
-     * @return string|NULL
      * @throws ParserException
      */
-    public function resolveViewHelperClassName($namespaceIdentifier, $methodIdentifier)
+    public function resolveViewHelperClassName($namespaceIdentifier, $methodIdentifier): string
     {
         if (!isset($this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier])) {
             $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
             $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
-            if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName === false) {
+            if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName == '') {
                 $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
                 $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
 
@@ -118,8 +115,9 @@ class ComponentResolver extends ViewHelperResolver
     /**
      * Resolve a viewhelper name.
      *
-     * @param string $namespaceIdentifier Namespace identifier for the view helper.
-     * @param string $methodIdentifier Method identifier, might be hierarchical like "link.url"
+     * @param string $namespaceIdentifier namespace identifier for the view helper
+     * @param string $methodIdentifier    Method identifier, might be hierarchical like "link.url"
+     *
      * @return string The fully qualified class name of the viewhelper
      */
     protected function resolveComponentName(string $namespaceIdentifier, string $methodIdentifier): string
@@ -142,7 +140,7 @@ class ComponentResolver extends ViewHelperResolver
     }
 
     /**
-     * Generates a valid PHP class name from the resolved viewhelper class
+     * Generates a valid PHP class name from the resolved viewhelper class.
      */
     protected function generateViewHelperClassName(string $resolvedViewHelperClassName): string
     {

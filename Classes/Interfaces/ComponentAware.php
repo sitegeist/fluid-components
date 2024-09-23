@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Interfaces;
 
@@ -7,7 +7,7 @@ namespace SMS\FluidComponents\Interfaces;
  * components will provide the component namespace to the data
  * structure when used in a component call so that the data structure
  * can behave differently for each component (e. g. by reading
- * something from the component's directory)
+ * something from the component's directory).
  */
 interface ComponentAware
 {
