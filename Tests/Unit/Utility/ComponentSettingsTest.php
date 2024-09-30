@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentSettings;
+use StdClass;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
@@ -20,8 +21,8 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [];
 
         $this->tsfe = $GLOBALS['TSFE'] ?? null;
-        $GLOBALS['TSFE'] = new \StdClass;
-        $GLOBALS['TSFE']->tmpl = new \StdClass;
+        $GLOBALS['TSFE'] = new StdClass;
+        $GLOBALS['TSFE']->tmpl = new StdClass;
         $GLOBALS['TSFE']->tmpl->setup = [];
 
         $this->settings = new ComponentSettings(new TypoScriptService());
@@ -32,7 +33,7 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
-            'anotherSetting' => 'anotherValue'
+            'anotherSetting' => 'anotherValue',
         ];
         $this->settings->reset();
 
@@ -50,7 +51,7 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
     {
         $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] = [
             'nested.' => ['mySetting' => 'myValue'],
-            'anotherSetting' => 'anotherValue'
+            'anotherSetting' => 'anotherValue',
         ];
         $this->settings->reset();
 
@@ -70,12 +71,12 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
-            'anotherSetting' => 'anotherValue'
+            'anotherSetting' => 'anotherValue',
         ];
         $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] = [
             'nested.' => ['myNewSetting' => 'myNewValue'],
             'anotherSetting' => 'newValue',
-            'additionalSetting' => 'additionalValue'
+            'additionalSetting' => 'additionalValue',
         ];
         $this->settings->reset();
 
@@ -96,7 +97,7 @@ class ComponentSettingsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCa
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] = [
             'nested' => ['mySetting' => 'myValue'],
-            'anotherSetting' => 'anotherValue'
+            'anotherSetting' => 'anotherValue',
         ];
         $this->settings->reset();
 

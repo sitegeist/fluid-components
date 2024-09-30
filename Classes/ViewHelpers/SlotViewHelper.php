@@ -1,11 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\ViewHelpers;
 
 use SMS\FluidComponents\Domain\Model\Slot;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 class SlotViewHelper extends AbstractViewHelper
 {
@@ -24,19 +23,19 @@ class SlotViewHelper extends AbstractViewHelper
         );
     }
 
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render(): mixed
     {
-        $slotContent = $renderingContext->getVariableProvider()->get($arguments['name']);
+        $slotContent = $this->renderingContext->getVariableProvider()->get($this->arguments['name']);
 
         if (isset($slotContent) && !$slotContent instanceof Slot) {
             throw new InvalidArgumentException(
-                sprintf('Slot "%s" cannot be rendered because it isn\'t a valid slot object.', $arguments['name']),
+                sprintf('Slot "%s" cannot be rendered because it isn\'t a valid slot object.', $this->arguments['name']),
                 1670247849
             );
         }
 
         if ((string)$slotContent === '') {
-            return $arguments['default'] ?: $renderChildrenClosure();
+            return $this->arguments['default'] ?: $this->renderChildren();
         }
 
         return $slotContent;

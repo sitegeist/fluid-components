@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace SMS\FluidComponents\ViewHelpers\Form;
 
 use TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFieldViewHelper;
@@ -42,6 +42,7 @@ use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
  * ]
  *
  * @package SMS\FluidComponents\ViewHelpers\Form
+ *
  * @author Alexander Bohndorf <bohndorf@sitegeist.de>
  */
 class FieldInformationViewHelper extends AbstractFormFieldViewHelper
@@ -61,7 +62,7 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
     }
 
     /**
-     * Provides information about the form field to the child elements of this ViewHelper
+     * Provides information about the form field to the child elements of this ViewHelper.
      */
     public function render(): string
     {

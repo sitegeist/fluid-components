@@ -1,5 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 namespace SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter;
+use Override;
 
 class DummyValue implements DummyConversionInterface, BaseObjectConversionInterface
 {
@@ -10,13 +11,13 @@ class DummyValue implements DummyConversionInterface, BaseObjectConversionInterf
         $this->value = $value;
     }
 
-    #[\Override]
+    #[Override]
     public static function fromString(string $value)
     {
         return new static($value);
     }
 
-    #[\Override]
+    #[Override]
     public static function fromBaseObject(BaseObject $object)
     {
         return new static($object->value);

@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use ArrayIterator;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\BaseObject;
@@ -130,7 +131,7 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
         );
         $this->assertEquals(
             [ConstructibleFromArray::class, 'fromArray'],
-            $this->converter->canTypeBeConvertedToType(\ArrayIterator::class, DummyValue::class . '[]')
+            $this->converter->canTypeBeConvertedToType(ArrayIterator::class, DummyValue::class . '[]')
         );
         $this->assertEquals(
             [],
@@ -252,7 +253,7 @@ class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\U
 
         // Check with ArrayAccess implementation
         $converted = $this->converter->convertValueToType(
-            new \ArrayIterator(['first', 'second']),
+            new ArrayIterator(['first', 'second']),
             DummyValue::class . '[]'
         );
 

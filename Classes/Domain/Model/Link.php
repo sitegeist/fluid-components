@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -6,58 +6,58 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 
 /**
  * Data Structure to provide information and fragments of link
- * in a structured matter
+ * in a structured matter.
  */
 class Link implements ConstructibleFromString
 {
     /**
-     * Target URI of the link
+     * Target URI of the link.
      */
     protected string $uri = '';
 
     /**
-     * URI scheme, e. g. https://
+     * URI scheme, e. g. https://.
      */
     protected ?string $scheme;
 
     /**
-     * Host name, e. g. domain.tld
+     * Host name, e. g. domain.tld.
      */
     protected ?string $host;
 
     /**
-     * Port number, e. g. 8080
+     * Port number, e. g. 8080.
      */
     protected ?int $port;
 
     /**
-     * HTTP Basic Auth User
+     * HTTP Basic Auth User.
      */
     protected ?string $user;
 
     /**
-     * HTTP Basic Auth Password
+     * HTTP Basic Auth Password.
      */
     protected ?string $pass;
 
     /**
-     * Path part of the URI, e. g. /my/path/file.html
+     * Path part of the URI, e. g. /my/path/file.html.
      */
     protected ?string $path;
 
     /**
      * Query string of the URI (without the leading ?),
-     * e. g. myParam=myValue&anotherParam=anotherValue
+     * e. g. myParam=myValue&anotherParam=anotherValue.
      */
     protected ?string $query;
 
     /**
-     * Fragment/Anchor of the URI (without the leading #)
+     * Fragment/Anchor of the URI (without the leading #).
      */
     protected ?string $fragment;
 
     /**
-     * Creates a link data structure from an URI
+     * Creates a link data structure from an URI.
      */
     public function __construct(string $uri)
     {
@@ -65,9 +65,10 @@ class Link implements ConstructibleFromString
     }
 
     /**
-     * Creates a link data structure from an URI
+     * Creates a link data structure from an URI.
      *
      * @param string $uri
+     *
      * @return self
      */
     public static function fromString(string $uri): ?self
@@ -79,7 +80,7 @@ class Link implements ConstructibleFromString
         return new static($uri);
     }
 
-    public function setUri(string $uri): self
+    public function setUri(string $uri): static
     {
         $this->uri = $uri;
 
@@ -143,7 +144,7 @@ class Link implements ConstructibleFromString
     }
 
     /**
-     * Use URI as string representation of the object
+     * Use URI as string representation of the object.
      *
      * @return string
      */

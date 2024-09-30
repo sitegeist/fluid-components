@@ -3,20 +3,20 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
+use SMS\FluidComponents\Exception\InvalidArgumentException;
+use SMS\FluidComponents\Exception\InvalidFileArrayException;
+use SMS\FluidComponents\Exception\InvalidRemoteFileException;
+use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
+use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
+use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
+use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
+use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 use TYPO3\CMS\Core\Resource\FileInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
-use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
-use SMS\FluidComponents\Exception\InvalidArgumentException;
-use SMS\FluidComponents\Interfaces\ConstructibleFromString;
-use SMS\FluidComponents\Exception\InvalidFileArrayException;
-use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
-use SMS\FluidComponents\Exception\InvalidRemoteFileException;
-use SMS\FluidComponents\Interfaces\ConstructibleFromExtbaseFile;
-use SMS\FluidComponents\Exception\FileReferenceNotFoundException;
-use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 
 /**
  * Generic data structures to pass files from various sources
@@ -31,32 +31,32 @@ abstract class File implements
     ConstructibleFromExtbaseFile
 {
     /**
-     * Type of file to differentiate implementations in Fluid templates
+     * Type of file to differentiate implementations in Fluid templates.
      */
     protected string $type = 'File';
 
     /**
-     * Title of the file
+     * Title of the file.
      */
     protected ?string $title = null;
 
     /**
-     * Description of the file
+     * Description of the file.
      */
     protected ?string $description = null;
 
     /**
-     * Properties of the file
+     * Properties of the file.
      */
     protected ?array $properties = null;
 
     /**
-     * Should return the public URL of the file to be used in an img tag
+     * Should return the public URL of the file to be used in an img tag.
      */
     abstract public function getPublicUrl(): string;
 
     /**
-     * Creates a file object based on a static file (local or remote)
+     * Creates a file object based on a static file (local or remote).
      */
     public static function fromString(string $value): ?self
     {
@@ -73,7 +73,7 @@ abstract class File implements
     }
 
     /**
-     * Creates a file object based on a FAL file uid
+     * Creates a file object based on a FAL file uid.
      */
     public static function fromInteger(int $value): self
     {
@@ -128,7 +128,7 @@ abstract class File implements
      *
      *     [ "file" => "https://example.com/MyFile.txt" ]
      *
-     * @throws InvalidArgumentException|FileReferenceNotFoundException
+     * @throws FileReferenceNotFoundException|InvalidArgumentException
      */
     public static function fromArray(array $value): ?self
     {
@@ -212,7 +212,7 @@ abstract class File implements
     }
 
     /**
-     * Creates a file object as a wrapper around an existing FAL object
+     * Creates a file object as a wrapper around an existing FAL object.
      */
     public static function fromFileInterface(FileInterface $value): self
     {
@@ -225,7 +225,7 @@ abstract class File implements
     }
 
     /**
-     * Creates a file object based on a FAL file uid
+     * Creates a file object based on a FAL file uid.
      */
     public static function fromFileUid(int $fileUid): self
     {
@@ -235,25 +235,26 @@ abstract class File implements
     }
 
     /**
-     * Creates a file object based on a FAL file reference uid
+     * Creates a file object based on a FAL file reference uid.
      */
     public static function fromFileReferenceUid(int $fileReferenceUid): self
     {
-        $fileRepository = GeneralUtility::makeInstance(FileRepository::class);
-        $fileReference = $fileRepository->findFileReferenceByUid($fileReferenceUid);
+        $fileReference = GeneralUtility::makeInstance(ResourceFactory::class)->getFileReferenceObject($fileReferenceUid);
         return static::fromFileInterface($fileReference);
     }
 
     /**
-     * Creates a file object based on file reference data
+     * Creates a file object based on file reference data.
      *
-     * @param string $tableName  database table where the file is referenced
-     * @param string $fieldName  database field name in which the file is referenced
-     * @param int $uid       uid of the database record in which the file is referenced
-     * @param int $counter   zero-based index of the file reference to use
-     *                           (in case there are multiple)
-     * @return self
+     * @param string $tableName database table where the file is referenced
+     * @param string $fieldName database field name in which the file is referenced
+     * @param int    $uid       uid of the database record in which the file is referenced
+     * @param int    $counter   zero-based index of the file reference to use
+     *                          (in case there are multiple)
+     *
      * @throws FileReferenceNotFoundException
+     *
+     * @return self
      */
     public static function fromFileReference(
         string $tableName,
@@ -283,7 +284,7 @@ abstract class File implements
 
     /**
      * Creates a file object based on a static resource in an extension
-     * (Resources/Public/...)
+     * (Resources/Public/...).
      *
      * @see \TYPO3\CMS\Fluid\ViewHelpers\Uri\ResourceViewHelper
      */
@@ -331,7 +332,7 @@ abstract class File implements
     }
 
     /**
-     * Use public url of file as string representation of file objects
+     * Use public url of file as string representation of file objects.
      */
     public function __toString(): string
     {

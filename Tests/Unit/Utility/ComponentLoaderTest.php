@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
@@ -30,16 +30,16 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                 '\\Vendor\\Extension\\Category\\',
                 '/path/to/components',
                 [
-                    'Vendor\\Extension\\Category' => '/path/to/components'
-                ]
+                    'Vendor\\Extension\\Category' => '/path/to/components',
+                ],
             ],
             'pathWithTrailingSlash' => [
                 'Vendor\\Extension\\Category\\',
                 '/path/to/components/',
                 [
-                    'Vendor\\Extension\\Category' => '/path/to/components'
-                ]
-            ]
+                    'Vendor\\Extension\\Category' => '/path/to/components',
+                ],
+            ],
         ];
     }
 
@@ -81,7 +81,7 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                     '\\Sitegeist\\Fixtures\\ComponentLoader' => '/case1/path5',
                     '\\Sitegeist\\Fixtures\\ComponentLoader\\' => '/case1/path6',
                     '\\Sitegeist\\Fixtures\\AnotherTest\\' => '/case1/path7',
-                    '\\Sitegeist\\Fixtures\\Test\\' => '/case1/path8'
+                    '\\Sitegeist\\Fixtures\\Test\\' => '/case1/path8',
                 ],
                 [
                     'Vendor\\Test\\Namespace' => '/case1/path4',
@@ -89,9 +89,9 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                     'Sitegeist\\Fixtures\\AnotherTest' => '/case1/path7',
                     'Sitegeist\\Fixtures\\ComponentLoader\\Test' => '/case1/path3',
                     'Sitegeist\\Fixtures\\ComponentLoader' => '/case1/path6',
-                    'Sitegeist\\Fixtures\\Component\\Loader' => '/case1/path2'
+                    'Sitegeist\\Fixtures\\Component\\Loader' => '/case1/path2',
                 ],
-            ]
+            ],
         ];
     }
 
@@ -109,37 +109,37 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
             'existingComponent' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button',
                 '.html',
-                self::getFixturePath('ComponentLoader/Atom/Button/Button.html')
+                self::getFixturePath('ComponentLoader/Atom/Button/Button.html'),
             ],
             'existingComponentFileExtension' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button',
                 '.test',
-                self::getFixturePath('ComponentLoader/Atom/Button/Button.test')
+                self::getFixturePath('ComponentLoader/Atom/Button/Button.test'),
             ],
             'existingComponentFirstLevel' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Example',
                 '.html',
-                self::getFixturePath('ComponentLoader/Example/Example.html')
+                self::getFixturePath('ComponentLoader/Example/Example.html'),
             ],
             'existingComponentThirdLevel' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline',
                 '.html',
-                self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
+                self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html'),
             ],
             'nonexistingComponent' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Label',
                 '.html',
-                null
+                null,
             ],
             'nonexistingComponentFileExtension' => [
                 'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button',
                 '.nonexisting',
-                null
+                null,
             ],
             'nonexistingComponentNamespace' => [
                 'Sitegeist\\Fixtures\\Nonexisting\\Component',
                 '.html',
-                null
+                null,
             ],
         ];
     }
@@ -178,16 +178,16 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                     'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => self::getFixturePath('ComponentLoader/Atom/Link/Link.html'),
                     'Sitegeist\\Fixtures\\ComponentLoader\\Example' => self::getFixturePath('ComponentLoader/Example/Example.html'),
                     'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser' => self::getFixturePath('ComponentLoader/Molecule/Teaser/Teaser.html'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline' => self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html')
-                ]
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Molecule\\Teaser\\Headline' => self::getFixturePath('ComponentLoader/Molecule/Teaser/Headline/Headline.html'),
+                ],
             ],
             'test' => [
                 '.test',
                 [
                     'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Button' => self::getFixturePath('ComponentLoader/Atom/Button/Button.test'),
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => self::getFixturePath('ComponentLoader/Atom/Link/Link.test')
-                ]
-            ]
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Atom\\Link' => self::getFixturePath('ComponentLoader/Atom/Link/Link.test'),
+                ],
+            ],
         ];
     }
 

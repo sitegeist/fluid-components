@@ -1,78 +1,43 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Domain\Model\NavigationItem;
 
 /**
- * Data Structure to represent one item in a language navigation
+ * Data Structure to represent one item in a language navigation.
  */
 class LanguageNavigationItem extends NavigationItem
 {
     /**
-     * Availability of translation for the specific page
-     */
-    protected bool $available = false;
-
-    /**
-     * UID of the sys_language record
-     */
-    protected int $languageId;
-
-    /**
-     * Locale definition for language
-     */
-    protected string $locale;
-
-    /**
-     * ISO code for language
-     */
-    protected string $twoLetterIsoCode;
-
-    /**
-     * Hreflang identifier for language
-     */
-    protected string $hreflang;
-
-    /**
-     * Directionality of text in the language (ltr or rtl)
-     */
-    protected string $direction;
-
-    /**
-     * Flag name for language
-     */
-    protected string $flag;
-
-    /**
-     * Creates a navigation item object
+     * Creates a language navigation item object.
      *
-     * @param string $title             title of the item
-     * @param Typolink $link            link of the item
-     * @param bool $current          true if item represents the current page
-     * @param bool $active           true if item is part of current rootline
-     * @param bool $available        true if current page is translated to language
-     * @param int $languageId           UID of the sys_language record
-     * @param string $locale            Locale definition for language
-     * @param string $twoLetterIsoCode  ISO code for language
-     * @param string $hreflang          Hreflang identifier for language
-     * @param string $direction         Directionality of text in the language (ltr or rtl)
-     * @param string $flag              Flag name for language
-     * @param array $data               additional data for this navigation item
+     * $title               Title of the navigation item
+     * $link                Link of the navigation item
+     * $current             Indicates whether the navigation item represents the current page (note that active will be true as well)
+     * $active              Indicates whether the navigation item is part of the current rootline (parent page of the current page OR current page)
+     * $available           Availability of translation for the specific page
+     * $languageId          UID of the sys_language record
+     * $locale              Locale definition for language
+     * $twoLetterIsoCode    ISO code for language
+     * $hreflang            Hreflang identifier for language
+     * $direction           Directionality of text in the language (ltr or rtl)
+     * $flag                Flag name for language
+     * $data                additional data for this navigation item
      */
     public function __construct(
-        string $title,
-        Typolink $link = null,
-        bool $current = false,
-        bool $active = null,
-        bool $available = false,
-        int $languageId = null,
-        string $locale = null,
-        string $twoLetterIsoCode = null,
-        string $hreflang = null,
-        string $direction = null,
-        string $flag = null,
-        array $data = []
+        protected string $title,
+        protected ?Typolink $link = null,
+        protected bool $current = false,
+        protected bool $active = false,
+        protected bool $available = false,
+        protected ?int $languageId = null,
+        protected ?string $locale = null,
+        protected ?string $twoLetterIsoCode = null,
+        protected ?string $hreflang = null,
+        protected ?string $direction = null,
+        protected ?string $flag = null,
+        protected array $data = []
     ) {
         // Ensure valid data structures for optional values
         $this->setChildren(new Navigation([]));
@@ -84,7 +49,7 @@ class LanguageNavigationItem extends NavigationItem
             ->setTitle($title)
             ->setLink($link)
             ->setCurrent($current)
-            ->setActive($active ?? $current ?? false)
+            ->setActive($active || $current)
             ->setAvailable($available)
             ->setLanguageId($languageId)
             ->setLocale($locale)
@@ -96,11 +61,11 @@ class LanguageNavigationItem extends NavigationItem
     }
 
     /**
-     * Creates a navigation item object based on a TYPO3 language navigation item array
+     * Creates a navigation item object based on a TYPO3 language navigation item array.
      *
-     * @param array $navigationItem  respected properties that will become part of the data structure:
-     *                               title, link, target, current, active, available, languageId, locale,
-     *                               twoLetterIsoCode, hreflang, direction, flag, data
+     * @param array $navigationItem respected properties that will become part of the data structure:
+     *                              title, link, target, current, active, available, languageId, locale,
+     *                              twoLetterIsoCode, hreflang, direction, flag, data
      */
     public static function fromArray(array $navigationItem): self
     {
@@ -135,7 +100,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->available;
     }
 
-    public function setAvailable(bool $available): self
+    public function setAvailable(bool $available): static
     {
         $this->available = $available;
         return $this;
@@ -146,7 +111,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->languageId;
     }
 
-    public function setLanguageId(int $languageId): self
+    public function setLanguageId(int $languageId): static
     {
         $this->languageId = $languageId;
         return $this;
@@ -157,7 +122,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->locale;
     }
 
-    public function setLocale(string $locale): self
+    public function setLocale(string $locale): static
     {
         $this->locale = $locale;
         return $this;
@@ -168,7 +133,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->twoLetterIsoCode;
     }
 
-    public function setTwoLetterIsoCode(string $twoLetterIsoCode): self
+    public function setTwoLetterIsoCode(string $twoLetterIsoCode): static
     {
         $this->twoLetterIsoCode = $twoLetterIsoCode;
         return $this;
@@ -179,7 +144,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->hreflang;
     }
 
-    public function setHreflang(string $hreflang): self
+    public function setHreflang(string $hreflang): static
     {
         $this->hreflang = $hreflang;
         return $this;
@@ -190,7 +155,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->direction;
     }
 
-    public function setDirection(string $direction): self
+    public function setDirection(string $direction): static
     {
         $this->direction = $direction;
         return $this;
@@ -201,7 +166,7 @@ class LanguageNavigationItem extends NavigationItem
         return $this->flag;
     }
 
-    public function setFlag(string $flag): self
+    public function setFlag(string $flag): static
     {
         $this->flag = $flag;
         return $this;

@@ -1,26 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Exception\InvalidRemoteImageException;
 
 /**
- * Data structure for a remote image resource (URI) to be passed to a component
+ * Data structure for a remote image resource (URI) to be passed to a component.
  */
 class RemoteImage extends Image
 {
     /**
-     * Type of image to differentiate implementations in Fluid templates
+     * Type of image to differentiate implementations in Fluid templates.
      */
     protected string $type = 'RemoteImage';
 
     /**
-     * URI to the remote image
+     * URI to the remote image.
      */
     protected string $uri = '';
 
     /**
-     * Creates an image object for a remote image resource
+     * Creates an image object for a remote image resource.
      *
      * @throws InvalidRemoteImageException
      */
@@ -42,7 +42,7 @@ class RemoteImage extends Image
     }
 
     /**
-     * Checks if the provided uri is a valid remote uri
+     * Checks if the provided uri is a valid remote uri.
      */
     protected static function isRemoteUri(string $uri): bool
     {

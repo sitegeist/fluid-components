@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Utility;
 
+use ArrayAccess;
+use Closure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromClosure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
@@ -11,6 +13,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
+use Traversable;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -20,59 +23,59 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * List of interfaces that provide conversion methods between scalar/compound
      * variable types and complex data structures,
-     * e. g. transparently create a link model from a url string
+     * e. g. transparently create a link model from a url string.
      */
     protected array $conversionInterfaces = [
         'string' => [
             ConstructibleFromString::class,
-            'fromString'
+            'fromString',
         ],
         'integer' => [
             ConstructibleFromInteger::class,
-            'fromInteger'
+            'fromInteger',
         ],
         'array' => [
             ConstructibleFromArray::class,
-            'fromArray'
+            'fromArray',
         ],
         'NULL' => [
             ConstructibleFromNull::class,
-            'fromNull'
+            'fromNull',
         ],
-        \Closure::class => [
+        Closure::class => [
             ConstructibleFromClosure::class,
-            'fromClosure'
+            'fromClosure',
         ],
         'DateTime' => [
             ConstructibleFromDateTime::class,
-            'fromDateTime'
+            'fromDateTime',
         ],
         'DateTimeImmutable' => [
             ConstructibleFromDateTimeImmutable::class,
-            'fromDateTimeImmutable'
+            'fromDateTimeImmutable',
         ],
         FileInterface::class => [
             ConstructibleFromFileInterface::class,
-            'fromFileInterface'
+            'fromFileInterface',
         ],
         FileReference::class => [
             ConstructibleFromExtbaseFile::class,
-            'fromExtbaseFile'
+            'fromExtbaseFile',
         ],
         AbstractFile::class => [
             ConstructibleFromFileInterface::class,
-            'fromFileInterface'
+            'fromFileInterface',
         ],
     ];
 
     /**
      * Registered argument type aliases
-     * [alias => full php class name]
+     * [alias => full php class name].
      */
     protected array $typeAliases = [];
 
     /**
-     * Runtime cache to speed up conversion checks
+     * Runtime cache to speed up conversion checks.
      */
     protected array $conversionCache = [];
 
@@ -86,7 +89,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Adds an interface to specify argument type conversion to list
+     * Adds an interface to specify argument type conversion to list.
      */
     public function addConversionInterface(string $fromType, string $interface, string $constructor): self
     {
@@ -96,7 +99,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Removes an interface that specifies argument type conversion from list
+     * Removes an interface that specifies argument type conversion from list.
      */
     public function removeConversionInterface(string $fromType): self
     {
@@ -106,7 +109,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Adds an alias for an argument type
+     * Adds an alias for an argument type.
      */
     public function addTypeAlias(string $alias, string $type): self
     {
@@ -115,7 +118,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Removes an alias for an argument type
+     * Removes an alias for an argument type.
      */
     public function removeTypeAlias(string $alias): self
     {
@@ -124,10 +127,11 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Replaces potential argument type alias with real php class name
+     * Replaces potential argument type alias with real php class name.
      *
-     * @param string $type  e. g. MyAlias
-     * @return string       e. g. Vendor\MyExtension\MyRealClass
+     * @param string $type e. g. MyAlias
+     *
+     * @return string e. g. Vendor\MyExtension\MyRealClass
      */
     public function resolveTypeAlias(string $type): string
     {
@@ -141,9 +145,9 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Checks if a given variable type can be converted to another
-     * data type by using alternative constructors in $this->conversionInterfaces
+     * data type by using alternative constructors in $this->conversionInterfaces.
      *
-     * @return array             information about conversion or empty array
+     * @return array information about conversion or empty array
      */
     public function canTypeBeConvertedToType(string $givenType, string $toType): array
     {
@@ -189,7 +193,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Tries to convert the specified value to the specified data type
-     * by using alternative constructors in $this->conversionInterfaces
+     * by using alternative constructors in $this->conversionInterfaces.
      */
     public function convertValueToType(mixed $value, string $toType): mixed
     {
@@ -216,7 +220,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Checks if the provided type describes a collection of values
+     * Checks if the provided type describes a collection of values.
      */
     protected function isCollectionType(string $type): bool
     {
@@ -224,10 +228,11 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Extracts the type of individual items from a collection type
+     * Extracts the type of individual items from a collection type.
      *
-     * @param string $type  e. g. Vendor\MyExtension\MyClass[]
-     * @return string       e. g. Vendor\MyExtension\MyClass
+     * @param string $type e. g. Vendor\MyExtension\MyClass[]
+     *
+     * @return string e. g. Vendor\MyExtension\MyClass
      */
     protected function extractCollectionItemType(string $type): string
     {
@@ -235,11 +240,11 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
     }
 
     /**
-     * Checks if the given type is behaving like an array
+     * Checks if the given type is behaving like an array.
      */
     protected function isAccessibleArray(string $typeOrClassName): bool
     {
         return $typeOrClassName === 'array' ||
-            (is_subclass_of($typeOrClassName, \ArrayAccess::class) && is_subclass_of($typeOrClassName, \Traversable::class));
+            (is_subclass_of($typeOrClassName, ArrayAccess::class) && is_subclass_of($typeOrClassName, Traversable::class));
     }
 }

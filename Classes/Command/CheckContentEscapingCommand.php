@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Command;
 
+use RuntimeException;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use SMS\FluidComponents\ViewHelpers\SlotViewHelper;
@@ -12,8 +13,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\FluidViewAdapter;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Fluid\ViewHelpers\Format\HtmlViewHelper;
 use TYPO3Fluid\Fluid\Core\Parser\ParsingState;
@@ -28,20 +34,20 @@ class CheckContentEscapingCommand extends Command
 {
     /**
      * List of ViewHelpers that are usually used to un-escape variables
-     * that are passed as content to a component
+     * that are passed as content to a component.
      */
     public const RAW_VIEWHELPERS = [
         RawViewHelper::class,
-        HtmlViewHelper::class
+        HtmlViewHelper::class,
     ];
 
     /**
      * Variables that don't contain any HTML and thus don't need to be
-     * checked
+     * checked.
      */
     public const IGNORED_VARIABLES = [
         'component.prefix',
-        'component.class'
+        'component.class',
     ];
 
     protected array $templates = [];
@@ -49,12 +55,12 @@ class CheckContentEscapingCommand extends Command
     protected array $affectedComponents = [];
     public function __construct(
         protected PackageManager $packageManager,
-        protected ComponentLoader $componentLoader
+        protected ComponentLoader $componentLoader,
     ) {
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription(
             'Checks for possible escaping issues with content parameter due to new children escaping behavior'
@@ -192,7 +198,7 @@ class CheckContentEscapingCommand extends Command
                     if (!empty($variableNames)) {
                         $results[] = [
                             $this->affectedComponents[$viewHelper->getComponentNamespace()],
-                            $variableNames
+                            $variableNames,
                         ];
                     }
                     continue;
@@ -298,6 +304,14 @@ class CheckContentEscapingCommand extends Command
 
     protected function getTemplateParser(): TemplateParser
     {
-        return (new StandaloneView())->getRenderingContext()->getTemplateParser();
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            return (new StandaloneView())->getRenderingContext()->getTemplateParser();
+        }
+
+        $view = GeneralUtility::makeInstance(ViewFactoryInterface::class)->create(new ViewFactoryData());
+        if ($view instanceof FluidViewAdapter) {
+            return $view->getRenderingContext()->getTemplateParser();
+        }
+        throw new RuntimeException('view must be an instance of \TYPO3\CMS\Core\View\FluidViewAdapter', 1726643308);
     }
 }

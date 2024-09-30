@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Command;
 
+use Exception;
 use SMS\FluidComponents\Service\XsdGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,19 +17,19 @@ class GenerateXsdCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription(
             'Generates xsd files for all fluid-components'
         );
         $this->setHelp(
             <<<'EOH'
-Generates Schema documentation (XSD) for your fluid components, preparing the
-file to be placed online and used by any XSD-aware editor.
-After creating the XSD file, reference it in your IDE and import the namespace
-in your Fluid template by adding the xmlns:* attribute(s):
-<code><html xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers" ...></code>
-EOH
+                Generates Schema documentation (XSD) for your fluid components, preparing the
+                file to be placed online and used by any XSD-aware editor.
+                After creating the XSD file, reference it in your IDE and import the namespace
+                in your Fluid template by adding the xmlns:* attribute(s):
+                <code><html xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers" ...></code>
+                EOH
         );
         $this->addArgument(
             'path',
@@ -55,7 +56,7 @@ EOH
             $output->writeln('Path: ' . $path);
         }
         if (!is_dir($path)) {
-            throw new \Exception('Directory \'' . $input->getArgument('path') . '\' does not exist.', 1582535395);
+            throw new Exception('Directory \'' . $input->getArgument('path') . '\' does not exist.', 1582535395);
         }
         $xsdTargetNameSpaces = $this->xsdGenerator->generateXsd($path, $input->getOption('namespace'));
         if (count($xsdTargetNameSpaces) === 0) {
