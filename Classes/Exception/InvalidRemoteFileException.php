@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Exception;
 
-class InvalidRemoteFileException extends \Exception
+use Exception;
+
+class InvalidRemoteFileException extends Exception
 {
 }

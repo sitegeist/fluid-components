@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -11,37 +11,34 @@ use TYPO3\CMS\Core\Imaging\GraphicalFunctions;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 
 /**
- * Data structure for a local image resource to be passed to a component
+ * Data structure for a local image resource to be passed to a component.
+ *
  * @deprecated, use FalImage instead
  */
 class LocalImage extends Image implements ImageWithDimensions, ProcessableImage
 {
     /**
-     * Type of image to differentiate implementations in Fluid templates
+     * Type of image to differentiate implementations in Fluid templates.
      */
     protected string $type = 'LocalImage';
 
     /**
-     * Absolute path to the local file
+     * Absolute path to the local file.
      */
     protected string $filePath = '';
 
     /**
      * Image width, will be determined at first access
-     *
-     * @var integer
      */
-    protected $width = 0;
+    protected int $width = 0;
 
     /**
      * Image height, will be determined at first access
-     *
-     * @var integer
      */
-    protected $height = 0;
+    protected int $height = 0;
 
     /**
-     * Creates an image object for a local image resource
+     * Creates an image object for a local image resource.
      *
      * @throws InvalidFilePathException
      */

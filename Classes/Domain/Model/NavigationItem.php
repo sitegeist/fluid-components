@@ -1,73 +1,35 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
-use SMS\FluidComponents\Domain\Model\Typolink;
 use SMS\FluidComponents\Domain\Model\Navigation;
+use SMS\FluidComponents\Domain\Model\Typolink;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 
 /**
- * Data Structure to represent one item in a navigation
+ * Data Structure to represent one item in a navigation.
  */
 class NavigationItem implements ConstructibleFromArray
 {
     /**
-     * Title of the navigation item
-     */
-    protected string $title;
-
-    /**
-     * Link of the navigation item
-     */
-    protected Typolink $link;
-
-    /**
-     * Indicates whether the navigation item is part of the current rootline
-     * (parent page of the current page OR current page)
-     */
-    protected bool $active = false;
-
-    /**
-     * Indicates whether the navigation item represents the current page
-     * (note that active will be true as well)
-     */
-    protected bool $current = false;
-
-    /**
-     * Indicates whether the navigation item is a spacer item without real
-     * functionality
-     */
-    protected bool $spacer = false;
-
-    /**
-     * Submenu of the navigation item
-     */
-    protected Navigation $children;
-
-    /**
-     * Raw data of the navigation item, e. g. the pages record
-     */
-    protected array $data = [];
-
-    /**
-     * Creates a navigation item object
+     * Creates a navigation item object.
      *
-     * @param string $title         title of the item
-     * @param Typolink $link        link of the item
-     * @param bool $current      true if item represents the current page
-     * @param bool $active       true if item is part of current rootline
-     * @param bool $spacer       true if item is a spacer item
-     * @param Navigation $children  sub navigation
-     * @param array $data           raw item data
+     * $title       Title of the navigation item
+     * $link        Link of the navigation item
+     * $current     Indicates whether the navigation item represents the current page (note that active will be true as well)
+     * $active      Indicates whether the navigation item is part of the current rootline (parent page of the current page OR current page)
+     * $spacer      Indicates whether the navigation item is a spacer item without real functionality
+     * $children    Submenu of the navigation item
+     * $data        Raw data of the navigation item, e. g. the pages record
      */
     public function __construct(
-        string $title,
-        Typolink $link = null,
-        bool $current = false,
-        bool $active = null,
-        bool $spacer = false,
-        Navigation $children = null,
-        array $data = []
+        protected string $title,
+        protected ?Typolink $link = null,
+        protected bool $current = false,
+        protected bool $active = false,
+        protected bool $spacer = false,
+        protected ?Navigation $children = null,
+        protected array $data = []
     ) {
         // Ensure valid data structures for optional values
         if (!$link) {
@@ -81,17 +43,17 @@ class NavigationItem implements ConstructibleFromArray
             ->setTitle($title)
             ->setLink($link)
             ->setCurrent($current)
-            ->setActive($active ?? $current ?? false)
+            ->setActive($active || $current)
             ->setSpacer($spacer)
             ->setChildren($children)
             ->setData($data);
     }
 
     /**
-     * Creates a navigation item object based on a TYPO3 navigation item array
+     * Creates a navigation item object based on a TYPO3 navigation item array.
      *
-     * @param array $navigationItem  respected properties that will become part of the data structure:
-     *                               title, link, target, current, active, spacer, children, data
+     * @param array $navigationItem respected properties that will become part of the data structure:
+     *                              title, link, target, current, active, spacer, children, data
      */
     public static function fromArray(array $navigationItem): self
     {
@@ -124,7 +86,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): static
     {
         $this->title = $title;
         return $this;
@@ -135,7 +97,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->link;
     }
 
-    public function setLink(Typolink $link): self
+    public function setLink(Typolink $link): static
     {
         $this->link = $link;
         return $this;
@@ -146,7 +108,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->link->getTarget();
     }
 
-    public function setTarget(string $target): self
+    public function setTarget(string $target): static
     {
         $this->link->setTarget($target);
         return $this;
@@ -157,7 +119,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->current;
     }
 
-    public function setCurrent(bool $current): self
+    public function setCurrent(bool $current): static
     {
         $this->current = $current;
         return $this;
@@ -168,7 +130,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->active;
     }
 
-    public function setActive(bool $active): self
+    public function setActive(bool $active): static
     {
         $this->active = $active;
         return $this;
@@ -179,7 +141,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->spacer;
     }
 
-    public function setSpacer(bool $spacer): self
+    public function setSpacer(bool $spacer): static
     {
         $this->spacer = $spacer;
         return $this;
@@ -195,7 +157,7 @@ class NavigationItem implements ConstructibleFromArray
         return count($this->children) > 0;
     }
 
-    public function setChildren(Navigation $children): self
+    public function setChildren(Navigation $children): static
     {
         $this->children = $children;
         return $this;
@@ -206,7 +168,7 @@ class NavigationItem implements ConstructibleFromArray
         return $this->data;
     }
 
-    public function setData(array $data): self
+    public function setData(array $data): static
     {
         $this->data = $data;
         return $this;

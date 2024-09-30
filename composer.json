@@ -20,12 +20,12 @@
     },
     "require": {
         "php": "^8.2",
-        "typo3/cms-core": "13.2.* || ^12.4",
-        "typo3fluid/fluid": "<=2.14.1"
+        "typo3/cms-core": "^13.3 || ^12.4",
+        "typo3fluid/fluid": "^4.0 || ^2.15"
     },
     "require-dev": {
         "typo3/testing-framework": "^8.2",
-        "squizlabs/php_codesniffer": "^3.0",
+        "squizlabs/php_codesniffer": "^3.10",
         "editorconfig-checker/editorconfig-checker": "^10.0",
         "phpspec/prophecy-phpunit": "^2.0"
     },
@@ -59,6 +59,18 @@
         }
     },
     "scripts": {
+        "lint": [
+            "@lint:php",
+            "@lint:editorconfig"
+        ],
+        "lint:php": "phpcs --standard=PSR2 --extensions=php --exclude=Generic.Files.LineLength --ignore=.Build,.cache,Tests,ext_emconf.php .",
+        "lint:editorconfig": "ec -exclude .Build .",
+        "test": [
+            "@test:unit",
+            "@test:functional"
+        ],
+        "test:unit": "Build/Scripts/runTests.sh",
+        "test:functional": "Build/Scripts/runTests.sh -s functional",
         "prepare-release": [
             "sed -i'' -e \"s/'version' => ''/'version' => '$(echo ${GITHUB_REF#refs/tags/} | sed 's/v//')'/\" ext_emconf.php",
             "rm -r .github .ecrc .editorconfig .gitattributes Build Tests"

@@ -5,128 +5,98 @@ on: [push, pull_request]
 jobs:
     lint:
         name: Source code linting
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
+        strategy:
+            max-parallel: 2
+            matrix:
+                php-versions: ['8.2']
         steps:
-            -
+            -   name: "Checkout"
                 uses: actions/checkout@v4
 
-            -
-                name: Set up Docker Compose
-                run: |
-                    docker-compose --version || {
-                    echo "Docker Compose not found, installing..."
-                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                    sudo chmod +x /usr/local/bin/docker-compose
-                    docker-compose --version
-                    }
+            -   name: Validate composer.json
+                run: Build/Scripts/runTests.sh -s composer validate
 
-            -
-                name: Validate composer.json
-                run: Build/Scripts/runTests.sh -s composerValidate
-
-            -
-                name: Cache composer dependencies
+            -   name: Cache dependencies installed with composer
                 uses: actions/cache@v4
                 with:
-                    path: ~/.composer/cache
-                    key: composer
+                    key: "php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}"
+                    path: .cache/composer
+                    restore-keys: "php${{ matrix.php-version }}-composer-\n"
 
-            -
-                name: Install composer dependencies
-                run: Build/Scripts/runTests.sh -s composerInstall
+            -   name: Install composer dependencies
+                run: Build/Scripts/runTests.sh -s composer install
 
-            -
-                name: PHP Linting
+            -   name: PHP Linting
                 run: Build/Scripts/runTests.sh -s lintPhp
 
-            -
-                name: Editorconfig Linting
+            -   name: Editorconfig Linting
                 run: Build/Scripts/runTests.sh -s lintEditorconfig
 
 
     unittest:
-        runs-on: ubuntu-latest
-
+        runs-on: ubuntu-24.04
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.3', '8.2']
-                typo3-versions: [13, 12]
+                php-versions: ['8.2', '8.3']
+                typo3-versions: ['13.3', '12.4']
+                composer-requirements: ['Min', 'Max']
+                exclude:
+                    - typo3-versions: '13.3'
+                      composer-requirements: 'Max'
 
-        name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+        name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
         steps:
-            -
+            -   name: "Checkout"
                 uses: actions/checkout@v4
 
-            -
-                name: Set up Docker Compose
-                run: |
-                    docker-compose --version || {
-                    echo "Docker Compose not found, installing..."
-                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                    sudo chmod +x /usr/local/bin/docker-compose
-                    docker-compose --version
-                    }
+            -   name: Validate composer.json
+                run: Build/Scripts/runTests.sh -s composer validate
 
-            -
-                name: Validate composer.json
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerValidate
-
-            -
-                name: Cache composer dependencies
+            -   name: Cache dependencies installed with composer
                 uses: actions/cache@v4
                 with:
-                    path: ~/.composer/cache
-                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+                    key: "php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}"
+                    path: .cache/composer
+                    restore-keys: "php${{ matrix.php-version }}-composer-\n"
 
-            -
-                name: Install composer dependencies
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerInstall
+            -   name: Install composer dependencies
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdate${{ matrix.composer-requirements }}
 
-            -
-                name: Automated Unit Testing
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s unit
+            -   name: Automated Unit Testing
+                run: Build/Scripts/runTests.sh -s unit
 
 
-    functionaltest:
-        runs-on: ubuntu-latest
-
+    functional:
+        runs-on: ubuntu-24.04
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.3', '8.2']
-                typo3-versions: [13, 12]
+                php-versions: ['8.2', '8.3']
+                typo3-versions: ['13.3', '12.4']
+                composer-requirements: ['Min', 'Max']
+                exclude:
+                    - typo3-versions: '13.3'
+                      composer-requirements: 'Max'
 
-        name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }})
+        name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
         steps:
-            -
+            -   name: "Checkout"
                 uses: actions/checkout@v4
 
-            -
-                name: Set up Docker Compose
-                run: |
-                    docker-compose --version || {
-                    echo "Docker Compose not found, installing..."
-                    sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                    sudo chmod +x /usr/local/bin/docker-compose
-                    docker-compose --version
-                    }
+            -   name: Validate composer.json
+                run: Build/Scripts/runTests.sh -s composer validate
 
-            -
-                name: Validate composer.json
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerValidate
-
-            -
-                name: Cache composer dependencies
+            -   name: Cache dependencies installed with composer
                 uses: actions/cache@v4
                 with:
-                    path: ~/.composer/cache
-                    key: php-${{ matrix.php-versions }}-typo3-${{ matrix.typo3-versions }}
+                    key: "php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}"
+                    path: .cache/composer
+                    restore-keys: "php${{ matrix.php-version }}-composer-\n"
 
-            -
-                name: Install composer dependencies
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerInstall
+            -   name: Install composer dependencies
+                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s composerUpdate${{ matrix.composer-requirements }}
 
-            -
-                name: Automated Functional Testing
-                run: Build/Scripts/runTests.sh -p ${{ matrix.php-versions }} -t ${{ matrix.typo3-versions }} -s functional
+            -   name: Automated Unit Testing
+                run: Build/Scripts/runTests.sh -s functional

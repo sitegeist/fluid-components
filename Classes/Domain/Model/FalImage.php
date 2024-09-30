@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -12,14 +12,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\ImageService;
 
 /**
- * Data structure as a wrapper around a FAL object to be passed to a component
+ * Data structure as a wrapper around a FAL object to be passed to a component.
  */
 class FalImage extends Image implements ImageWithDimensions, ImageWithCropVariants, ProcessableImage
 {
     use FalFileTrait;
 
     /**
-     * Type of image to differentiate implementations in Fluid templates
+     * Type of image to differentiate implementations in Fluid templates.
      */
     protected string $type = 'FalImage';
 

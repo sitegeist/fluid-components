@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -7,34 +7,32 @@ use SMS\FluidComponents\Interfaces\ProcessableImage;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 
 /**
- * Data structure for a placeholder image to be passed to a component
+ * Data structure for a placeholder image to be passed to a component.
  */
 class PlaceholderImage extends Image implements ImageWithDimensions, ProcessableImage
 {
     /**
-     * Type of image to differentiate implementations in Fluid templates
+     * Type of image to differentiate implementations in Fluid templates.
      */
     protected string $type = 'PlaceholderImage';
 
     /**
-     * Width of the placeholder image
+     * Width of the placeholder image.
      */
     protected int $width = 0;
 
     /**
-     * Height of the placeholder image
+     * Height of the placeholder image.
      */
     protected int $height = 0;
 
     /**
      * Image format of the image
-     *
-     * @var string
      */
-    protected $format = 'gif';
+    protected string $format = 'gif';
 
     /**
-     * Creates an image object for a placeholder image
+     * Creates an image object for a placeholder image.
      */
     public function __construct(int $width, int $height, string $format = 'gif')
     {
