@@ -1,26 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
 use SMS\FluidComponents\Exception\InvalidRemoteFileException;
 
 /**
- * Data structure for a remote file resource (URI) to be passed to a component
+ * Data structure for a remote file resource (URI) to be passed to a component.
  */
 class RemoteFile extends File
 {
     /**
-     * Type of file to differentiate implementations in Fluid templates
+     * Type of file to differentiate implementations in Fluid templates.
      */
     protected string $type = 'RemoteFile';
 
     /**
-     * URI to the remote file
+     * URI to the remote file.
      */
     protected string $uri = '';
 
     /**
-     * Creates a file object for a remote resource
+     * Creates a file object for a remote resource.
      *
      * @throws InvalidRemoteFileException
      */
@@ -42,7 +42,7 @@ class RemoteFile extends File
     }
 
     /**
-     * Checks if the provided uri is a valid remote uri
+     * Checks if the provided uri is a valid remote uri.
      */
     protected static function isRemoteUri(string $uri): bool
     {

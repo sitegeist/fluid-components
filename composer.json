@@ -20,12 +20,12 @@
     },
     "require": {
         "php": "^8.2",
-        "typo3/cms-core": "13.2.* || ^12.4",
-        "typo3fluid/fluid": "<=2.14.1"
+        "typo3/cms-core": "^13.3 || ^12.4",
+        "typo3fluid/fluid": "^4.0 || ^2.15"
     },
     "require-dev": {
         "typo3/testing-framework": "^8.2",
-        "squizlabs/php_codesniffer": "^3.0",
+        "squizlabs/php_codesniffer": "^3.10",
         "editorconfig-checker/editorconfig-checker": "^10.0",
         "phpspec/prophecy-phpunit": "^2.0"
     },

@@ -25,7 +25,7 @@ class ComponentRendererTest extends FunctionalTestCase
 
     protected bool $initializeDatabase = false;
     protected array $testExtensionsToLoad = [
-        'typo3conf/ext/fluid_components'
+        'typo3conf/ext/fluid_components',
     ];
 
     public function setUp(): void
@@ -39,7 +39,7 @@ class ComponentRendererTest extends FunctionalTestCase
         // Register test components
         $this->componentNamespaces = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] ?? null;
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] = [
-            $this->testNamespace => realpath(__DIR__ . '/../Fixtures/Functional/Components/')
+            $this->testNamespace => realpath(__DIR__ . '/../Fixtures/Functional/Components/'),
         ];
 
         // Register and then disable fluid cache
@@ -61,7 +61,7 @@ class ComponentRendererTest extends FunctionalTestCase
                 'trueParameter' => true, // strange fluid behavior: will be 1
                 'falseParameter' => false, // strange fluid behavior: will be empty string
             ], '', 'This is a string|123|1|'],
-            ['DateTimeParameter', ['date' => 1601371704], '', 'Tue, 29 Sep 2020 09:28:24 +0000']
+            ['DateTimeParameter', ['date' => 1601371704], '', 'Tue, 29 Sep 2020 09:28:24 +0000'],
         ];
     }
 
@@ -79,9 +79,8 @@ class ComponentRendererTest extends FunctionalTestCase
         /** @var ViewHelperInvoker $invoker */
         $invoker = GeneralUtility::makeInstance(ViewHelperInvoker::class);
 
-        $renderingContext = $container->get(RenderingContextFactory::class)->create();
-
-        $renderingContext->setRequest(
+        $renderingContext = $container->get(RenderingContextFactory::class)->create(
+            [],
             new Request(
                 (new ServerRequest)->withAttribute(
                     'extbase',

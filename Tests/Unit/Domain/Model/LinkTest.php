@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
@@ -44,7 +44,7 @@ class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                 null,
                 '/path/to/file.ext',
                 'param=value',
-                null
+                null,
             ],
             [
                 'http://user:pass@www.example.com:8000#fragment',
@@ -55,8 +55,8 @@ class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                 8000,
                 null,
                 null,
-                'fragment'
-            ]
+                'fragment',
+            ],
         ];
     }
 

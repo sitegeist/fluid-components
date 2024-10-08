@@ -4,34 +4,36 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional\ViewHelpers\Variable;
 
+use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Fluid\View\TemplateView;
+use stdClass;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
+use TYPO3Fluid\Fluid\View\TemplateView;
 
 class MapViewHelperTest extends FunctionalTestCase
 {
     protected bool $initializeDatabase = false;
     protected array $testExtensionsToLoad = [
-        'typo3conf/ext/fluid_components'
+        'typo3conf/ext/fluid_components',
     ];
 
-    public static function renderDataProvider(): \Generator
+    public static function renderDataProvider(): Generator
     {
         $input = [
             0 => [
                 'sourceSimpleField' => 'sourceSimpleValue',
                 'sourcePathField' => [
-                    'path' => 'sourcePathValue'
+                    'path' => 'sourcePathValue',
                 ],
                 'keepField1' => 'keepValue1',
                 'keepField2' => 'keepValue2',
-            ]
+            ],
         ];
 
-        $obj = new \stdClass;
+        $obj = new stdClass;
         $obj->sourceSimpleField = 'sourceSimpleValue';
-        $obj->sourcePathField = new \stdClass;
+        $obj->sourcePathField = new stdClass;
         $obj->sourcePathField->path = 'sourcePathValue';
         $obj->keepField1 = 'keepValue1';
         $obj->keepField2 = 'keepValue2';
@@ -45,8 +47,8 @@ class MapViewHelperTest extends FunctionalTestCase
                     'targetPathField' => 'sourcePathValue',
                     'keepField1' => 'keepValue1',
                     'keepField2' => 'keepValue2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'keep only (coma separated list)' => [
@@ -56,8 +58,8 @@ class MapViewHelperTest extends FunctionalTestCase
                 0 => [
                     'keepField1' => 'keepValue1',
                     'keepField2' => 'keepValue2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'keep only (array of fields)' => [
@@ -67,8 +69,8 @@ class MapViewHelperTest extends FunctionalTestCase
                 0 => [
                     'keepField1' => 'keepValue1',
                     'keepField2' => 'keepValue2',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'simple field' => [
@@ -77,8 +79,8 @@ class MapViewHelperTest extends FunctionalTestCase
             [
                 0 => [
                     'targetSimpleField' => 'sourceSimpleValue',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'simple field (dataSource as subject)' => [
@@ -87,8 +89,8 @@ class MapViewHelperTest extends FunctionalTestCase
             [
                 0 => [
                     'targetSimpleField' => 'sourceSimpleValue',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'simple field (tag version)' => [
@@ -97,8 +99,8 @@ class MapViewHelperTest extends FunctionalTestCase
             [
                 0 => [
                     'targetSimpleField' => 'sourceSimpleValue',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'path field' => [
@@ -107,8 +109,8 @@ class MapViewHelperTest extends FunctionalTestCase
             [
                 0 => [
                     'targetPathField' => 'sourcePathValue',
-                ]
-            ]
+                ],
+            ],
         ];
 
         yield 'full test' => [
@@ -120,8 +122,8 @@ class MapViewHelperTest extends FunctionalTestCase
                     'targetPathField' => 'sourcePathValue',
                     'keepField1' => 'keepValue1',
                     'keepField2' => 'keepValue2',
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -131,7 +133,7 @@ class MapViewHelperTest extends FunctionalTestCase
     {
         $view = new TemplateView();
         $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
-        $view->assign('dataSource',$input);
+        $view->assign('dataSource', $input);
         $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
         $view->render();
         self::assertSame($expected, $view->getRenderingContext()->getVariableProvider()->get('dataTarget'));

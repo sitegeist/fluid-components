@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Service;
 
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionClass;
+use ReflectionException;
 use SMS\FluidComponents\Service\XsdGenerator;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
@@ -27,16 +29,17 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
     /**
      * Call protected/private method of a class.
      *
-     * @param object &$object    Instantiated object that we will run method on.
+     * @param object &$object    Instantiated object that we will run method on
      * @param string $methodName Method name to call
-     * @param array  $parameters Array of parameters to pass into method.
+     * @param array  $parameters array of parameters to pass into method
      *
-     * @return mixed Method return.
-     * @throws \ReflectionException
+     * @throws ReflectionException
+     *
+     * @return mixed method return
      */
     public function invokeMethod(&$object, $methodName, array $parameters = [])
     {
-        $reflection = new \ReflectionClass($object::class);
+        $reflection = new ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
@@ -45,19 +48,19 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     #[Test]
     public function getFileNameForNamespace(): void {
 
         $this->assertEquals(
             'SMS_FluidComponents_Components.xsd',
-            $this->invokeMethod($this->generator,'getFileNameForNamespace', [ 'SMS\FluidComponents\Components' ])
+            $this->invokeMethod($this->generator, 'getFileNameForNamespace', [ 'SMS\FluidComponents\Components' ])
         );
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     #[Test]
     public function getDefaultPrefixForNamespace(): void {
@@ -65,13 +68,16 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['ab'][] = 'SMS\OtherComponents\Components';
         $this->assertEquals(
             'fc',
-            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['SMS\FluidComponents\ViewHelpers']));
+            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['SMS\FluidComponents\ViewHelpers'])
+        );
         $this->assertEquals(
             'ab',
-            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['SMS\OtherComponents\Components']));
+            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['SMS\OtherComponents\Components'])
+        );
         $this->assertEquals(
             'me',
-            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['Vendor\MyExension\Components']));
+            $this->invokeMethod($this->generator, 'getDefaultPrefixForNamespace', ['Vendor\MyExension\Components'])
+        );
 
     }
 

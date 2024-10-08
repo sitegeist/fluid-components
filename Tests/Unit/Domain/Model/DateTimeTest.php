@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
@@ -24,7 +24,7 @@ class DateTimeTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
             [new \DateTime('tomorrow'), new DateTime('tomorrow')],
             ['tomorrow', new DateTime('tomorrow')],
             ['2020-01-01 12:34:56', new DateTime('2020-01-01 12:34:56')],
-            [1601301635, new DateTime('@1601301635')]
+            [1601301635, new DateTime('@1601301635')],
         ];
     }
 
