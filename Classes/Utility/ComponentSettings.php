@@ -1,13 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Utility;
 
+use ArrayAccess;
+use ReturnTypeWillChange;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
-class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAccess
+class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAccess
 {
     /**
-     * Storage of the component settings
+     * Storage of the component settings.
      */
     protected array $settings = [];
 
@@ -17,7 +19,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Resets the settings to the default state (settings from ext_localconf.php and TypoScript)
+     * Resets the settings to the default state (settings from ext_localconf.php and TypoScript).
      */
     public function reset(): void
     {
@@ -30,7 +32,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Checks if the specified settings path exists
+     * Checks if the specified settings path exists.
      */
     public function exists(string $path): bool
     {
@@ -38,7 +40,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Returns the value of the specified settings path
+     * Returns the value of the specified settings path.
      */
     public function get(string $path)
     {
@@ -54,7 +56,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Sets the value of the specified settings path
+     * Sets the value of the specified settings path.
      */
     public function set(string $path, mixed $value): self
     {
@@ -71,7 +73,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Unsets the specified settings path
+     * Unsets the specified settings path.
      */
     public function unset(string $path): self
     {
@@ -80,36 +82,36 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, \ArrayAcc
     }
 
     /**
-     * Checks if a subsetting exists; Part of the ArrayAccess implementation
+     * Checks if a subsetting exists; Part of the ArrayAccess implementation.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->settings[$offset]);
     }
 
     /**
-     * Returns the value of a subsetting; Part of the ArrayAccess implementation
+     * Returns the value of a subsetting; Part of the ArrayAccess implementation.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetGet(mixed $offset): mixed
     {
         return $this->settings[$offset];
     }
 
     /**
-     * Sets the value of a subsetting; Part of the ArrayAccess implementation
+     * Sets the value of a subsetting; Part of the ArrayAccess implementation.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->settings[$offset] = $value;
     }
 
     /**
-     * Unsets a subsetting; Part of the ArrayAccess implementation
+     * Unsets a subsetting; Part of the ArrayAccess implementation.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function offsetUnset(mixed $offset): void
     {
         unset($this->settings[$offset]);

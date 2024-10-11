@@ -1,13 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 namespace SMS\FluidComponents\ViewHelpers\Variable;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderStatic;
 
 /**
  * This ViewHelper adds one variable to the end of the array and returns the result.
- * Similar functionality as in v:iterator.push from VHS
+ * Similar functionality as in v:iterator.push from VHS.
  *
  * <code title="Provides array of news tags">
  *   <f:variable name="tags"></f:variable>
@@ -17,12 +15,11 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderS
  * </code>
  *
  * @package SMS\FluidComponents\ViewHelpers\Variable
+ *
  * @author Simon Praetorius <praetorius@sitegeist.de>
  */
 class PushViewHelper extends AbstractViewHelper
 {
-    use CompileWithContentArgumentAndRenderStatic;
-
     public function initializeArguments(): void
     {
         $this->registerArgument('item', 'mixed', 'Item to push to specified array variable. If not in arguments then taken from tag content');
@@ -30,23 +27,20 @@ class PushViewHelper extends AbstractViewHelper
         $this->registerArgument('key', 'string', 'Key that should be used in the array');
     }
 
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ): void {
-        $value = $arguments['item'] ?? $renderChildrenClosure();
+    public function render(): void
+    {
+        $value = $this->arguments['item'] ?? $this->renderChildren();
 
-        $variable = $renderingContext->getVariableProvider()->get($arguments['name']);
+        $variable = $this->renderingContext->getVariableProvider()->get($this->arguments['name']);
         if (!is_array($variable)) {
             $variable = [];
         }
-        if ($arguments['key']) {
-            $variable[$arguments['key']] = $value;
+        if ($this->arguments['key']) {
+            $variable[$this->arguments['key']] = $value;
         } else {
             $variable[] = $value;
         }
 
-        $renderingContext->getVariableProvider()->add($arguments['name'], $variable);
+        $this->renderingContext->getVariableProvider()->add($this->arguments['name'], $variable);
     }
 }

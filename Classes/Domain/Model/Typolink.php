@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
@@ -7,18 +7,18 @@ use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
+use TYPO3\CMS\Core\LinkHandling\TypoLinkCodecService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Core\LinkHandling\TypoLinkCodecService;
 
 /**
  * Data Structure to provide information extracted from a Typolink string
- * in a structured matter
+ * in a structured matter.
  */
 class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFromArray
 {
     /**
-     * Data interpretation of the provided TYPO3 uri
+     * Data interpretation of the provided TYPO3 uri.
      *
      * @see LinkService::resolve()
      */
@@ -26,24 +26,24 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
 
     /**
      * Link target window of the Typolink
-     * e. g. _blank
+     * e. g. _blank.
      */
     protected string $target = '';
 
     /**
-     * Additional CSS classes for the html element
+     * Additional CSS classes for the html element.
      */
     protected string $class = '';
 
     /**
-     * Title attribute for the html element
+     * Title attribute for the html element.
      */
     protected string $title = '';
 
     /**
-     * Creates a Typolink data structure from a Typolink string
+     * Creates a Typolink data structure from a Typolink string.
      *
-     * @param string $typolink  e. g. t3://page?uid=123 _blank - "Link title"
+     * @param string $typolink e. g. t3://page?uid=123 _blank - "Link title"
      */
     public function __construct(string $typolink)
     {
@@ -60,7 +60,7 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
         $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
         $uri = $cObj->typoLink_URL([
             'parameter' => $typolinkConfiguration['url'],
-            'additionalParams' => $typolinkConfiguration['additionalParams']
+            'additionalParams' => $typolinkConfiguration['additionalParams'],
         ]);
 
         $this
@@ -72,7 +72,7 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
     }
 
     /**
-     * Creates a Typolink data structure from a page uid
+     * Creates a Typolink data structure from a page uid.
      */
     public static function fromInteger(int $pageUid): self
     {
@@ -80,7 +80,7 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
     }
 
     /**
-     * Creates a Typolink data structure from an array
+     * Creates a Typolink data structure from an array.
      *
      * Possible array keys are:
      * - uri (required)

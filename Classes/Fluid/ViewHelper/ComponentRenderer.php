@@ -1,8 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Fluid\ViewHelper;
 
+use Closure;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use SMS\FluidComponents\Domain\Model\RequiredSlotPlaceholder;
 use SMS\FluidComponents\Domain\Model\Slot;
 use SMS\FluidComponents\Interfaces\ComponentAware;
@@ -43,12 +46,12 @@ class ComponentRenderer extends AbstractViewHelper
     ];
 
     /**
-     * Namespace of the component the viewhelper should render
+     * Namespace of the component the viewhelper should render.
      */
     protected string $componentNamespace;
 
     /**
-     * Cache for component template instance used for rendering
+     * Cache for component template instance used for rendering.
      */
     protected ParsedTemplateInterface $parsedTemplate;
 
@@ -62,17 +65,17 @@ class ComponentRenderer extends AbstractViewHelper
     protected static array $componentArgumentDefinitionCache = [];
 
     /**
-     * Cache of component prefixer objects
+     * Cache of component prefixer objects.
      */
     protected static array $componentPrefixerCache = [];
 
     /**
-    * Components are HTML markup which should not be escaped
-    */
+     * Components are HTML markup which should not be escaped.
+     */
     protected $escapeOutput = false;
 
     /**
-     * Children should be treated just like an argument
+     * Children should be treated just like an argument.
      */
     protected $escapeChildren = true;
 
@@ -85,7 +88,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Sets the namespace of the component the viewhelper should render
+     * Sets the namespace of the component the viewhelper should render.
      */
     public function setComponentNamespace(string $componentNamespace): self
     {
@@ -94,7 +97,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Returns the namespace of the component the viewhelper renders
+     * Returns the namespace of the component the viewhelper renders.
      */
     public function getComponentNamespace(): string
     {
@@ -113,7 +116,7 @@ class ComponentRenderer extends AbstractViewHelper
 
     /**
      * Renders the component the viewhelper is responsible for
-     * TODO: this can probably be improved by using renderComponent() directly
+     * TODO: this can probably be improved by using renderComponent() directly.
      *
      */
     public function render(): string
@@ -124,7 +127,17 @@ class ComponentRenderer extends AbstractViewHelper
         // set the original request to preserve the request attributes
         // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
         // e.g. f:uri.action, f:page.action
-        $renderingContext->setRequest($this->renderingContext->getRequest());
+
+        if (method_exists($this->renderingContext, 'hasAttribute')) {
+            if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
+                $renderingContext->setAttribute(
+                    ServerRequestInterface::class,
+                    $this->renderingContext->getAttribute(ServerRequestInterface::class)
+                );
+            }
+        } else {
+            $renderingContext->setRequest($this->renderingContext->getRequest());
+        }
 
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
@@ -147,7 +160,7 @@ class ComponentRenderer extends AbstractViewHelper
             $argumentType = $definition->getType();
 
             if (is_a($argumentType, Slot::class, true)) {
-                $argument = $this->renderSlot($name);
+                $argument = $this->renderSlot((string) $name);
             } else {
                 $argument = $this->arguments[$name] ?? null;
             }
@@ -164,7 +177,7 @@ class ComponentRenderer extends AbstractViewHelper
                 $argument->setRenderingContext($renderingContext);
             }
 
-            $variableContainer->add($name, $argument);
+            $variableContainer->add((string) $name, $argument);
         }
 
         // Initialize component rendering template
@@ -193,7 +206,7 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Use content specified by <fc:content /> ViewHelpers
         // This is only executed for uncached templates
-        if (isset($this->viewHelperNode)) {
+        if ($this->viewHelperNode !== null) {
             $contentViewHelpers = $this->extractContentViewHelpers($this->viewHelperNode, $this->renderingContext);
             if (isset($contentViewHelpers[$name])) {
                 return (string) $contentViewHelpers[$name]->evaluateChildNodes($this->renderingContext);
@@ -207,7 +220,7 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Required Slot parameters are checked here for existence at last
         if ($slot instanceof RequiredSlotPlaceholder) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Slot "%s" is required by component "%s", but no value was given.',
                 $name,
                 $this->componentNamespace
@@ -218,13 +231,14 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Overwrites original compilation to store component namespace in compiled templates
+     * Overwrites original compilation to store component namespace in compiled templates.
      *
-     * @param string $argumentsName
-     * @param string $closureName
-     * @param string $initializationPhpCode
-     * @param ViewHelperNode $node
+     * @param string           $argumentsName
+     * @param string           $closureName
+     * @param string           $initializationPhpCode
+     * @param ViewHelperNode   $node
      * @param TemplateCompiler $compiler
+     *
      * @return string
      */
     public function compile(
@@ -244,7 +258,7 @@ class ComponentRenderer extends AbstractViewHelper
         $contentViewHelpers = $this->extractContentViewHelpers($node, $compiler->getRenderingContext());
         foreach ($contentViewHelpers as $slotName => $viewHelperNode) {
             if (!isset($allowedSlots[$slotName])) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new InvalidArgumentException(sprintf(
                     'Slot "%s" does not exist in component "%s", but was used as named slot.',
                     $slotName,
                     $this->componentNamespace
@@ -265,11 +279,11 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Replacement for renderStatic() to provide component namespace to ViewHelper
+     * Replacement for renderStatic() to provide component namespace to ViewHelper.
      */
     public static function renderComponent(
         array $arguments,
-        \Closure $renderChildrenClosure,
+        Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext,
         string $componentNamespace
     ): mixed {
@@ -286,7 +300,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Initializes the component arguments based on the component definition
+     * Initializes the component arguments based on the component definition.
      *
      * @throws Exception
      */
@@ -310,7 +324,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Initialize all arguments and return them
+     * Initialize all arguments and return them.
      *
      * @return ArgumentDefinition[]
      */
@@ -353,7 +367,7 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Validate arguments, and throw exception if arguments do not validate.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function validateArguments(): void
     {
@@ -368,7 +382,7 @@ class ComponentRenderer extends AbstractViewHelper
                     if (!$this->isValidType($type, $value)
                         && !$this->componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
                     ) {
-                        throw new \InvalidArgumentException(
+                        throw new InvalidArgumentException(
                             'The argument "' . $argumentName . '" was registered with type "' . $type . '", but is of type "' .
                             $givenType . '" in component "' . $this->componentNamespace . '".',
                             1530632537
@@ -380,7 +394,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Creates ViewHelper arguments based on the params defined in the component definition
+     * Creates ViewHelper arguments based on the params defined in the component definition.
      */
     protected function initializeComponentParams(): void
     {
@@ -467,9 +481,9 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Extracts all <fc:content /> ViewHelpers from Fluid template node
+     * Extracts all <fc:content /> ViewHelpers from Fluid template node.
      */
-    protected function extractContentViewHelpers(NodeInterface $node, RenderingContext $renderingContext): array
+    protected function extractContentViewHelpers(NodeInterface $node, RenderingContextInterface $renderingContext): array
     {
         return array_reduce(
             $this->extractViewHelpers($node, ContentViewHelper::class),
@@ -484,7 +498,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Extract all ViewHelpers of a certain type from a Fluid template node
+     * Extract all ViewHelpers of a certain type from a Fluid template node.
      */
     protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName): array
     {
@@ -509,7 +523,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Returns an identifier by which fluid templates will be stored in the cache
+     * Returns an identifier by which fluid templates will be stored in the cache.
      */
     protected function getTemplateIdentifier(string $pathAndFilename, string $prefix = 'fluidcomponent'): string
     {
@@ -523,7 +537,7 @@ class ComponentRenderer extends AbstractViewHelper
     }
 
     /**
-     * Returns the prefixer object responsible for the current component namespaces
+     * Returns the prefixer object responsible for the current component namespaces.
      */
     protected function getComponentPrefixer(): ComponentPrefixerInterface
     {

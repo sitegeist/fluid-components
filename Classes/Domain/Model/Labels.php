@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use ArrayAccess;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
@@ -13,28 +14,28 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
-class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
+class Labels implements ComponentAware, RenderingContextAware, ArrayAccess, ConstructibleFromArray, ConstructibleFromNull
 {
     public const OVERRIDE_LANGUAGE_KEY = 'languageKey';
     public const OVERRIDE_LANGUAGE_ALTERNATIVES = 'alternativeLanguageKeys';
 
     /**
-     * Namespace of the current component
+     * Namespace of the current component.
      */
     protected string $componentNamespace;
 
     /**
-     * Fluid rendering context
+     * Fluid rendering context.
      */
     protected RenderingContextInterface $renderingContext;
 
     /**
-     * Static label values that should override those defined in language files
+     * Static label values that should override those defined in language files.
      */
     protected array $overrideLabels = [];
 
     /**
-     * Cache for component labels file
+     * Cache for component labels file.
      */
     protected string $labelsFile = '';
 
@@ -44,7 +45,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Generate object based on an array passed to the component
+     * Generate object based on an array passed to the component.
      */
     public static function fromArray(array $overrideLabels): self
     {
@@ -52,7 +53,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Generate object, even if component parameter is optional and omitted
+     * Generate object, even if component parameter is optional and omitted.
      */
     public static function fromNull(): self
     {
@@ -60,7 +61,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Receive component context to determine language file path
+     * Receive component context to determine language file path.
      */
     public function setComponentNamespace(string $componentNamespace): void
     {
@@ -68,7 +69,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Receive current fluid rendering context
+     * Receive current fluid rendering context.
      */
     public function setRenderingContext(RenderingContextInterface $renderingContext): void
     {
@@ -76,7 +77,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Check if language label is defined
+     * Check if language label is defined.
      */
     public function offsetExists(mixed $identifier): bool
     {
@@ -84,7 +85,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Return value of language label
+     * Return value of language label.
      */
     public function offsetGet(mixed $identifier): ?string
     {
@@ -111,7 +112,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Set an override language label
+     * Set an override language label.
      */
     public function offsetSet(mixed $identifier, mixed $value): void
     {
@@ -119,7 +120,7 @@ class Labels implements ComponentAware, RenderingContextAware, \ArrayAccess, Con
     }
 
     /**
-     * Remove an override language label
+     * Remove an override language label.
      */
     public function offsetUnset(mixed $identifier): void
     {

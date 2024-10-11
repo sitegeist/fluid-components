@@ -1,26 +1,28 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use Countable;
+use Iterator;
 use ReturnTypeWillChange;
 use SMS\FluidComponents\Domain\Model\LanguageNavigationItem;
 use SMS\FluidComponents\Domain\Model\NavigationItem;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 
 /**
- * Data Structure to generate a navigation in components
+ * Data Structure to generate a navigation in components.
  */
-class Navigation implements \Iterator, \Countable, ConstructibleFromArray
+class Navigation implements Iterator, Countable, ConstructibleFromArray
 {
     /**
-     * Navigation items
+     * Navigation items.
      *
      * @var NavigationItem[]
      */
     protected array $items = [];
 
     /**
-     * Initializes a navigation object from a TYPO3 navigation array
+     * Initializes a navigation object from a TYPO3 navigation array.
      */
     public function __construct(array $items)
     {
@@ -28,7 +30,7 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
     }
 
     /**
-     * Initializes a navigation object from a TYPO3 navigation array
+     * Initializes a navigation object from a TYPO3 navigation array.
      */
     public static function fromArray(array $items): self
     {
@@ -80,7 +82,7 @@ class Navigation implements \Iterator, \Countable, ConstructibleFromArray
     }
 
     /**
-     * Makes sure that the provided item is a valid data structure
+     * Makes sure that the provided item is a valid data structure.
      */
     protected function sanitizeNavigationItem(mixed $item): ?NavigationItem
     {

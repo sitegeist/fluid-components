@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\ViewHelpers\Variable;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
-use TYPO3Fluid\Fluid\Core\Variables\VariableExtractor;
+use TYPO3Fluid\Fluid\Core\Variables\StandardVariableProvider;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 /**
  * This ViewHelper takes an array of Objects/Arrays
@@ -22,12 +20,11 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
  * </code>
  *
  * @package SMS\FluidComponents\ViewHelpers\Variable
+ *
  * @author Simon Praetorius <praetorius@sitegeist.de>
  */
 class MapViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     protected $escapeOutput = false;
 
     public function initializeArguments(): void
@@ -41,26 +38,28 @@ class MapViewHelper extends AbstractViewHelper
     /**
      * @return array remapped array
      */
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render()
     {
-        $subject = $arguments['subject'] ?? $renderChildrenClosure();
-        $mapKeyArray = $arguments['fieldMapping'] ?? [];
-        $keepFields = $arguments['keepFields'] ?? [];
+        $subject = $this->arguments['subject'] ?? $this->renderChildren();
+        $mapKeyArray = $this->arguments['fieldMapping'] ?? [];
+        $keepFields = $this->arguments['keepFields'] ?? [];
         if (!is_array($keepFields)) {
             $keepFields = array_map('trim', explode(',', (string) $keepFields));
         }
 
         $newArray = [];
         foreach ($subject as $item) {
-            $newItem = [];
+            $variableProvider = new StandardVariableProvider();
+            $variableProvider->setSource($item);
 
+            $newItem = [];
             foreach ($mapKeyArray as $newKey => $oldKey) {
-                $newItem[$newKey] = VariableExtractor::extract($item, $oldKey);
+                $newItem[$newKey] = $variableProvider->get($oldKey);
             }
 
             //Add another fields from keepFields list
             foreach ($keepFields as $key) {
-                $newItem[$key] = VariableExtractor::extract($item, $key);
+                $newItem[$key] = $variableProvider->get($key);
             }
 
             $newArray[] = $newItem;

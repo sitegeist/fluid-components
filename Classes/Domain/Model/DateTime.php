@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Domain\Model;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Exception;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTime;
 use SMS\FluidComponents\Interfaces\ConstructibleFromDateTimeImmutable;
@@ -11,7 +13,7 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromString;
 class DateTime extends \DateTime implements ConstructibleFromString, ConstructibleFromInteger, ConstructibleFromDateTime, ConstructibleFromDateTimeImmutable
 {
     /**
-     * Convert string input to datetime object
+     * Convert string input to datetime object.
      *
      * @throws Exception
      */
@@ -21,7 +23,7 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     }
 
     /**
-     * Convert UNIX timestamp to datetime object
+     * Convert UNIX timestamp to datetime object.
      *
      * @throws Exception
      */
@@ -31,22 +33,22 @@ class DateTime extends \DateTime implements ConstructibleFromString, Constructib
     }
 
     /**
-     * Passes datetime object
+     * Passes datetime object.
      *
      * @throws Exception
      */
     public static function fromDateTime(\DateTime $value): self
     {
-        return new static($value->format(\DateTimeInterface::RFC3339_EXTENDED));
+        return new static($value->format(DateTimeInterface::RFC3339_EXTENDED));
     }
 
     /**
-     * Passes immutable datetime object
+     * Passes immutable datetime object.
      *
      * @throws Exception
      */
-    public static function fromDateTimeImmutable(\DateTimeImmutable $value): self
+    public static function fromDateTimeImmutable(DateTimeImmutable $value): self
     {
-        return new static($value->format(\DateTimeInterface::RFC3339_EXTENDED));
+        return new static($value->format(DateTimeInterface::RFC3339_EXTENDED));
     }
 }

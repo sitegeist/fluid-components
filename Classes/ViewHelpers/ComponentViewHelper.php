@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\ViewHelpers;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 class ComponentViewHelper extends AbstractViewHelper
@@ -14,8 +13,8 @@ class ComponentViewHelper extends AbstractViewHelper
         $this->registerArgument('description', 'string', 'Description of the component');
     }
 
-    public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
+    public function render(): string
     {
-        return trim((string) $renderChildrenClosure());
+        return trim((string) $this->renderChildren());
     }
 }

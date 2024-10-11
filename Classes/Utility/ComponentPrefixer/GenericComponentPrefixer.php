@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SMS\FluidComponents\Utility\ComponentPrefixer;
 
@@ -7,7 +7,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class GenericComponentPrefixer implements ComponentPrefixerInterface
 {
     /**
-     * Returns the component prefix for the provided component namespaces
+     * Returns the component prefix for the provided component namespaces.
      *
      * example:
      *   namespace: \VENDOR\MyExtension\Components\Atom\MyComponent
@@ -23,7 +23,7 @@ class GenericComponentPrefixer implements ComponentPrefixerInterface
     }
 
     /**
-     * Returns the separator to be used between prefix and the following string
+     * Returns the separator to be used between prefix and the following string.
      */
     public function getSeparator(): string
     {
