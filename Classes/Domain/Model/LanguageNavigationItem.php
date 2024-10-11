@@ -14,8 +14,8 @@ class LanguageNavigationItem extends NavigationItem
      *
      * $title               Title of the navigation item
      * $link                Link of the navigation item
-     * $current             Indicates whether the navigation item represents the current page (note that active will be true as well)
-     * $active              Indicates whether the navigation item is part of the current rootline (parent page of the current page OR current page)
+     * $current             Indicates whether the navigation item represents the current language (always false from LanguageMenuProcessor)
+     * $active              Indicates whether the navigation item represents the current language (true/false from LanguageMenuProcessor)
      * $available           Availability of translation for the specific page
      * $languageId          UID of the sys_language record
      * $locale              Locale definition for language
