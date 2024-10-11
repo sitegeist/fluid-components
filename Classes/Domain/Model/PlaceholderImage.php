@@ -66,7 +66,7 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
         return new PlaceholderImage(
             (int) round($cropArea->getWidth() * $width),
             (int) round($cropArea->getHeight() * $height),
-            $format
+            $format ?: $this->format
         );
     }
 }
