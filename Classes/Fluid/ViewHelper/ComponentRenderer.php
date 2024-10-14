@@ -20,6 +20,7 @@ use SMS\FluidComponents\ViewHelpers\ComponentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ContentViewHelper;
 use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
@@ -121,22 +122,24 @@ class ComponentRenderer extends AbstractViewHelper
      */
     public function render(): string
     {
-        // Create a new rendering context for the component file
-        $renderingContext = $this->getRenderingContext();
-
-        // set the original request to preserve the request attributes
+        // use the original request to preserve the request attributes
         // some ViewHelpers expect a ServerRequestInterface or other attributes inside the request
         // e.g. f:uri.action, f:page.action
-
-        if (method_exists($this->renderingContext, 'hasAttribute')) {
-            if ($this->renderingContext->hasAttribute(ServerRequestInterface::class)) {
-                $renderingContext->setAttribute(
-                    ServerRequestInterface::class,
-                    $this->renderingContext->getAttribute(ServerRequestInterface::class)
-                );
-            }
+        if (method_exists($this->renderingContext, 'getAttribute') &&
+            method_exists($this->renderingContext, 'hasAttribute') &&
+            $this->renderingContext->hasAttribute(ServerRequestInterface::class)
+        ) {
+            $request = $this->renderingContext->getAttribute(ServerRequestInterface::class);
         } else {
-            $renderingContext->setRequest($this->renderingContext->getRequest());
+            $request = $this->renderingContext->getRequest();
+        }
+
+        // Create a new rendering context for the component file
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create();
+            $renderingContext->setRequest($request);
+        } else {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create([], $request);
         }
 
         $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
@@ -398,8 +401,7 @@ class ComponentRenderer extends AbstractViewHelper
      */
     protected function initializeComponentParams(): void
     {
-        $renderingContext = $this->getRenderingContext();
-
+        $renderingContext =  GeneralUtility::makeInstance(RenderingContextFactory::class)->create();
         $componentFile = $this->componentLoader->findComponent($this->componentNamespace);
 
         // Parse component template without using the cache
@@ -576,15 +578,6 @@ class ComponentRenderer extends AbstractViewHelper
         }
 
         return self::$componentPrefixerCache[$this->componentNamespace];
-    }
-
-    protected function getRenderingContext(): RenderingContext
-    {
-        if ($this->container->has(RenderingContextFactory::class)) {
-            return $this->container->get(RenderingContextFactory::class)->create();
-        } else {
-            return GeneralUtility::makeInstance(RenderingContext::class);
-        }
     }
 
     protected static function shouldUseTemplatePaths(): bool

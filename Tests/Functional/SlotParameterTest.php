@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -120,22 +121,7 @@ class SlotParameterTest extends FunctionalTestCase
     #[DataProvider('renderDataProvider')]
     public function render(string $template, string $expected): void
     {
-        $view = new TemplateView();
-
-        $view->setRenderingContext(
-            GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
-                [],
-                new Request(
-                    (new ServerRequest)->withAttribute(
-                        'extbase',
-                        new ExtbaseRequestParameters
-                    )
-                )
-            )
-        );
-
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');
+        $view = $this->getView();
         $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
 
         // Test without cache
@@ -149,23 +135,7 @@ class SlotParameterTest extends FunctionalTestCase
     public function unspecifiedRequiredSlot(): void
     {
         $template = '<test:slotParameter />';
-
-        $view = new TemplateView();
-
-        $view->setRenderingContext(
-            GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
-                [],
-                new Request(
-                    (new ServerRequest)->withAttribute(
-                        'extbase',
-                        new ExtbaseRequestParameters
-                    )
-                )
-            )
-        );
-
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');
+        $view = $this->getView();
         $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
 
         // Test without cache
@@ -183,23 +153,7 @@ class SlotParameterTest extends FunctionalTestCase
     public function undefinedSlot(): void
     {
         $template = '<test:slotParameter><fc:content slot="slot">content</fc:content><fc:content slot="invalidSlot">more content</fc:content></test:slotParameter>';
-
-        $view = new TemplateView();
-
-        $view->setRenderingContext(
-            GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
-                [],
-                new Request(
-                    (new ServerRequest)->withAttribute(
-                        'extbase',
-                        new ExtbaseRequestParameters
-                    )
-                )
-            )
-        );
-
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
-        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');
+        $view = $this->getView();
         $view->getRenderingContext()->getTemplatePaths()->setTemplateSource($template);
 
         // Test without cache
@@ -211,5 +165,38 @@ class SlotParameterTest extends FunctionalTestCase
         self::expectException(InvalidArgumentException::class);
         self::expectExceptionCode(1681832624);
         $view->render();
+    }
+
+    protected function getView(): TemplateView
+    {
+        $view = new TemplateView();
+
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create();
+            $renderingContext->setRequest(new Request(
+                (new ServerRequest)->withAttribute(
+                    'extbase',
+                    new ExtbaseRequestParameters
+                )
+            ));
+            $view->setRenderingContext($renderingContext);
+        } else {
+            $view->setRenderingContext(
+                GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
+                    [],
+                    new Request(
+                        (new ServerRequest)->withAttribute(
+                            'extbase',
+                            new ExtbaseRequestParameters
+                        )
+                    )
+                )
+            );
+        }
+
+        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
+        $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');
+
+        return $view;
     }
 }

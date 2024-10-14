@@ -281,7 +281,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         );
     }
 
-    private function getRequest(): RequestInterface
+    private function getRequest():? RequestInterface
     {
         if (method_exists($this->renderingContext, 'getAttribute') &&
             method_exists($this->renderingContext, 'hasAttribute') &&
