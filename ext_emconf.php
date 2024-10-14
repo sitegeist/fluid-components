@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Fluid Components',
     'description' => 'Encapsulated frontend components with Fluid\'s ViewHelper syntax',
