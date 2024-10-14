@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -196,17 +197,28 @@ class ParameterEscapingTest extends FunctionalTestCase
     public function render(string $template, string $expected): void
     {
         $view = new TemplateView();
-        $view->setRenderingContext(
-            GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
-                [],
-                new Request(
-                    (new ServerRequest)->withAttribute(
-                        'extbase',
-                        new ExtbaseRequestParameters
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create();
+            $renderingContext->setRequest(new Request(
+                (new ServerRequest)->withAttribute(
+                    'extbase',
+                    new ExtbaseRequestParameters
+                )
+            ));
+            $view->setRenderingContext($renderingContext);
+        } else {
+            $view->setRenderingContext(
+                GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
+                    [],
+                    new Request(
+                        (new ServerRequest)->withAttribute(
+                            'extbase',
+                            new ExtbaseRequestParameters
+                        )
                     )
                 )
-            )
-        );
+            );
+        }
 
         $view->getRenderingContext()->getViewHelperResolver()->addNamespace('fc', 'SMS\\FluidComponents\\ViewHelpers');
         $view->getRenderingContext()->getViewHelperResolver()->addNamespace('test', 'SMS\\FluidComponents\\Tests\\Fixtures\\Functional\\Components');

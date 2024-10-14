@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -79,15 +80,25 @@ class ComponentRendererTest extends FunctionalTestCase
         /** @var ViewHelperInvoker $invoker */
         $invoker = GeneralUtility::makeInstance(ViewHelperInvoker::class);
 
-        $renderingContext = $container->get(RenderingContextFactory::class)->create(
-            [],
-            new Request(
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create();
+            $renderingContext->setRequest(new Request(
                 (new ServerRequest)->withAttribute(
                     'extbase',
                     new ExtbaseRequestParameters
                 )
-            )
-        );
+            ));
+        } else {
+            $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create(
+                [],
+                new Request(
+                    (new ServerRequest)->withAttribute(
+                        'extbase',
+                        new ExtbaseRequestParameters
+                    )
+                )
+            );
+        }
 
         $output = $invoker->invoke(
             $renderer,
