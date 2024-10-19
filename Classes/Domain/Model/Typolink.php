@@ -6,8 +6,10 @@ use SMS\FluidComponents\Domain\Model\Link;
 use SMS\FluidComponents\Exception\InvalidArgumentException;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
+use SMS\FluidComponents\Interfaces\ConstructibleFromTypolinkParameter;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\LinkHandling\TypoLinkCodecService;
+use TYPO3\CMS\Core\LinkHandling\TypolinkParameter;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
@@ -15,7 +17,7 @@ use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
  * Data Structure to provide information extracted from a Typolink string
  * in a structured matter.
  */
-class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFromArray
+class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFromArray, ConstructibleFromTypolinkParameter
 {
     /**
      * Data interpretation of the provided TYPO3 uri.
@@ -114,6 +116,31 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
         }
 
         return $instance;
+    }
+
+    public static function fromTypolinkParameter(TypolinkParameter $parameter): self
+    {
+        // Analyze structure of provided TYPO3 uri
+        $linkService = GeneralUtility::makeInstance(LinkService::class);
+        $uriStructure = $linkService->resolve($parameter->url);
+
+        // Generate general purpose uri (https://) from TYPO3 uri (t3://)
+        // Could also be a mailto or tel uri
+        $cObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
+        $uri = $cObj->typoLink_URL([
+            'parameter' => $parameter->url,
+            'additionalParams' => $parameter->additionalParams,
+        ]);
+
+        // TODO constructor code should be avoided in the future, but this would require changes
+        //      to the current constructor method signature (such as making the string nullable),
+        //      which would be a breaking change.
+        return (new static(''))
+            ->setUri($uri)
+            ->setOriginalLink($uriStructure)
+            ->setTarget($parameter->target)
+            ->setClass($parameter->class)
+            ->setTitle($parameter->title);
     }
 
     public function setOriginalLink(array $originalLink): self
