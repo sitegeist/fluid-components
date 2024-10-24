@@ -11,10 +11,10 @@ use TYPO3\CMS\Frontend\Imaging\GifBuilder;
 
 class PlaceholderImageService
 {
-    const int STROKE_WIDTH = 18;
-    const int STROKE_HEIGHT = 3;
-    const string BACKGROUND_COLOR = '#C0C0C0';
-    const string COLOR = '#0B0B13';
+    const STROKE_WIDTH = 18;
+    const STROKE_HEIGHT = 3;
+    const BACKGROUND_COLOR = '#C0C0C0';
+    const COLOR = '#0B0B13';
 
     public function __construct(
         private readonly GifBuilder $gifBuilder,
