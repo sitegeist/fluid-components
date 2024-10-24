@@ -60,7 +60,7 @@ class PlaceholderImageService
                     'fontColor' => self::COLOR,
                     'fontSize' => round($width / 9),
                     'align' => 'center',
-                    'offset' => implode(',', [0, $height / 1.75]),
+                    'offset' => implode(',', [0, $height / 2 + ($width / 9 / 3)]),
                 ],
         ];
 
