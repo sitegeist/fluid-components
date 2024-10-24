@@ -40,10 +40,10 @@ jobs:
             max-parallel: 2
             matrix:
                 php-versions: ['8.2', '8.3']
-                typo3-versions: ['13.3', '12.4']
+                typo3-versions: ['13.4', '12.4']
                 composer-requirements: ['Min', 'Max']
                 exclude:
-                    - typo3-versions: '13.3'
+                    - typo3-versions: '13.4'
                       composer-requirements: 'Max'
 
         name: Unit (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
@@ -74,10 +74,10 @@ jobs:
             max-parallel: 2
             matrix:
                 php-versions: ['8.2', '8.3']
-                typo3-versions: ['13.3', '12.4']
+                typo3-versions: ['13.4', '12.4']
                 composer-requirements: ['Min', 'Max']
                 exclude:
-                    - typo3-versions: '13.3'
+                    - typo3-versions: '13.4'
                       composer-requirements: 'Max'
 
         name: Functional (PHP ${{ matrix.php-versions }}, TYPO3 ${{ matrix.typo3-versions }}, Req ${{ matrix.composer-requirements }})
