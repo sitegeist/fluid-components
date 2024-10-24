@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+    <style>
+        rect { fill:{backgroundColor}; width: 100%; height: 100%; }
+        foreignObject { width: 100%; height: 100%; }
+        div { container-type: inline-size; position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+        p { color: {color}; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: {width/9}px; position: absolute; left: 0; width: 100%; text-align: center; transform: translateY(-100%); top: 50%; }
+        .corner { border-color: {color}; border-style: solid; border-width: 3px; display: block; position: absolute; width: 15px; height: 15px; }
+        .corner-tl { border-bottom: none; border-right: none; left: 0; top: 0; }
+        .corner-tr { border-bottom: none; border-left: none; top: 0; right: 0; }
+        .corner-bl { border-right: none; border-top: none; bottom: 0; left: 0; }
+        .corner-br { border-left: none; border-top: none; bottom: 0; right: 0; }
+    </style>
+    <rect width="10" height="10" x="0" y="0" />
+    <foreignObject x="0" y="0" width="{width}" height="{height}">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            <p>{text}</p>
+            <span class="corner corner-tl"></span>
+            <span class="corner corner-tr"></span>
+            <span class="corner corner-bl"></span>
+            <span class="corner corner-br"></span>
+        </div>
+    </foreignObject>
+</svg>
