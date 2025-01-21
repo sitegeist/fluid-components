@@ -124,7 +124,7 @@ class XsdGenerator
      *
      * @return array Array of generated XML target namespaces
      */
-    public function generateXsd(string $path, string $namespace = null): array
+    public function generateXsd(string $path, ?string $namespace = null): array
     {
         $generatedNameSpaces = [];
         $namespaces = $this->componentLoader->getNamespaces();

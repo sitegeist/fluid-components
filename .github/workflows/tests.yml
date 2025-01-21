@@ -39,7 +39,7 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.2', '8.3']
+                php-versions: ['8.2', '8.3', '8.4']
                 typo3-versions: ['13.4', '12.4']
                 composer-requirements: ['Min', 'Max']
                 exclude:
@@ -73,7 +73,7 @@ jobs:
         strategy:
             max-parallel: 2
             matrix:
-                php-versions: ['8.2', '8.3']
+                php-versions: ['8.2', '8.3', '8.4']
                 typo3-versions: ['13.4', '12.4']
                 composer-requirements: ['Min', 'Max']
                 exclude:
