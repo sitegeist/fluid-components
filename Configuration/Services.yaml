@@ -8,6 +8,9 @@ services:
         resource: '../Classes/*'
         exclude: '../Classes/Domain/Model/*'
 
+    SMS\FluidComponents\Service\PlaceholderImageService:
+        public: true
+
     SMS\FluidComponents\Command\GenerateXsdCommand:
         tags:
             -   name: 'console.command'

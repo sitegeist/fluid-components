@@ -20,8 +20,7 @@
     },
     "require": {
         "php": "^8.2",
-        "typo3/cms-core": "^13.3 || ^12.4",
-        "typo3fluid/fluid": "^4.0 || ^2.15"
+        "typo3/cms-core": "^13.4 || ^12.4"
     },
     "require-dev": {
         "typo3/testing-framework": "^8.2",
