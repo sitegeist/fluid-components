@@ -13,7 +13,9 @@ use SMS\FluidComponents\Interfaces\ConstructibleFromFileInterface;
 use SMS\FluidComponents\Interfaces\ConstructibleFromInteger;
 use SMS\FluidComponents\Interfaces\ConstructibleFromNull;
 use SMS\FluidComponents\Interfaces\ConstructibleFromString;
+use SMS\FluidComponents\Interfaces\ConstructibleFromTypolinkParameter;
 use Traversable;
+use TYPO3\CMS\Core\LinkHandling\TypolinkParameter;
 use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
@@ -65,6 +67,10 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         AbstractFile::class => [
             ConstructibleFromFileInterface::class,
             'fromFileInterface',
+        ],
+        TypolinkParameter::class => [
+            ConstructibleFromTypolinkParameter::class,
+            'fromTypolinkParameter',
         ],
     ];
 
