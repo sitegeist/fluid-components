@@ -162,10 +162,10 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         RenderingContextInterface $renderingContext,
         Message $message,
         string $translatePrefix = '',
-        RootRenderableInterface $element = null,
-        string $extensionName = null,
-        string $languageKey = null,
-        array $alternativeLanguageKeys = null
+        ?RootRenderableInterface $element = null,
+        ?string $extensionName = null,
+        ?string $languageKey = null,
+        ?array $alternativeLanguageKeys = null
     ) {
         // Make sure that messages are translated only once
         $hash = spl_object_hash($message);
@@ -229,9 +229,9 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         int $code,
         array $arguments,
         string $defaultValue = '',
-        string $extensionName = null,
-        string $languageKey = null,
-        array $alternativeLanguageKeys = null
+        ?string $extensionName = null,
+        ?string $languageKey = null,
+        ?array $alternativeLanguageKeys = null
     ): ?string {
         if ($alternativeLanguageKeys) {
             trigger_error('Calling translatedValidationResults with the argument $alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
