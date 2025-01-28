@@ -488,7 +488,7 @@ class ComponentRenderer extends AbstractViewHelper
     protected function extractContentViewHelpers(NodeInterface $node, RenderingContextInterface $renderingContext): array
     {
         return array_reduce(
-            $this->extractViewHelpers($node, ContentViewHelper::class),
+            $this->extractViewHelpers($node, ContentViewHelper::class, false),
             function (array $nodes, ViewHelperNode $node) use ($renderingContext) {
                 $slotArgument = $node->getArguments()['slot'] ?? null;
                 $slotName = ($slotArgument) ? $slotArgument->evaluate($renderingContext) : self::DEFAULT_SLOT;
@@ -502,7 +502,7 @@ class ComponentRenderer extends AbstractViewHelper
     /**
      * Extract all ViewHelpers of a certain type from a Fluid template node.
      */
-    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName): array
+    protected function extractViewHelpers(NodeInterface $node, string $viewHelperClassName, bool $recursive = true): array
     {
         $viewHelperNodes = [];
 
@@ -514,9 +514,12 @@ class ComponentRenderer extends AbstractViewHelper
             $viewHelperNodes[] = $node;
         } else {
             foreach ($node->getChildNodes() as $childNode) {
+                if ($recursive === false && $childNode instanceof ViewHelperNode && ($childNode->getViewHelperClassName() === ComponentViewHelper::class || $childNode->getUninitializedViewHelper() instanceof ComponentRenderer)) {
+                    continue;
+                }
                 $viewHelperNodes = array_merge(
                     $viewHelperNodes,
-                    $this->extractViewHelpers($childNode, $viewHelperClassName)
+                    $this->extractViewHelpers($childNode, $viewHelperClassName, $recursive)
                 );
             }
         }
