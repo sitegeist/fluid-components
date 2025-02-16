@@ -91,8 +91,8 @@ class ComponentResolver extends ViewHelperResolver
             $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
             $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
             if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName == '') {
-                $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
-                $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
+                $resolvedComponentName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
+                $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedComponentName);
 
                 $componentLoader = $this->getComponentLoader();
                 $componentFile = $componentLoader->findComponent($actualViewHelperClassName);
