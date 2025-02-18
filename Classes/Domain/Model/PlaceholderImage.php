@@ -52,6 +52,6 @@ class PlaceholderImage extends Image
 
     public function getPublicUrl(): string
     {
-        return 'https://via.placeholder.com/' . $this->width . 'x' . $this->height;
+        return 'https://placehold.co/' . $this->width . 'x' . $this->height;
     }
 }

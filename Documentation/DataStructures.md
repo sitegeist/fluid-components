@@ -112,7 +112,7 @@ for images:
 * `SMS\FluidComponents\Domain\Model\Image` (alias: `Image`) is the base class of all image types as well as a factory
 * `SMS\FluidComponents\Domain\Model\RemoteImage` wraps a remote image uri
 * `SMS\FluidComponents\Domain\Model\FalImage` wraps existing FAL objects and local image resources, such as `File` and `FileReference` or an image from an extension
-* `SMS\FluidComponents\Domain\Model\PlaceholderImage` generates a placeholder image via placeholder.com
+* `SMS\FluidComponents\Domain\Model\PlaceholderImage` generates a placeholder image via placehold.co
 
 for files:
 
