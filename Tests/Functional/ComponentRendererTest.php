@@ -40,7 +40,7 @@ class ComponentRendererTest extends FunctionalTestCase
         // Register test components
         $this->componentNamespaces = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] ?? null;
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] = [
-            $this->testNamespace => realpath(__DIR__ . '/../Fixtures/Functional/Components/'),
+            $this->testNamespace => [realpath(__DIR__ . '/../Fixtures/Functional/Components/')],
         ];
 
         // Register and then disable fluid cache

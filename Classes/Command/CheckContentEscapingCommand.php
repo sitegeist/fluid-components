@@ -29,6 +29,7 @@ use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ObjectAccessorNode;
 use TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\ViewHelperNode;
 use TYPO3Fluid\Fluid\Core\Parser\TemplateParser;
 use TYPO3Fluid\Fluid\ViewHelpers\Format\RawViewHelper;
+use function array_keys;
 
 class CheckContentEscapingCommand extends Command
 {
@@ -69,14 +70,14 @@ class CheckContentEscapingCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $componentNamespaces = $this->componentLoader->getNamespaces();
+        $componentNamespaces = array_keys($this->componentLoader->getNamespaces());
         $templateFiles = $this->discoverTemplateFiles();
 
         $progress = new ProgressBar($output, count($componentNamespaces) + count($templateFiles));
         $progress->start();
 
         // Determine which components use {content -> f:format.raw()} or similar
-        foreach ($componentNamespaces as $namespace => $path) {
+        foreach ($componentNamespaces as $namespace) {
             foreach ($this->componentLoader->findComponentsInNamespace($namespace) as $className => $file) {
                 try {
                     $template = $this->parseTemplate($file);

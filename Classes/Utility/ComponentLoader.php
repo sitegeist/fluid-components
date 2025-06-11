@@ -6,6 +6,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 {
     /**
      * Registered component namespaces.
+     * @var array<string, list<string>>
      */
     protected array $namespaces = [];
 
@@ -23,14 +24,15 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
     /**
      * Adds a new component namespace.
+     * @param string|list<string> $path
      */
-    public function addNamespace(string $namespace, string $path): self
+    public function addNamespace(string $namespace, string|array $path): self
     {
         // Sanitize namespace data
         $namespace = $this->sanitizeNamespace($namespace);
-        $path = $this->sanitizePath($path);
+        $paths = array_values(array_map($this->sanitizePath(...), (array)$path));
 
-        $this->namespaces[$namespace] = $path;
+        $this->namespaces[$namespace] = $paths;
         return $this;
     }
 
@@ -81,7 +83,7 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
         // Walk through available namespaces, ordered from specific to unspecific
         $class = ltrim($class, '\\');
-        foreach ($this->namespaces as $namespace => $path) {
+        foreach ($this->namespaces as $namespace => $paths) {
             // No match, skip to next
             if (!str_starts_with($class, $namespace . '\\')) {
                 continue;
@@ -89,13 +91,16 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
 
             $componentParts = explode('\\', trim(substr($class, strlen($namespace)), '\\'));
 
-            $componentPath = $path . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $componentParts);
-            $componentFile = $componentPath . DIRECTORY_SEPARATOR . end($componentParts) .  $ext;
+            foreach (array_reverse($paths) as $path) {
+                $componentPath = $path . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $componentParts);
+                $componentFile = $componentPath . DIRECTORY_SEPARATOR . end($componentParts) .  $ext;
 
-            // Check if component file exists
-            if (file_exists($componentFile)) {
-                $this->componentsCache[$cacheIdentifier] = $componentFile;
-                return $componentFile;
+                // Check if component file exists
+                if (file_exists($componentFile)) {
+                    $this->componentsCache[$cacheIdentifier] = $componentFile;
+                    // first path found is the most specific one, so we can return it immediately
+                    return $componentFile;
+                }
             }
         }
 
@@ -110,17 +115,23 @@ class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function findComponentsInNamespace(string $namespace, string $ext = '.html'): array
     {
-        if (!isset($this->namespaces[$namespace]) || !is_dir($this->namespaces[$namespace])) {
+        $paths = $this->namespaces[$namespace] ?? null;
+        if (!$paths) {
             return [];
         }
 
-        $scannedPaths = [];
-        return $this->scanForComponents(
-            $this->namespaces[$namespace],
-            $ext,
-            $namespace,
-            $scannedPaths
-        );
+        $components = [];
+        foreach ($paths as $path) {
+            if (!is_dir($path)) {
+                continue;
+            }
+
+            $scannedPaths = [];
+            // overwrite previous locations with newer locations
+            $components = [...$components, ...$this->scanForComponents($path, $ext, $namespace, $scannedPaths)];
+        }
+
+        return $components;
     }
 
     /**

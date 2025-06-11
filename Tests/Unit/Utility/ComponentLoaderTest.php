@@ -30,14 +30,27 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
                 '\\Vendor\\Extension\\Category\\',
                 '/path/to/components',
                 [
-                    'Vendor\\Extension\\Category' => '/path/to/components',
+                    'Vendor\\Extension\\Category' => ['/path/to/components'],
                 ],
             ],
             'pathWithTrailingSlash' => [
                 'Vendor\\Extension\\Category\\',
                 '/path/to/components/',
                 [
-                    'Vendor\\Extension\\Category' => '/path/to/components',
+                    'Vendor\\Extension\\Category' => ['/path/to/components'],
+                ],
+            ],
+            'pathsWithTrailingSlash' => [
+                'Vendor\\Extension\\Category\\',
+                [
+                    '/path/to/components',
+                    '/path/to/components_overwrites',
+                ],
+                [
+                    'Vendor\\Extension\\Category' => [
+                        '/path/to/components',
+                        '/path/to/components_overwrites',
+                    ],
                 ],
             ],
         ];
@@ -45,7 +58,7 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
 
     #[Test]
     #[DataProvider('addNamespaceProvider')]
-    public function addNamespace(string $namespace, string $path, array $namespaces): void
+    public function addNamespace(string $namespace, string|array $path, array $namespaces): void
     {
         $this->loader->addNamespace($namespace, $path);
         $this->assertEquals(
@@ -74,22 +87,22 @@ class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         return [
             'case1' => [
                 [
-                    'Sitegeist\\Fixtures\\ComponentLoader' => '/case1/path1',
-                    'Sitegeist\\Fixtures\\Component\\Loader' => '/case1/path2',
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Test' => '/case1/path3',
-                    'Vendor\\Test\\Namespace' => '/case1/path4',
-                    '\\Sitegeist\\Fixtures\\ComponentLoader' => '/case1/path5',
-                    '\\Sitegeist\\Fixtures\\ComponentLoader\\' => '/case1/path6',
-                    '\\Sitegeist\\Fixtures\\AnotherTest\\' => '/case1/path7',
-                    '\\Sitegeist\\Fixtures\\Test\\' => '/case1/path8',
+                    'Sitegeist\\Fixtures\\ComponentLoader' => ['/case1/path1'],
+                    'Sitegeist\\Fixtures\\Component\\Loader' => ['/case1/path2'],
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Test' => ['/case1/path3'],
+                    'Vendor\\Test\\Namespace' => ['/case1/path4'],
+                    '\\Sitegeist\\Fixtures\\ComponentLoader' => ['/case1/path5'],
+                    '\\Sitegeist\\Fixtures\\ComponentLoader\\' => ['/case1/path6'],
+                    '\\Sitegeist\\Fixtures\\AnotherTest\\' => ['/case1/path7'],
+                    '\\Sitegeist\\Fixtures\\Test\\' => ['/case1/path8'],
                 ],
                 [
-                    'Vendor\\Test\\Namespace' => '/case1/path4',
-                    'Sitegeist\\Fixtures\\Test' => '/case1/path8',
-                    'Sitegeist\\Fixtures\\AnotherTest' => '/case1/path7',
-                    'Sitegeist\\Fixtures\\ComponentLoader\\Test' => '/case1/path3',
-                    'Sitegeist\\Fixtures\\ComponentLoader' => '/case1/path6',
-                    'Sitegeist\\Fixtures\\Component\\Loader' => '/case1/path2',
+                    'Vendor\\Test\\Namespace' => ['/case1/path4'],
+                    'Sitegeist\\Fixtures\\Test' => ['/case1/path8'],
+                    'Sitegeist\\Fixtures\\AnotherTest' => ['/case1/path7'],
+                    'Sitegeist\\Fixtures\\ComponentLoader\\Test' => ['/case1/path3'],
+                    'Sitegeist\\Fixtures\\ComponentLoader' => ['/case1/path6'],
+                    'Sitegeist\\Fixtures\\Component\\Loader' => ['/case1/path2'],
                 ],
             ],
         ];

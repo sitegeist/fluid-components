@@ -7,6 +7,7 @@ use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
 use SMS\FluidComponents\Utility\ComponentLoader;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ArgumentDefinition;
+use function array_keys;
 
 class XsdGenerator
 {
@@ -127,8 +128,8 @@ class XsdGenerator
     public function generateXsd(string $path, ?string $namespace = null): array
     {
         $generatedNameSpaces = [];
-        $namespaces = $this->componentLoader->getNamespaces();
-        foreach ($namespaces as $registeredNamespace => $registeredNamepacePath) {
+        $namespaces = array_keys($this->componentLoader->getNamespaces());
+        foreach ($namespaces as $registeredNamespace) {
             if ($namespace === null || $registeredNamespace === $namespace) {
                 $components = $this->componentLoader->findComponentsInNamespace($registeredNamespace);
                 $filePath = rtrim((string) $path, DIRECTORY_SEPARATOR) .
