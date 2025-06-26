@@ -12,6 +12,7 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\Core\ViewHelper\ViewHelperResolver;
 use TYPO3Fluid\Fluid\Core\Parser\Exception as ParserException;
+use TYPO3Fluid\Fluid\Core\ViewHelper\UnresolvableViewHelperException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperInterface;
 
 class ComponentResolver extends ViewHelperResolver
@@ -88,25 +89,48 @@ class ComponentResolver extends ViewHelperResolver
     public function resolveViewHelperClassName($namespaceIdentifier, $methodIdentifier): string
     {
         if (!isset($this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier])) {
-            $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
-            $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
-            if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName == '') {
-                $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
-                $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
+            if (class_exists(UnresolvableViewHelperException::class)) {
+                // Resolver code compatible with Fluid 4.3+
+                try {
+                    $actualViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
+                } catch (UnresolvableViewHelperException $e) {
+                    $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
+                    $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
 
-                $componentLoader = $this->getComponentLoader();
-                $componentFile = $componentLoader->findComponent($actualViewHelperClassName);
-                if (!$componentFile) {
-                    throw new ParserException(sprintf(
-                        'The ViewHelper "<%s:%s>" could not be resolved.' . chr(10) .
-                            'Based on your spelling, the system would load the class "%s", '
-                            . 'however this class does not exist.',
-                        $namespaceIdentifier,
-                        $methodIdentifier,
-                        $resolvedViewHelperClassName
-                    ), 1527779401);
+                    $componentLoader = $this->getComponentLoader();
+                    $componentFile = $componentLoader->findComponent($actualViewHelperClassName);
+                    if (!$componentFile) {
+                        throw new ParserException(sprintf(
+                            'The ViewHelper "<%s:%s>" could not be resolved.' . chr(10) . '%s',
+                            $namespaceIdentifier,
+                            $methodIdentifier,
+                            $e->getMessage()
+                        ), 1748861679, $e);
+                    }
+                }
+            } else {
+                // Resolver code compatible with Fluid < 4.3
+                $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
+                $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
+                if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName == '') {
+                    $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
+                    $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
+
+                    $componentLoader = $this->getComponentLoader();
+                    $componentFile = $componentLoader->findComponent($actualViewHelperClassName);
+                    if (!$componentFile) {
+                        throw new ParserException(sprintf(
+                            'The ViewHelper "<%s:%s>" could not be resolved.' . chr(10) .
+                                'Based on your spelling, the system would load the class "%s", '
+                                . 'however this class does not exist.',
+                            $namespaceIdentifier,
+                            $methodIdentifier,
+                            $resolvedViewHelperClassName
+                        ), 1527779401);
+                    }
                 }
             }
+
             $this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier] = $actualViewHelperClassName;
         }
         return $this->resolvedViewHelperClassNames[$namespaceIdentifier][$methodIdentifier];
