@@ -12,7 +12,7 @@ class LabelsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
         parent::setUp();
 
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['namespaces'] = [
-            'SMS\FluidComponents\Tests' => realpath(__DIR__ . '/../../../Fixtures/Unit/ComponentLoader'),
+            'SMS\FluidComponents\Tests' => [realpath(__DIR__ . '/../../../Fixtures/Unit/ComponentLoader')],
         ];
     }
 
