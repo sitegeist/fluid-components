@@ -4,7 +4,9 @@ namespace SMS\FluidComponents\Utility;
 
 use ArrayAccess;
 use ReturnTypeWillChange;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAccess
 {
@@ -23,11 +25,23 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAcce
      */
     public function reset(): void
     {
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
+            $typoScriptSettings = $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] ?? [];
+        } else {
+            // This is only a temporary workaround to get the TypoScript settings from the current request.
+            // Using the global $GLOBALS['TSFE'] is not the correct way to get the TypoScript settings but for now
+            // the only without a major refactoring and breaking changes.
+            // ComponentSettings should not be singeltons.
+            // ComponentSettings should be refactored to use a factory pattern using a request object to build the
+            // settings with the correct typoscript from the current request.
+            // The "reset()" method should be removed then as a "clean" component settings object should always be
+            // created by the factory.
+            $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
+            $typoScriptSettings = $request?->getAttribute('frontend.typoscript')->getSetupArray()['config.']['tx_fluidcomponents.']['settings.'] ?? [];
+        }
         $this->settings = array_merge(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? [],
-            $this->typoScriptService->convertTypoScriptArrayToPlainArray(
-                $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] ?? []
-            )
+                $this->typoScriptService->convertTypoScriptArrayToPlainArray($typoScriptSettings)
         );
     }
 
