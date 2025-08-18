@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use SMS\FluidComponents\Domain\Model\RequiredSlotPlaceholder;
 use SMS\FluidComponents\Domain\Model\Slot;
+use SMS\FluidComponents\Fluid\ComponentView;
 use SMS\FluidComponents\Interfaces\ComponentAware;
 use SMS\FluidComponents\Interfaces\EscapedParameter;
 use SMS\FluidComponents\Interfaces\RenderingContextAware;
@@ -142,7 +143,6 @@ class ComponentRenderer extends AbstractViewHelper
             $renderingContext = GeneralUtility::makeInstance(RenderingContextFactory::class)->create([], $request);
         }
 
-        $renderingContext->setViewHelperVariableContainer($this->renderingContext->getViewHelperVariableContainer());
         if (static::shouldUseTemplatePaths()) {
             $renderingContext->getTemplatePaths()->setPartialRootPaths(
                 $this->renderingContext->getTemplatePaths()->getPartialRootPaths()
@@ -192,6 +192,12 @@ class ComponentRenderer extends AbstractViewHelper
                 fn() => file_get_contents($componentFile)
             );
         }
+
+        // Set custom view to reset rendering stack
+        $view = new ComponentView($this->parsedTemplate, $renderingContext);
+        $viewHelperVariableContainer = clone $this->renderingContext->getViewHelperVariableContainer();
+        $viewHelperVariableContainer->setView($view);
+        $renderingContext->setViewHelperVariableContainer($viewHelperVariableContainer);
 
         // Render component
         return $this->parsedTemplate->render($renderingContext);
