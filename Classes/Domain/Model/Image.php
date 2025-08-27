@@ -122,7 +122,8 @@ abstract class Image extends File
             if (isset($value['width']) && isset($value['height'])) {
                 $image = static::fromDimensions(
                     (int) $value['width'],
-                    (int) $value['height']
+                    (int) $value['height'],
+                    $value['format'] ?? null,
                 );
             } else {
                 throw $e;
@@ -163,9 +164,9 @@ abstract class Image extends File
     /**
      * Creates a placeholder image based on the provided image dimensions.
      */
-    public static function fromDimensions(int $width, int $height): self
+    public static function fromDimensions(int $width, int $height, ?string $format = null): self
     {
-        return new PlaceholderImage($width, $height);
+        return new PlaceholderImage($width, $height, $format);
     }
 
     public function getAlternative(): ?string
