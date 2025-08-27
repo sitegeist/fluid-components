@@ -10,11 +10,7 @@ namespace SMS\FluidComponents\Interfaces;
 interface ConstructibleFromString
 {
     /**
-     * Creates an instance of the class based on the provided string.
-     *
-     * @param string $value
-     *
-     * @return object
+     * Creates an instance of the class based on the provided string
      */
-    public static function fromString(string $value);
+    public static function fromString(string $value): ?object;
 }
