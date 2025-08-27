@@ -4,6 +4,7 @@ namespace SMS\FluidComponents\Service;
 
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Core\View\ViewFactoryData;
 use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -26,7 +27,7 @@ class PlaceholderImageService
     {
         $text = sprintf('%dx%d.%s', $width, $height, $format);
         if ($format !== 'svg') {
-            return $this->generateBitmap($width, $height, $format, $text);
+            return PathUtility::getAbsoluteWebPath($this->generateBitmap($width, $height, $format, $text));
         }
 
         if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
