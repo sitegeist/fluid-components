@@ -2,6 +2,8 @@
 
 namespace SMS\FluidComponents\Tests\Functional\Service;
 
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 use SMS\FluidComponents\Service\PlaceholderImageService;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -37,11 +39,11 @@ class PlaceholderImageServiceTest extends FunctionalTestCase
         if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 13) {
             $viewFactory = null;
         } else {
-            $viewFactory = $this->createMock(\TYPO3\CMS\Core\View\ViewFactoryInterface::class);
-            $view = $this->createMock(\TYPO3\CMS\Core\View\ViewInterface::class);
+            $viewFactory = $this->createMock(ViewFactoryInterface::class);
+            $view = $this->createMock(ViewInterface::class);
             $view->method('render')->willReturn('<svg></svg>');
             $viewFactory->method('create')->willReturn($view);
-            GeneralUtility::addInstance(\TYPO3\CMS\Core\View\ViewFactoryInterface::class, $viewFactory);
+            GeneralUtility::addInstance(ViewFactoryInterface::class, $viewFactory);
         }
 
         $service = new PlaceholderImageService($gifBuilder, $viewFactory);

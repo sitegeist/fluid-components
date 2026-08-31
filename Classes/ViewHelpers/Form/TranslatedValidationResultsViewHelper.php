@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace SMS\FluidComponents\ViewHelpers\Form;
 
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -90,7 +91,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
             $translatePrefix .= ($for) ? $for . '.' : '';
         }
 
-        /** @var \TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters $extbaseRequestParameters */
+        /** @var ExtbaseRequestParameters $extbaseRequestParameters */
         $extbaseRequestParameters = $this->getRequest()->getAttribute('extbase');
         if ($extbaseRequestParameters === null) {
             throw new RuntimeException('ViewHelper fc:form.translatedValidationResults needs an extbase context to fetch form validation results', 1727270853);
@@ -108,15 +109,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
         ];
         foreach ($levels as $level => $messages) {
             foreach ($messages as $message) {
-                $translatedResults[$level][] = $this->translateMessage(
-                    $this->renderingContext,
-                    $message,
-                    $translatePrefix,
-                    $element,
-                    $extensionName,
-                    $this->arguments['languageKey'],
-                    $this->arguments['alternativeLanguageKeys']
-                );
+                $translatedResults[$level][] = static::translateMessage($this->renderingContext, $message, $translatePrefix, $element, $extensionName, $this->arguments['languageKey'], $this->arguments['alternativeLanguageKeys']);
             }
         }
 
@@ -173,7 +166,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
             return static::$translatedMessagesCache[$hash];
         }
 
-        if ($element) {
+        if ($element instanceof RootRenderableInterface) {
             // Use EXT:form for translation
             $translatedMessage = static::translateFormElementError(
                 $renderingContext,
@@ -288,8 +281,7 @@ class TranslatedValidationResultsViewHelper extends AbstractViewHelper
             $this->renderingContext->hasAttribute(ServerRequestInterface::class)
         ) {
             return $this->renderingContext->getAttribute(ServerRequestInterface::class);
-        } else {
-            return $this->renderingContext->getRequest();
         }
+        return $this->renderingContext->getRequest();
     }
 }

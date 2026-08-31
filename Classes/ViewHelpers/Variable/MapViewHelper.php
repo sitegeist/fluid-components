@@ -44,7 +44,7 @@ class MapViewHelper extends AbstractViewHelper
         $mapKeyArray = $this->arguments['fieldMapping'] ?? [];
         $keepFields = $this->arguments['keepFields'] ?? [];
         if (!is_array($keepFields)) {
-            $keepFields = array_map('trim', explode(',', (string) $keepFields));
+            $keepFields = array_map(trim(...), explode(',', (string) $keepFields));
         }
 
         $newArray = [];

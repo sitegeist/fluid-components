@@ -2,10 +2,12 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility\ComponentPrefixer;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use VENDOR\MyExtension\Components\Atom\MyComponent;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentPrefixer\GenericComponentPrefixer;
 
-class GenericComponentPrefixerTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class GenericComponentPrefixerTest extends UnitTestCase
 {
     protected GenericComponentPrefixer $prefixer;
 
@@ -29,7 +31,7 @@ class GenericComponentPrefixerTest extends \TYPO3\TestingFramework\Core\Unit\Uni
         );
         $this->assertEquals(
             'vendorAtomMycomponent',
-            $this->prefixer->prefix(\VENDOR\MyExtension\Components\Atom\MyComponent::class)
+            $this->prefixer->prefix(MyComponent::class)
         );
     }
 }

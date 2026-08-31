@@ -2,7 +2,9 @@
 
 namespace SMS\FluidComponents\Utility;
 
-class ComponentLoader implements \TYPO3\CMS\Core\SingletonInterface
+use TYPO3\CMS\Core\SingletonInterface;
+
+class ComponentLoader implements SingletonInterface
 {
     /**
      * Registered component namespaces.

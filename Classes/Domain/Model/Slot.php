@@ -11,7 +11,7 @@ use SMS\FluidComponents\Interfaces\EscapedParameter;
 /**
  * Data Structure to encapsulate html markup provided to a component.
  */
-class Slot implements EscapedParameter, ConstructibleFromString, ConstructibleFromClosure, Countable
+class Slot implements EscapedParameter, ConstructibleFromString, ConstructibleFromClosure, Countable, \Stringable
 {
     protected $html;
 
@@ -37,6 +37,6 @@ class Slot implements EscapedParameter, ConstructibleFromString, ConstructibleFr
 
     public function __toString(): string
     {
-        return $this->html;
+        return (string) $this->html;
     }
 }

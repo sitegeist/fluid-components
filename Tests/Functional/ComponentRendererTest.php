@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SMS\FluidComponents\Tests\Functional;
 
+use TYPO3\CMS\Core\Cache\CacheManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Fluid\ViewHelper\ComponentRenderer;
@@ -46,7 +47,7 @@ class ComponentRendererTest extends FunctionalTestCase
         // Register and then disable fluid cache
         // This is necessary because of the way the RenderingContext deals with the fluid cache
         $cacheClass = $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['fluid_template']['frontend'];
-        $cacheManager = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+        $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
         $cacheManager->registerCache(new $cacheClass('fluid_template', new NullBackend(null)));
     }
 

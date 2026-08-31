@@ -2,12 +2,13 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Domain\Model\Link;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
-class LinkTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class LinkTest extends UnitTestCase
 {
     protected ComponentArgumentConverter $converter;
 

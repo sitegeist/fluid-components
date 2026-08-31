@@ -58,18 +58,15 @@ class ComponentResolver extends ViewHelperResolver
         if (class_exists($viewHelperClassName)) {
             if ($this->container->has($viewHelperClassName)) {
                 /** @var ViewHelperInterface $viewHelperInstance */
-                $viewHelperInstance = $this->container->get($viewHelperClassName);
-            } else {
-                /** @var ViewHelperInterface $viewHelperInstance */
-                $viewHelperInstance = new $viewHelperClassName;
+                return $this->container->get($viewHelperClassName);
             }
-            return $viewHelperInstance;
-        } else {
-            // Redirect all components to special ViewHelper ComponentRenderer
-            $componentRenderer = $this->container->get(ComponentRenderer::class);
-            $componentRenderer->setComponentNamespace($viewHelperClassName);
-            return $componentRenderer;
+            /** @var ViewHelperInterface $viewHelperInstance */
+            return new $viewHelperClassName;
         }
+        // Redirect all components to special ViewHelper ComponentRenderer
+        $componentRenderer = $this->container->get(ComponentRenderer::class);
+        $componentRenderer->setComponentNamespace($viewHelperClassName);
+        return $componentRenderer;
     }
 
     /**
@@ -112,7 +109,7 @@ class ComponentResolver extends ViewHelperResolver
                 // Resolver code compatible with Fluid < 4.3
                 $resolvedViewHelperClassName = $this->resolveViewHelperName($namespaceIdentifier, $methodIdentifier);
                 $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
-                if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName == '') {
+                if (false === class_exists($actualViewHelperClassName) || $actualViewHelperClassName === '') {
                     $resolvedViewHelperClassName = $this->resolveComponentName($namespaceIdentifier, $methodIdentifier);
                     $actualViewHelperClassName = $this->generateViewHelperClassName($resolvedViewHelperClassName);
 
@@ -148,7 +145,7 @@ class ComponentResolver extends ViewHelperResolver
     {
         $explodedViewHelperName = explode('.', $methodIdentifier);
         if (count($explodedViewHelperName) > 1) {
-            $className = implode('\\', array_map('ucfirst', $explodedViewHelperName));
+            $className = implode('\\', array_map(ucfirst(...), $explodedViewHelperName));
         } else {
             $className = ucfirst($explodedViewHelperName[0]);
         }
@@ -168,7 +165,7 @@ class ComponentResolver extends ViewHelperResolver
      */
     protected function generateViewHelperClassName(string $resolvedViewHelperClassName): string
     {
-        return implode('\\', array_map('ucfirst', explode('.', $resolvedViewHelperClassName)));
+        return implode('\\', array_map(ucfirst(...), explode('.', $resolvedViewHelperClassName)));
     }
 
     protected function getComponentLoader(): ComponentLoader

@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use TYPO3\CMS\Core\SingletonInterface;
 use ArrayAccess;
 use Closure;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
@@ -20,7 +21,7 @@ use TYPO3\CMS\Core\Resource\AbstractFile;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
-class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
+class ComponentArgumentConverter implements SingletonInterface
 {
     /**
      * List of interfaces that provide conversion methods between scalar/compound
@@ -144,9 +145,8 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
         if ($this->isCollectionType($type)) {
             $subtype = $this->extractCollectionItemType($type);
             return $this->resolveTypeAlias($subtype) . '[]';
-        } else {
-            return $this->typeAliases[$type] ?? $type;
         }
+        return $this->typeAliases[$type] ?? $type;
     }
 
     /**
@@ -207,7 +207,7 @@ class ComponentArgumentConverter implements \TYPO3\CMS\Core\SingletonInterface
 
         // Skip if the type can't be converted
         $conversionInfo = $this->canTypeBeConvertedToType($givenType, $toType);
-        if (!$conversionInfo) {
+        if ($conversionInfo === []) {
             return $value;
         }
 

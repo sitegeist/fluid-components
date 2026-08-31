@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace SMS\FluidComponents\ViewHelpers\Form;
 
+use TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper;
 use TYPO3\CMS\Fluid\ViewHelpers\Form\AbstractFormFieldViewHelper;
 use TYPO3\CMS\Form\ViewHelpers\RenderRenderableViewHelper;
 
@@ -94,10 +95,10 @@ class FieldInformationViewHelper extends AbstractFormFieldViewHelper
      */
     protected function getPrefix(): string
     {
-        if (!$this->viewHelperVariableContainer->exists(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix')) {
+        if (!$this->viewHelperVariableContainer->exists(FormViewHelper::class, 'fieldNamePrefix')) {
             return '';
         }
-        $fieldNamePrefix = (string)$this->viewHelperVariableContainer->get(\TYPO3\CMS\Fluid\ViewHelpers\FormViewHelper::class, 'fieldNamePrefix');
+        $fieldNamePrefix = (string)$this->viewHelperVariableContainer->get(FormViewHelper::class, 'fieldNamePrefix');
         return $fieldNamePrefix;
     }
 }

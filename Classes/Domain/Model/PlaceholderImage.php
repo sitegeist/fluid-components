@@ -19,16 +19,6 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
     protected string $type = 'PlaceholderImage';
 
     /**
-     * Width of the placeholder image.
-     */
-    protected int $width = 0;
-
-    /**
-     * Height of the placeholder image.
-     */
-    protected int $height = 0;
-
-    /**
      * Image format of the image
      */
     protected string $format = 'svg';
@@ -36,10 +26,14 @@ class PlaceholderImage extends Image implements ImageWithDimensions, Processable
     /**
      * Creates an image object for a placeholder image.
      */
-    public function __construct(int $width, int $height, ?string $format = null)
+    public function __construct(/**
+     * Width of the placeholder image.
+     */
+    protected int $width, /**
+     * Height of the placeholder image.
+     */
+    protected int $height, ?string $format = null)
     {
-        $this->width = $width;
-        $this->height = $height;
         $this->format = $format ?? $this->format;
     }
 

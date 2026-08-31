@@ -2,7 +2,9 @@
 
 namespace SMS\FluidComponents\Utility\ComponentPrefixer;
 
-interface ComponentPrefixerInterface extends \TYPO3\CMS\Core\SingletonInterface
+use TYPO3\CMS\Core\SingletonInterface;
+
+interface ComponentPrefixerInterface extends SingletonInterface
 {
     /**
      * Returns the component prefix for the provided component namespaces.

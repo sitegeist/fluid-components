@@ -4,9 +4,7 @@ namespace SMS\FluidComponents\ViewHelpers\Translate;
 
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use TYPO3\CMS\Core\Localization\Locales;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -14,6 +12,9 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 class LabelsViewHelper extends AbstractViewHelper
 {
+    public function __construct(private readonly Locales $locales)
+    {
+    }
     /**
      * @throws Exception
      */
@@ -46,7 +47,7 @@ class LabelsViewHelper extends AbstractViewHelper
                 trigger_error('Calling labels with the argument alternativeLanguageKeys will be removed in fluid-components 4.0', E_USER_DEPRECATED);
             }
             if ($this->arguments['languageKey']) {
-                $localeFactory = GeneralUtility::makeInstance(Locales::class);
+                $localeFactory = $this->locales;
                 $locale = $localeFactory->createLocale($this->arguments['languageKey'], $this->arguments['alternativeLanguageKeys']);
             }
 
@@ -75,8 +76,7 @@ class LabelsViewHelper extends AbstractViewHelper
             $this->renderingContext->hasAttribute(ServerRequestInterface::class)
         ) {
             return $this->renderingContext->getAttribute(ServerRequestInterface::class);
-        } else {
-            return $this->renderingContext->getRequest();
         }
+        return $this->renderingContext->getRequest();
     }
 }

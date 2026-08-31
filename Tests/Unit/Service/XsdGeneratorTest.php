@@ -2,13 +2,14 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Service;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use ReflectionException;
 use SMS\FluidComponents\Service\XsdGenerator;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
-class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class XsdGeneratorTest extends UnitTestCase
 {
     /**
      * @var XsdGenerator null
@@ -41,7 +42,6 @@ class XsdGeneratorTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
     {
         $reflection = new ReflectionClass($object::class);
         $method = $reflection->getMethod($methodName);
-        $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);
     }

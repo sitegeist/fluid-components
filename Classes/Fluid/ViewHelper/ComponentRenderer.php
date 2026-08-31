@@ -22,7 +22,6 @@ use SMS\FluidComponents\ViewHelpers\ParamViewHelper;
 use TYPO3\CMS\Core\Configuration\Features;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
 use TYPO3Fluid\Fluid\Core\Parser\ParsedTemplateInterface;
@@ -209,7 +208,7 @@ class ComponentRenderer extends AbstractViewHelper
 
         // Use content specified by <fc:content /> ViewHelpers
         // This is only executed for uncached templates
-        if ($this->viewHelperNode !== null) {
+        if ($this->viewHelperNode instanceof ViewHelperNode) {
             $contentViewHelpers = $this->extractContentViewHelpers($this->viewHelperNode, $this->renderingContext);
             if (isset($contentViewHelpers[$name])) {
                 return (string) $contentViewHelpers[$name]->evaluateChildNodes($this->renderingContext);
@@ -354,7 +353,7 @@ class ComponentRenderer extends AbstractViewHelper
      */
     public function validateAdditionalArguments(array $arguments): void
     {
-        if (!empty($arguments)) {
+        if ($arguments !== []) {
             throw new Exception(
                 sprintf(
                     'Undeclared arguments passed to component %s: %s. Valid arguments are: %s',
@@ -381,7 +380,7 @@ class ComponentRenderer extends AbstractViewHelper
                 $defaultValue = $registeredArgument->getDefaultValue();
                 $type = $registeredArgument->getType();
                 if ($value !== $defaultValue && $type !== 'mixed') {
-                    $givenType = is_object($value) ? $value::class : gettype($value);
+                    $givenType = get_debug_type($value);
                     if (!$this->isValidType($type, $value)
                         && !$this->componentArgumentConverter->canTypeBeConvertedToType($givenType, $type)
                     ) {
@@ -423,7 +422,7 @@ class ComponentRenderer extends AbstractViewHelper
             ), 1527779393);
         }
 
-        if (!empty($componentNodes)) {
+        if ($componentNodes !== []) {
             // Extract all parameter definitions
             $paramNodes = $this->extractViewHelpers(
                 $componentNodes[0],
@@ -583,9 +582,7 @@ class ComponentRenderer extends AbstractViewHelper
     protected static function shouldUseTemplatePaths(): bool
     {
         static $assertion = null;
-        if ($assertion === null) {
-            $assertion = GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('fluidComponents.partialsInComponents');
-        }
+        $assertion ??= GeneralUtility::makeInstance(Features::class)->isFeatureEnabled('fluidComponents.partialsInComponents');
         return $assertion;
     }
 }

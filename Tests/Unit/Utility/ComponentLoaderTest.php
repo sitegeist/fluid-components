@@ -2,12 +2,13 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Utility\ComponentLoader;
 
-class ComponentLoaderTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class ComponentLoaderTest extends UnitTestCase
 {
     protected ComponentLoader $loader;
 

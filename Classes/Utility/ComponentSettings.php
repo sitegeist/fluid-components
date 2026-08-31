@@ -2,11 +2,12 @@
 
 namespace SMS\FluidComponents\Utility;
 
+use TYPO3\CMS\Core\SingletonInterface;
 use ArrayAccess;
 use ReturnTypeWillChange;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
-class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAccess
+class ComponentSettings implements SingletonInterface, ArrayAccess
 {
     /**
      * Storage of the component settings.
@@ -26,7 +27,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAcce
         $this->settings = array_merge(
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['fluid_components']['settings'] ?? [],
             $this->typoScriptService->convertTypoScriptArrayToPlainArray(
-                $GLOBALS['TSFE']->tmpl->setup['config.']['tx_fluidcomponents.']['settings.'] ?? []
+                ($GLOBALS['TYPO3_REQUEST'] ?? null)?->getAttribute('frontend.typoscript')?->getSetupArray()['config.']['tx_fluidcomponents.']['settings.'] ?? []
             )
         );
     }
@@ -63,9 +64,7 @@ class ComponentSettings implements \TYPO3\CMS\Core\SingletonInterface, ArrayAcce
         $path = explode('.', $path);
         $variable =& $this->settings;
         foreach ($path as $segment) {
-            if (!isset($variable[$segment])) {
-                $variable[$segment] = [];
-            }
+            $variable[$segment] ??= [];
             $variable =& $variable[$segment];
         }
         $variable = $value;

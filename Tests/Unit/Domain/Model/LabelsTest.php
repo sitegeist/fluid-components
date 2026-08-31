@@ -2,10 +2,11 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Domain\Model;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Domain\Model\Labels;
 
-class LabelsTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class LabelsTest extends UnitTestCase
 {
     protected function setUp(): void
     {

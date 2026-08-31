@@ -135,7 +135,7 @@ class Typolink extends Link implements ConstructibleFromInteger, ConstructibleFr
         // TODO constructor code should be avoided in the future, but this would require changes
         //      to the current constructor method signature (such as making the string nullable),
         //      which would be a breaking change.
-        return (new static(''))
+        return new static('')
             ->setUri($uri)
             ->setOriginalLink($uriStructure)
             ->setTarget($parameter->target)

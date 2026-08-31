@@ -2,6 +2,7 @@
 
 namespace SMS\FluidComponents\Tests\Unit\Utility;
 
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use ArrayIterator;
 use PHPUnit\Framework\Attributes\Test;
 use SMS\FluidComponents\Interfaces\ConstructibleFromArray;
@@ -12,7 +13,7 @@ use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\DummyValue;
 use SMS\FluidComponents\Tests\Helpers\ComponentArgumentConverter\SpecificObject;
 use SMS\FluidComponents\Utility\ComponentArgumentConverter;
 
-class ComponentArgumentConverterTest extends \TYPO3\TestingFramework\Core\Unit\UnitTestCase
+class ComponentArgumentConverterTest extends UnitTestCase
 {
     protected ComponentArgumentConverter $converter;
 
