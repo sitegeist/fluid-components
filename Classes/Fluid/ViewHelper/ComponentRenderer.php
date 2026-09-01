@@ -330,7 +330,7 @@ class ComponentRenderer extends AbstractViewHelper
      *
      * @return ArgumentDefinition[]
      */
-    public function prepareArguments()
+    public function prepareArguments(): array
     {
         // Store caches for components separately because they can't be grouped by class name
         if (isset(self::$componentArgumentDefinitionCache[$this->componentNamespace])) {

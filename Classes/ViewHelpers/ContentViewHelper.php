@@ -20,7 +20,7 @@ class ContentViewHelper extends AbstractViewHelper
     {
     }
 
-    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler)
+    public function compile($argumentsName, $closureName, &$initializationPhpCode, ViewHelperNode $node, TemplateCompiler $compiler): string
     {
         return '';
     }
