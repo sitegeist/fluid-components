@@ -216,7 +216,12 @@ abstract class File implements
      */
     public static function fromFileInterface(FileInterface $value): self
     {
-        return new FalFile($value);
+        // Concrete subclasses (e.g. Track) should be instantiated directly, but the
+        // bare abstract File type (e.g. declared on a "File[]" component parameter)
+        // has no instantiable "default" implementation of its own, so it falls back
+        // to FalFile like it always did.
+        $class = (new \ReflectionClass(static::class))->isAbstract() ? FalFile::class : static::class;
+        return new $class($value);
     }
 
     public static function fromExtbaseFile(FileReference $value): self

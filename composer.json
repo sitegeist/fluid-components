@@ -51,7 +51,8 @@
     "extra": {
         "typo3/cms": {
             "Package": {
-                "serviceProvider": "SMS\\FluidComponents\\ServiceProvider"
+                "serviceProvider": "SMS\\FluidComponents\\ServiceProvider",
+                "providesPackages": []
             },
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
             "app-dir": ".Build",
