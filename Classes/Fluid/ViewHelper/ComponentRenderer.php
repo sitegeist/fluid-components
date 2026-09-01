@@ -453,9 +453,16 @@ class ComponentRenderer extends AbstractViewHelper
                 // Resolve type aliases
                 $param['type'] = $this->componentArgumentConverter->resolveTypeAlias($param['type']);
 
+                $optional = $param['optional'] ?? false;
+
                 // Enforce boolean node, see implementation in ViewHelperNode::rewriteBooleanNodesInArgumentsObjectTree()
+                // Only synthesize a concrete true/false default when one was actually requested (optional params
+                // always need a resolvable default) or explicitly given - a required param without a default must
+                // keep a null default, otherwise it would collide with ArgumentDefinition's required+default check.
                 if ($param['type'] === 'boolean' || $param['type'] === 'bool') {
-                    $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);
+                    if ($optional || $param['default'] !== null) {
+                        $param['default'] = BooleanNode::convertToBoolean($param['default'], $renderingContext);
+                    }
                 // Make sure that default value for object parameters is either a valid object or null
                 } elseif (class_exists($param['type']) &&
                     !$param['default'] instanceof $param['type'] &&
@@ -464,7 +471,6 @@ class ComponentRenderer extends AbstractViewHelper
                     $param['default'] = null;
                 }
 
-                $optional = $param['optional'] ?? false;
                 $description = $param['description'] ?? '';
                 $escape = is_subclass_of($param['type'], EscapedParameter::class) ? true : null;
 
