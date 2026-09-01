@@ -26,15 +26,16 @@ class ComponentResolver extends ViewHelperResolver
      *
      * @internal constructor, use `ViewHelperResolverFactory->create()` instead
      */
-    public function __construct(ContainerInterface $container, array $namespaces)
+    public function __construct(ContainerInterface $container, array $namespaces, array $resolverDelegates = [])
     {
         $this->container = $container;
         $this->namespaces = $namespaces;
+        $this->resolverDelegates = $resolverDelegates;
         if (($GLOBALS['TYPO3_REQUEST'] ?? null) instanceof ServerRequestInterface
             && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend()
-            && $this->getBackendUser() instanceof BackendUserAuthentication
+            && ($GLOBALS['BE_USER'] ?? null) instanceof BackendUserAuthentication
         ) {
-            if ($this->getBackendUser()->uc['AdminPanel']['preview_showFluidDebug'] ?? false) {
+            if ($GLOBALS['BE_USER']->uc['AdminPanel']['preview_showFluidDebug'] ?? false) {
                 $this->namespaces['f'][] = 'TYPO3\\CMS\\Fluid\\ViewHelpers\\Debug';
             }
         }
